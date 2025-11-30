@@ -5,3 +5,4 @@ external/*
 **/uv.lock
 *.egg-info/
 **/.venv/
+logs/
