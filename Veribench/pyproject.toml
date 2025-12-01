@@ -9,7 +9,7 @@ version = "0.0.1"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 authors = [
   {name = "Brando Miranda", email = "brandojazz@gmail.com"}
 ]
@@ -35,7 +35,11 @@ dependencies = [
   "brotli",
   "pexpect",
   "antlr4-python3-runtime==4.11",
+  "litellm",
 ]
+
+[tool.setuptools]
+py-modules = ["agent", "agent_with_verification", "verifier", "task_demo", "test_verifier"]
 
 [project.optional-dependencies]
 build = [
