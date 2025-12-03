@@ -136,7 +136,21 @@ def lean_interpreter(lean4_code: str,
             error_details.append(f"Error processing message: {error_msg}\nException: {str(e)}")
 
     if has_errors:
-        summary = f"Lean code compilation FAILED with {num_errors} errors. Errors MUST be fixed before finishing. Review the 'errors' list and try again (for example,if in a React agent loop)."
+        # Check for specific error types to provide more helpful feedback
+        has_coupling_error = any("metavariable coupling" in msg or "Coupling is not allowed" in msg 
+                                  for msg in error_messages)
+        
+        if has_coupling_error:
+            summary = (
+                f"Lean code compilation FAILED with {num_errors} errors including a METAVARIABLE COUPLING issue. "
+                f"This means your proof has 'sorry' placeholders that depend on each other "
+                f"(e.g., 'have h1 := sorry; have h2 : Type h1 := sorry'). "
+                f"To fix: (1) Complete intermediate proofs instead of using sorry, "
+                f"(2) Avoid 'have'/'let' where one depends on another's placeholder, or "
+                f"(3) Restructure the proof to eliminate coupled dependencies."
+            )
+        else:
+            summary = f"Lean code compilation FAILED with {num_errors} errors. Errors MUST be fixed before finishing. Review the 'errors' list and try again (for example,if in a React agent loop)."
     else:
         summary = "Lean code compiled successfully with 0 errors. Proceed to finish if the task is complete."
             
