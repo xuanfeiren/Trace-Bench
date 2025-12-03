@@ -362,7 +362,7 @@ def main():
     # from opto.features.priority_search.priority_search_with_regressor import PrioritySearch_with_Regressor_and_Generator
     from opto.features.priority_search.priority_search_ablation import ParetobasedPS
     # assert num_eval_samples == 1
-    assert args.num_eval_samples == 1, "num_eval_samples must be 1"
+    # assert args.num_eval_samples == 1, "num_eval_samples must be 1"
     try:
         # Create datasets
         print("Creating datasets...")
