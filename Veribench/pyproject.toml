@@ -36,6 +36,9 @@ dependencies = [
   "pexpect",
   "antlr4-python3-runtime==4.11",
   "litellm",
+  "trace-opt",
+  "nest-asyncio>=1.6.0",
+  "torch>=2.9.1",
 ]
 
 [tool.setuptools]
@@ -58,3 +61,4 @@ no-build-isolation-package = ["flash-attn"]
 
 [tool.uv.sources]
 pantograph = { path = "../external/PyPantograph_Kai" }
+trace-opt = { path = "Trace", editable = true }
