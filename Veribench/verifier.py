@@ -311,6 +311,38 @@ def main():
     # Exit with appropriate code
     sys.exit(0 if result['success'] else 1)
 
+from lean_interpretor import lean_interpreter
+
+class LeanGuide(AutoGuide):
+    """
+    Custom guide that uses the eval_metric function to evaluate responses
+    and provide feedback for the BigBench tasks.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, task, response, info, **kwargs):
+        try:
+            result = lean_interpreter(response)
+            correctness = result["valid"]
+            score = 1.0 if correctness else 0.0
+
+            if correctness:
+                feedback = "The answer is correct! No need to change anything."
+            else:
+                error_message = "\n\n".join(result["error_message"])
+                summary_message = result["summary"]
+                feedback = f'The answer is wrong. We expect the output of your answer to be "{info}". Please modify the prompt and relevant parts of the program to help LLM produce the right answer.'
+
+            return score, feedback
+
+        except Exception as e:
+            return 0.0, f"Error occurred: {str(e)}. Please fix the error and try again."
+
+    def metric(self, task, response, info, **kwargs):
+        score, _ = self.forward(task, response, info, **kwargs)
+        return score
 
 if __name__ == "__main__":
     main()
