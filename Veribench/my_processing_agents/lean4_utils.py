@@ -56,13 +56,49 @@ def get_list_lean4_all_mgs_and_error_mgs(lean_snippet: str,
                 if "error:" in msg:
                     error_messages.append(msg)
     except Exception as e:
+        error_str = str(e)
         print(f'\n----{lean_snippet=}----\n') if debug else None
-        import traceback
-        error_msg: str = (f'The Lean 4 PyPantograph server threw some exception, traceback: {traceback.format_exc()}, '
-                          f'and exception was: {e}, '
-                          f'likely an error more serious and not just a Lean 4 if the Lean 4 server crashed, which it seems it did.')
-        all_messages.append(error_msg)
-        error_messages.append(error_msg)
+        
+        # Check for the specific "Coupling is not allowed in drafting" error
+        if "Coupling is not allowed in drafting" in error_str:
+            # Try fallback to check_compile which doesn't extract sorry goals
+            try:
+                compilation_units: List[CompilationUnit] = server.check_compile(lean_snippet)
+                for comp_unit in compilation_units:
+                    for msg in comp_unit.messages:
+                        all_messages.append(msg)
+                        if "error:" in msg:
+                            error_messages.append(msg)
+                # Add a note about the coupling issue if check_compile succeeded
+                coupling_note = (
+                    "Note: The Lean code contains metavariable coupling between goals (e.g., "
+                    "'have' or 'let' statements where one depends on another's sorry placeholder). "
+                    "This is a complex proof structure. The code was checked using basic compilation instead. "
+                    "To fix: avoid nested 'have'/'let' statements that depend on each other's sorry placeholders, "
+                    "or complete intermediate proofs before using them in subsequent statements."
+                )
+                all_messages.append(coupling_note)
+            except Exception as fallback_e:
+                # Both methods failed
+                error_msg: str = (
+                    f"Lean code has metavariable coupling issue: The proof contains 'sorry' placeholders "
+                    f"that depend on each other (e.g., 'have h1 := sorry; have h2 : T h1 := sorry'). "
+                    f"This pattern is not supported by Pantograph's drafting mode. "
+                    f"To fix: (1) Avoid 'have'/'let' statements where one depends on another's sorry, "
+                    f"(2) Complete intermediate proofs before using them, or "
+                    f"(3) Restructure the proof to avoid coupled metavariables. "
+                    f"Fallback compilation also failed: {fallback_e}"
+                )
+                all_messages.append(error_msg)
+                error_messages.append(error_msg)
+        else:
+            # Generic exception handling for other errors
+            import traceback
+            error_msg: str = (f'The Lean 4 PyPantograph server threw some exception, traceback: {traceback.format_exc()}, '
+                              f'and exception was: {e}, '
+                              f'likely an error more serious and not just a Lean 4 if the Lean 4 server crashed, which it seems it did.')
+            all_messages.append(error_msg)
+            error_messages.append(error_msg)
 
     # - Return all messages and error messages
     result: dict = {
