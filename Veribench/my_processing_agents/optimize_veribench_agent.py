@@ -35,7 +35,7 @@ nest_asyncio.apply()
 
 # provider = "vertex_ai"
 provider = "gemini"
-os.environ["TRACE_LITELLM_MODEL"] = f"{provider}/gemini-2.5-flash-lite"
+os.environ["TRACE_LITELLM_MODEL"] = f"{provider}/gemini-2.0-flash"
 
 
 OBJECTIVE = """Optimize the agent's performance by improving the system prompt in #Variables based on #Feedback.
@@ -88,7 +88,7 @@ class VeribenchAgent:
     The task is user_query in the dataset.
     """
 
-    def __init__(self, model: str = "gemini/gemini-2.5-flash-lite"):
+    def __init__(self, model: str = "gemini/gemini-2.0-flash"):
         self.model = model
         self.llm = LLM(model=model)
         self.system_prompt = trace.node(SYSTEM_PROMPT_WITH_EXAMPLES, trainable=True)
@@ -277,7 +277,7 @@ def main():
                        help='Maximum score for score range (used with UCB)')
     
     # Model parameters
-    parser.add_argument('--model', type=str, default='gemini/gemini-2.5-flash-lite',
+    parser.add_argument('--model', type=str, default='gemini/gemini-2.0-flash',
                        help='Model to use for the agent')
     parser.add_argument('--project_name', type=str, default='veribench-priority-search',
                        help='Name of the project')
