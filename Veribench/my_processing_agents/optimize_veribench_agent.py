@@ -24,7 +24,7 @@ from opto.trainer.loggers import WandbLogger, DefaultLogger
 from opto.trainer.utils import async_run
 
 from lean_interpretor import lean_interpreter
-from system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES
+from system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES, SYSTEM_PROMPT, EXAMPLES
 
 import litellm
 litellm.drop_params = True
@@ -91,21 +91,24 @@ class VeribenchAgent:
     def __init__(self, model: str = "gemini/gemini-2.5-flash-lite"):
         self.model = model
         self.llm = LLM(model=model)
-        self.system_prompt = trace.node(SYSTEM_PROMPT_WITH_EXAMPLES, trainable=True)
+        self.system_prompt = SYSTEM_PROMPT
+        self.examples = EXAMPLES
+        self.additional_instructions = trace.node("Here are the additional instructions to help the agent solve the task: ", trainable=True)
 
     @trace.bundle()
-    def solve(self, system_prompt: str, task_input: str) -> str:
+    def solve(self, additional_instructions: str, task_input: dict) -> str:
         """
         Solve a Veribench task with the given system_prompt.
         
         Args:
             system_prompt: Trainable system prompt
-            task_input: Veribench task user query
+            task: Veribench task dictionary with 'system_prompt' and 'user_query'
             
         Returns:
-            LLM response content (extracted Lean code)
+            LLM response content
         """
-        
+        # system prompt = system prompt + additional instructions + examples  
+        system_prompt = self.system_prompt + "\n\n" + additional_instructions + "\n\n" + self.examples
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": task_input}
@@ -122,9 +125,9 @@ class VeribenchAgent:
             print_color(f"Error extracting lean code: {e}", "red")
             return None
 
-    def forward(self, task: str) -> str:
+    def forward(self, task: dict) -> str:
         """Forward pass that calls solve with trainable parameters."""
-        return self.solve(self.system_prompt, task)
+        return self.solve(self.additional_instructions, task)
 
 
 class VeribenchGuide(Guide):
