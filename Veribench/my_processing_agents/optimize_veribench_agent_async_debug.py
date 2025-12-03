@@ -15,7 +15,9 @@ from opto.trainer.utils import async_run
 # nest_asyncio.apply()
 
 lean_interpreter("def main : IO Unit := IO.println \"Hello, world!\"")
-
+import litellm 
+litellm.drop_params = True
+litellm.suppress_debug_info = True
 @trace.model
 class VeribenchAgent:
     """

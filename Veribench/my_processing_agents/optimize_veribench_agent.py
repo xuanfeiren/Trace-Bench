@@ -332,6 +332,8 @@ def main():
                        help='UCB exploration')
     parser.add_argument('--epsnetPS', action='store_true', default=False,
                        help='Whether to run epsnetPS')
+    parser.add_argument('--epsNet_epsilon', type=float, default=0.1,
+                       help='Epsilon value for EpsilonNetPS to filter candidates based on distance')
     parser.add_argument('--use_summarizer', action='store_true', default=False,
                        help='Whether to use the summarizer')
     parser.add_argument('--pareto', action='store_true', default=False,
@@ -359,7 +361,8 @@ def main():
     # from opto.features.priority_search.exhausted_priority_search import ExhaustedPrioritySearch_v2 as PrioritySearch_with_Regressor
     # from opto.features.priority_search.priority_search_with_regressor import PrioritySearch_with_Regressor_and_Generator
     from opto.features.priority_search.priority_search_ablation import ParetobasedPS
-
+    # assert num_eval_samples == 1
+    assert args.num_eval_samples == 1, "num_eval_samples must be 1"
     try:
         # Create datasets
         print("Creating datasets...")
@@ -426,6 +429,7 @@ def main():
             'generator_model_name': args.generator_model_name,
             'generator_temperature': args.generator_temperature,
             'generator_verbose': args.generator_verbose,
+            'epsNet_epsilon': args.epsNet_epsilon,
         }
         
         if args.use_wandb:
@@ -437,12 +441,17 @@ def main():
         print("Creating PrioritySearch algorithm...")
         
         print("Using basic PrioritySearch")
-        algorithm = PrioritySearch(
-            agent=agent,
-            optimizer=optimizer,
-            logger=logger,
-            num_threads=args.num_threads
-        )
+        algorithm_kwargs = {
+            "agent": agent,
+            "optimizer": optimizer,
+            "logger": logger,
+            "num_threads": args.num_threads,
+        }
+        # Add epsilon parameter for EpsilonNetPS
+        if args.epsnetPS:
+            algorithm_kwargs["epsilon"] = args.epsNet_epsilon
+        
+        algorithm = PrioritySearch(**algorithm_kwargs)
         
         if args.use_summarizer:
             assert args.epsnetPS, "use_summarizer can only be used with epsnetPS"
@@ -522,6 +531,8 @@ def main():
             print(f"Generator model: {args.generator_model_name}")
             print(f"Generator temperature: {args.generator_temperature}")
             print(f"Generator verbose: {args.generator_verbose}")
+        if args.epsnetPS:
+            print(f"EpsilonNetPS epsilon: {args.epsNet_epsilon}")
         
         start_time = time.time()
         algorithm.train(**train_params)
