@@ -30,12 +30,12 @@ import litellm
 litellm.drop_params = True
 litellm.suppress_debug_info = True
 
-import nest_asyncio
-nest_asyncio.apply()
+# import nest_asyncio
+# nest_asyncio.apply()
 
 # provider = "vertex_ai"
 provider = "gemini"
-os.environ["TRACE_LITELLM_MODEL"] = f"{provider}/gemini-2.0-flash"
+os.environ["TRACE_LITELLM_MODEL"] = f"{provider}/gemini-2.5-flash-lite"
 
 
 OBJECTIVE = """Optimize the agent's performance by improving the system prompt in #Variables based on #Feedback.
@@ -88,7 +88,7 @@ class VeribenchAgent:
     The task is user_query in the dataset.
     """
 
-    def __init__(self, model: str = "gemini/gemini-2.0-flash"):
+    def __init__(self, model: str = "gemini/gemini-2.5-flash-lite"):
         self.model = model
         self.llm = LLM(model=model)
         self.system_prompt = trace.node(SYSTEM_PROMPT_WITH_EXAMPLES, trainable=True)
@@ -277,7 +277,7 @@ def main():
                        help='Maximum score for score range (used with UCB)')
     
     # Model parameters
-    parser.add_argument('--model', type=str, default='gemini/gemini-2.0-flash',
+    parser.add_argument('--model', type=str, default='gemini/gemini-2.5-flash-lite',
                        help='Model to use for the agent')
     parser.add_argument('--project_name', type=str, default='veribench-priority-search',
                        help='Name of the project')
@@ -292,7 +292,7 @@ def main():
     parser.add_argument('--regressor_type', type=str, default='logistic', 
                        choices=['logistic', 'linear', 'linear_ucb', 'llm'],
                        help='Type of the regressor')
-    parser.add_argument('--regressor_model_name', type=str, default='gemini/gemini-2.0-flash',
+    parser.add_argument('--regressor_model_name', type=str, default='gemini/gemini-2.5-flash-lite',
                        help='Model name for the regressor')
     parser.add_argument('--regressor_alpha', type=float, default=0.1,
                        help='UCB exploration parameter for the regressor')
@@ -320,7 +320,7 @@ def main():
                        help='Number of attempts to generate new candidates using LLM generator')
     parser.add_argument('--num_generator_candidates', type=int, default=5,
                        help='Number of candidates to generate using LLM generator')
-    parser.add_argument('--generator_model_name', type=str, default='gemini/gemini-2.0-flash',
+    parser.add_argument('--generator_model_name', type=str, default='gemini/gemini-2.5-flash-lite',
                        help='Model name for the LLM generator')
     parser.add_argument('--generator_temperature', type=float, default=0.6,
                        help='Temperature for the LLM generator')
