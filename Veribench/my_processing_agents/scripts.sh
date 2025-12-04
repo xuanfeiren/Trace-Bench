@@ -97,7 +97,7 @@ python my_processing_agents/optimize_veribench_agent.py \
         --batch_size 2 \
         --num_batches 1 \
         --num_steps 101 \
-        --num_threads 20 \
+        --num_threads 50 \
         --memory_update_frequency 0 \
         --num_eval_samples 1 \
         --test_frequency 1 \
