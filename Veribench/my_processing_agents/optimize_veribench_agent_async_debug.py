@@ -13,7 +13,7 @@ os.environ["TRACE_LITELLM_MODEL"] = f"gemini/gemini-2.5-flash-lite"
 from opto.trainer.utils import async_run
 # import nest_asyncio
 # nest_asyncio.apply()
-
+from lean_interpretor import remove_import_error
 # lean_interpreter("def main : IO Unit := IO.println \"Hello, world!\"")
 import litellm 
 litellm.drop_params = True
@@ -90,6 +90,7 @@ class VeribenchGuide(Guide):
         Returns:
             Tuple of (score, feedback)
         """
+        response = remove_import_error(response)
         try:
             result = lean_interpreter(response)
             correctness = result["valid"]
@@ -141,14 +142,10 @@ def create_dataset(num_tasks: int):
     return {'inputs': inputs, 'infos': infos}
 
 import json
-
-agent = VeribenchAgent()
-guide = VeribenchGuide()
-
-dataset = create_dataset(10)
+import copy
 
 
-def run_single_agent(task_input, task_info):
+def run_single_agent(agent, task_input, task_info):
     """Run a single agent forward pass."""
     response = agent(task_input)
     lean_code = response.data if hasattr(response, 'data') else response
@@ -157,10 +154,9 @@ def run_single_agent(task_input, task_info):
         'lean_code': lean_code
     }
 
-import copy
-def run_single_eval(lean_code, task_info):
+
+def run_single_eval(guide, lean_code, task_info):
     """Run a single evaluation using the guide."""
-    # guide_copy = copy.deepcopy(guide)
     score, feedback = guide.get_feedback(task=None, response=lean_code, info=task_info)
     return {
         'task_info': task_info,
@@ -169,52 +165,58 @@ def run_single_eval(lean_code, task_info):
     }
 
 
-# Step 1: Run 10 agent forward passes asynchronously
-print_color("Step 1: Running 10 agent forward passes asynchronously...", "cyan")
-agent_runs = [run_single_agent] * 10
-agent_args = [(dataset['inputs'][i], dataset['infos'][i]) for i in range(10)]
-agent_kwargs = [{}] * 10
+if __name__ == "__main__":
+    agent = VeribenchAgent()
+    guide = VeribenchGuide()
 
-agent_results = async_run(agent_runs, agent_args, agent_kwargs, max_workers=10, description="Agent forward")
+    dataset = create_dataset(10)
 
-# Extract lean codes from agent results
-lean_codes = [result['lean_code'] for result in agent_results]
+    # Step 1: Run 10 agent forward passes asynchronously
+    print_color("Step 1: Running 10 agent forward passes asynchronously...", "cyan")
+    agent_runs = [lambda task_input, task_info: run_single_agent(agent, task_input, task_info)] * 10
+    agent_args = [(dataset['inputs'][i], dataset['infos'][i]) for i in range(10)]
+    agent_kwargs = [{}] * 10
 
-# Step 2: Run 10 evaluations asynchronously
-print_color("\nStep 2: Running 10 evaluations asynchronously...", "cyan")
-eval_runs = [run_single_eval] * 10
-eval_args = [(lean_codes[i], i) for i in range(10)]
-eval_kwargs = [{}] * 10
+    agent_results = async_run(agent_runs, agent_args, agent_kwargs, max_workers=10, description="Agent forward")
 
-eval_results = async_run(eval_runs, eval_args, eval_kwargs, max_workers=1, description="Lean evaluation")
+    # Extract lean codes from agent results
+    lean_codes = [result['lean_code'] for result in agent_results]
 
-# Print results
-print_color(f"\n{'='*50}", "cyan")
-print_color("Results:", "magenta")
-total_score = 0
-for i, (agent_res, eval_res) in enumerate(zip(agent_results, eval_results)):
-    total_score += eval_res['score']
-    status = "✓" if eval_res['score'] == 1.0 else "✗"
-    color = "green" if eval_res['score'] == 1.0 else "red"
-    print_color(f"Task {i}: {status} Score = {eval_res['score']}", color)
-    if eval_res['score'] < 1.0:
-        print_color(f"  Feedback: {eval_res['feedback']}...", "yellow")
+    # Step 2: Run 10 evaluations asynchronously
+    print_color("\nStep 2: Running 10 evaluations asynchronously...", "cyan")
+    eval_runs = [lambda lean_code, task_info: run_single_eval(guide, lean_code, task_info)] * 10
+    eval_args = [(lean_codes[i], i) for i in range(10)]
+    eval_kwargs = [{}] * 10
 
-print_color(f"\n{'='*50}", "cyan")
-print_color(f"Total Score: {total_score}/10 ({total_score*10:.0f}%)", "magenta")
+    eval_results = async_run(eval_runs, eval_args, eval_kwargs, max_workers=1, description="Lean evaluation")
 
-# Save combined results to JSON
-output_data = {
-    'lean_codes': lean_codes,
-    'agent_results': agent_results,
-    'eval_results': eval_results,
-    'total_score': total_score
-}
+    # Print results
+    print_color(f"\n{'='*50}", "cyan")
+    print_color("Results:", "magenta")
+    total_score = 0
+    for i, (agent_res, eval_res) in enumerate(zip(agent_results, eval_results)):
+        total_score += eval_res['score']
+        status = "✓" if eval_res['score'] == 1.0 else "✗"
+        color = "green" if eval_res['score'] == 1.0 else "red"
+        print_color(f"Task {i}: {status} Score = {eval_res['score']}", color)
+        if eval_res['score'] < 1.0:
+            print_color(f"  Feedback: {eval_res['feedback']}...", "yellow")
 
-with open('agent_responses.json', 'w') as f:
-    json.dump(output_data, f, indent=2)
+    print_color(f"\n{'='*50}", "cyan")
+    print_color(f"Total Score: {total_score}/10 ({total_score*10:.0f}%)", "magenta")
 
-print_color(f"Saved results to agent_responses.json", "green")
+    # Save combined results to JSON
+    output_data = {
+        'lean_codes': lean_codes,
+        'agent_results': agent_results,
+        'eval_results': eval_results,
+        'total_score': total_score
+    }
+
+    with open('agent_responses.json', 'w') as f:
+        json.dump(output_data, f, indent=2)
+
+    print_color(f"Saved results to agent_responses.json", "green")
 
 
 

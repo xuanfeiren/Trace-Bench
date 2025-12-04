@@ -23,7 +23,7 @@ from opto.trainer.guide import Guide
 from opto.trainer.loggers import WandbLogger, DefaultLogger
 from opto.trainer.utils import async_run
 
-from lean_interpretor import lean_interpreter
+from lean_interpretor import lean_interpreter,remove_import_error
 from system_prompts import SYSTEM_PROMPT, EXAMPLES
 
 import litellm
@@ -149,7 +149,7 @@ class VeribenchGuide(Guide):
             Tuple of (score, feedback)
         """
         try:
-            result = lean_interpreter(response)
+            result = lean_interpreter(remove_import_error(response))
             correctness = result["valid"]
             score = 1.0 if correctness else 0.0
 
