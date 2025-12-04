@@ -112,3 +112,22 @@ python my_processing_agents/optimize_veribench_agent.py \
         --use_summarizer
 
 
+python my_processing_agents/optimize_veribench_agent.py \
+        --num_train_samples 10 \
+        --num_validate_samples 10 \
+        --num_test_samples 10 \
+        --num_candidates 1 \
+        --batch_size 1 \
+        --num_batches 10 \
+        --num_steps 101 \
+        --num_threads 50 \
+        --memory_update_frequency 0 \
+        --num_eval_samples 10 \
+        --test_frequency 1 \
+        --log_frequency 1 \
+        --num_proposals 1 \
+        --project_name "veribench" \
+        --run_name "PS-candidates-1-batch_size-1-num_batches-10" \
+        --optoprime_version v2 \
+        --use_wandb \
+        --ablation

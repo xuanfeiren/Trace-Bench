@@ -38,45 +38,33 @@ provider = "gemini"
 os.environ["TRACE_LITELLM_MODEL"] = f"{provider}/gemini-2.5-flash-lite"
 
 
-OBJECTIVE = """Optimize the agent's performance by improving the system prompt in #Variables based on #Feedback.
+OBJECTIVE = """You are optimizing `additional_instructions` - a text parameter that guides an LLM to translate Python code into valid Lean 4 code.
 
-TASK: You are optimizing a Lean 4 code generation agent by modifying:
-1. System prompt - to clarify code generation patterns and prevent errors
-2. Examples and instructions - to provide strategic guidance and best practices
+CONTEXT:
+- The agent receives Python code and generates Lean 4 code
+- The generated code is compiled by a Lean 4 compiler
+- #Feedback contains compilation results: either success or error messages
 
-#Variables contains: 
-- System prompt with examples that guide the agent's behavior for Python to Lean 4 translation
+YOUR TASK:
+Analyze the compilation errors in #Feedback and update `additional_instructions` to help the LLM avoid similar errors in the future.
 
-#Feedback contains: Either "The answer is correct! No need to change anything." (success) or compilation error details (failure analysis needed)
+STRATEGY:
+1. If feedback says "correct": Keep the current instructions, optionally refine
+2. If feedback contains errors:
+   - Identify the ROOT CAUSE of each error from the error message
+   - Determine what Lean 4 rule or syntax was violated
+   - Add a GENERAL rule to `additional_instructions` that prevents this class of errors
+   - Use concrete Lean 4 syntax examples when helpful
 
-INSTRUCTIONS:
-1. If feedback is "correct": Make minor refinements to maintain successful patterns
-2. If feedback contains error details: Analyze failure patterns to identify:
-   - Syntax errors in Lean 4 code generation
-   - Incorrect theorem/proof patterns
-   - Missing or incorrect type annotations
-   - Namespace or scoping issues
-   - Missing imports or definitions
+GUIDELINES FOR `additional_instructions`:
+- Keep rules concise and actionable
+- Generalize from specific errors to broader patterns
+- Accumulate successful rules (don't remove what works)
+- Prioritize rules that prevent the most frequent error types
+- Include correct Lean 4 syntax when the error is about wrong syntax
 
-OPTIMIZATION RULES:
-For System Prompt:
-- Add clarifying examples for common error patterns
-- Include best practices for Lean 4 code structure
-- Add guidance for theorem proving and proofs
-- Keep instructions concise but actionable
-- Include common pitfall warnings
-
-For Examples:
-- Ensure examples demonstrate correct Lean 4 syntax
-- Include edge cases and error handling patterns
-- Show proper namespace and scoping usage
-
-OUTPUT FORMAT:
-Your response must contain ONLY these two sections:
-1. "reasoning": Explain your analysis of the feedback and what needs to be improved
-2. "suggestion": Provide the complete optimized system prompt
-
-Do not include any other text, explanations, or keywords like TERMINATE."""
+OUTPUT: Return the complete updated `additional_instructions` text.
+"""
 
 
 @trace.model
@@ -104,23 +92,17 @@ class VeribenchAgent:
         and examples, then sends it to the LLM to generate Lean 4 code that solves the task.
         
         Args:
-            system_prompt (str): Base system prompt containing core instructions for Lean 4 code 
-                generation. This is fixed and provides the foundational guidance.
-            additional_instructions (str): **TRAINABLE PARAMETER** - Extra instructions and tips 
-                that guide the LLM to produce better Lean 4 code. This parameter is optimized 
-                based on feedback from compilation errors. Modify this to:
+            system_prompt (str): Base system prompt containing core instructions for Lean 4 code generation. This is fixed and provides the foundational guidance.
+            additional_instructions (str): **TRAINABLE PARAMETER** - Extra instructions and tips that guide the LLM to produce better Lean 4 code. This parameter is optimized based on feedback from compilation errors. Modify this to:
                 - Add patterns that fix common syntax errors
                 - Include best practices for theorem proving
                 - Provide hints for type annotations and imports
                 - Add warnings about common pitfalls
-            examples (str): Few-shot examples demonstrating correct Python to Lean 4 translations.
-                These are fixed reference examples.
+            examples (str): Few-shot examples demonstrating correct Python to Lean 4 translations. These are fixed reference examples.
             task_input (dict): The user query containing the Python code and requirements to translate into Lean 4.
         
         Returns:
-            str: The extracted Lean 4 code from the LLM response, or None if extraction fails.
-                The code is extracted from ```lean ... ``` code blocks in the response.
-            If the response is not a valid Lean 4 code, return None.
+            str: The extracted Lean 4 code from the LLM response, or None if extraction fails. The code is extracted from ```lean ... ``` code blocks in the response. If the response is not a valid Lean 4 code, return None.
         """
         # system prompt = system prompt + additional instructions + examples  
         system_prompt = self.system_prompt + "\n\n" + additional_instructions + "\n\n" + self.examples
@@ -174,9 +156,19 @@ class VeribenchGuide(Guide):
             if correctness:
                 feedback = "The answer is correct! No need to change anything."
             else:
-                error_message = "\n\n".join(result["error_messages"])
-                summary_message = result["summary"]
-                feedback = f"The answer is wrong. {summary_message}\n\nErrors:\n{error_message}\n\nPlease modify the prompt to help LLM produce correct Lean code."
+                num_errors = result["num_errors"]
+                
+                # Get error details with context if available, otherwise raw messages
+                error_details = result.get("error_details", result["error_messages"])
+                errors_str = "\n\n".join(error_details)
+                
+                # Build feedback
+                feedback = f"""Lean compilation FAILED with {num_errors} errors.
+
+Errors:
+{errors_str}
+
+Analyze the error messages above and add rules to `additional_instructions` to prevent similar errors."""
 
             return score, feedback
 
