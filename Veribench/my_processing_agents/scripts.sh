@@ -126,7 +126,7 @@ python my_processing_agents/optimize_veribench_agent.py \
         --test_frequency 1 \
         --log_frequency 1 \
         --num_proposals 1 \
-        --project_name "veribench" \
+        --project_name "veribench-10-tasks" \
         --run_name "PS-candidates-1-batch_size-1-num_batches-10" \
         --optoprime_version v2 \
         --use_wandb \

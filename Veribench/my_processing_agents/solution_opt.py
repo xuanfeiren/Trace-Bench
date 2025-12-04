@@ -32,8 +32,8 @@ litellm.drop_params = True
 litellm.suppress_debug_info = True
 
 
-os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
-from optimize_veribench_agent import VeribenchGuide
+os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.0-flash"
+from optimize_veribench_agent_async_debug import VeribenchGuide
 
 
 def load_single_task(task_idx: int = 0) -> Dict[str, Any]:
@@ -58,7 +58,7 @@ def load_single_task(task_idx: int = 0) -> Dict[str, Any]:
     }
 
 
-def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.5-flash-lite") -> str:
+def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.0-flash") -> str:
     """
     Call LLM to get initial Lean code from the user query.
     
@@ -100,7 +100,7 @@ def main():
     parser = argparse.ArgumentParser(description='Optimize a single Lean solution using feedback loop')
     parser.add_argument('--task_idx', type=int, default=0, help='Task index from the Veribench dataset')
     parser.add_argument('--epoch', type=int, default=10, help='Maximum number of optimization epochs')
-    parser.add_argument('--model', type=str, default='gemini/gemini-2.5-flash-lite', help='Model to use for LLM calls')
+    parser.add_argument('--model', type=str, default='gemini/gemini-2.0-flash', help='Model to use for LLM calls')
     args = parser.parse_args()
 
     epoch = args.epoch
@@ -153,40 +153,49 @@ OUTPUT: Return the complete fixed Lean 4 code."""
     # Step 6: Use the optimizer to optimize the lean code until the lean code is correct
     print(f"\nStarting optimization loop (max {epoch} epochs)...")
     for i in range(epoch):
-        print(f"\n{'='*50}")
+        print(f"\n{'='*70}")
         print(f"Training Epoch {i + 1}/{epoch}")
-        print(f"{'='*50}")
+        print(f"{'='*70}")
+        
+        # Print current lean code
+        print(f"\n{'-'*70}")
+        print("CURRENT LEAN CODE:")
+        print(f"{'-'*70}")
+        print(lean_code.data)
+        print(f"{'-'*70}")
         
         # Get feedback from the guide (evaluates the lean code using lean_interpreter)
         score, feedback = guide.get_feedback(task=user_query, response=lean_code.data, info=None)
         
-        print(f"Score: {score}")
-        if score < 1.0:
-            print(f"Feedback (truncated): {feedback[:300]}..." if len(feedback) > 300 else f"Feedback: {feedback}")
-        else:
-            print(f"Feedback: {feedback}")
+        # Print feedback
+        print(f"\n{'-'*70}")
+        print_color(f"FEEDBACK (Score: {score}):", "yellow")
+        print(f"{'-'*70}")
+        print_color(feedback, "yellow")
+        print(f"{'-'*70}")
         
         # Check if the lean code is correct
         if score == 1.0:
-            print(f"\n{'*'*50}")
+            print(f"\n{'*'*70}")
             print("SUCCESS! Lean code compiled correctly!")
-            print(f"{'*'*50}")
+            print(f"{'*'*70}")
             break
         
         # Perform optimization step
         optimizer.zero_feedback()
         optimizer.backward(lean_code, feedback)
-        optimizer.step()
+        optimizer.step(verbose=False)
         
-        print(f"Optimization step completed. Updated lean code.")
+        print(f"\nOptimization step completed. Lean code updated.")
     else:
         print(f"\nReached maximum epochs ({epoch}). Final score: {score}")
     
-    # Print final result
-    print(f"\n{'='*50}")
-    print("FINAL LEAN CODE:")
-    print(f"{'='*50}")
-    print(lean_code.data)
+    # Print final result only if succeeded
+    if score == 1.0:
+        print(f"\n{'='*50}")
+        print("FINAL LEAN CODE:")
+        print(f"{'='*50}")
+        print(lean_code.data)
 
 
 if __name__ == "__main__":
