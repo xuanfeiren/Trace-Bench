@@ -24,7 +24,7 @@ from opto.trainer.loggers import WandbLogger, DefaultLogger
 from opto.trainer.utils import async_run
 
 from lean_interpretor import lean_interpreter
-from system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES, SYSTEM_PROMPT, EXAMPLES
+from system_prompts import SYSTEM_PROMPT, EXAMPLES
 
 import litellm
 litellm.drop_params = True
@@ -96,16 +96,31 @@ class VeribenchAgent:
         self.additional_instructions = trace.node("Here are the additional instructions to help the agent solve the task: ", trainable=True)
 
     @trace.bundle()
-    def solve(self, additional_instructions: str, task_input: dict) -> str:
+    def solve(self, system_prompt: str, additional_instructions: str, examples: str, task_input: dict) -> str:
         """
-        Solve a Veribench task with the given system_prompt.
+        Generate Lean 4 code for a given task using a single LLM call.
+        
+        This function constructs a prompt by combining the system prompt, additional instructions,
+        and examples, then sends it to the LLM to generate Lean 4 code that solves the task.
         
         Args:
-            system_prompt: Trainable system prompt
-            task: Veribench task dictionary with 'system_prompt' and 'user_query'
-            
+            system_prompt (str): Base system prompt containing core instructions for Lean 4 code 
+                generation. This is fixed and provides the foundational guidance.
+            additional_instructions (str): **TRAINABLE PARAMETER** - Extra instructions and tips 
+                that guide the LLM to produce better Lean 4 code. This parameter is optimized 
+                based on feedback from compilation errors. Modify this to:
+                - Add patterns that fix common syntax errors
+                - Include best practices for theorem proving
+                - Provide hints for type annotations and imports
+                - Add warnings about common pitfalls
+            examples (str): Few-shot examples demonstrating correct Python to Lean 4 translations.
+                These are fixed reference examples.
+            task_input (dict): The user query containing the Python code and requirements to translate into Lean 4.
+        
         Returns:
-            LLM response content
+            str: The extracted Lean 4 code from the LLM response, or None if extraction fails.
+                The code is extracted from ```lean ... ``` code blocks in the response.
+            If the response is not a valid Lean 4 code, return None.
         """
         # system prompt = system prompt + additional instructions + examples  
         system_prompt = self.system_prompt + "\n\n" + additional_instructions + "\n\n" + self.examples
@@ -127,7 +142,7 @@ class VeribenchAgent:
 
     def forward(self, task: dict) -> str:
         """Forward pass that calls solve with trainable parameters."""
-        return self.solve(self.additional_instructions, task)
+        return self.solve(self.system_prompt, self.additional_instructions, self.examples, task)
 
 
 class VeribenchGuide(Guide):
