@@ -76,7 +76,7 @@ class VeribenchGuide(Guide):
     """
 
     def __init__(self):
-        super().__init__()
+        super().__init__() 
 
     def get_feedback(self, task, response, info=None, **kwargs):
         """

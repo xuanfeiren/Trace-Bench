@@ -32,8 +32,8 @@ litellm.drop_params = True
 litellm.suppress_debug_info = True
 
 
-os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.0-flash"
-from optimize_veribench_agent_async_debug import VeribenchGuide
+os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
+from optimize_veribench_agent import VeribenchGuide
 
 
 def load_single_task(task_idx: int = 0) -> Dict[str, Any]:
@@ -58,7 +58,37 @@ def load_single_task(task_idx: int = 0) -> Dict[str, Any]:
     }
 
 
-def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.0-flash") -> str:
+def extract_python_code(user_query: str) -> str:
+    """
+    Extract just the Python code from the user_query, removing the preamble
+    that contains instructions like "wrap in ```lean```".
+    
+    The user_query format is:
+    - Preamble with instructions (including markdown wrapping instruction)
+    - "Analyze and translate the Python file below:"
+    - The actual Python code
+    
+    Returns:
+        Just the Python code portion
+    """
+    # Find the marker that separates preamble from Python code
+    markers = [
+        "Analyze and translate the Python file below:",
+        "Analyze and translate the Python file below",
+        "Python file below:",
+    ]
+    
+    for marker in markers:
+        if marker in user_query:
+            # Extract everything after the marker
+            python_code = user_query.split(marker, 1)[1].strip()
+            return python_code
+    
+    # If no marker found, return as-is (fallback)
+    return user_query
+
+
+def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.5-flash-lite") -> str:
     """
     Call LLM to get initial Lean code from the user query.
     
@@ -99,8 +129,8 @@ def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.0-flash
 def main():
     parser = argparse.ArgumentParser(description='Optimize a single Lean solution using feedback loop')
     parser.add_argument('--task_idx', type=int, default=0, help='Task index from the Veribench dataset')
-    parser.add_argument('--epoch', type=int, default=10, help='Maximum number of optimization epochs')
-    parser.add_argument('--model', type=str, default='gemini/gemini-2.0-flash', help='Model to use for LLM calls')
+    parser.add_argument('--epoch', type=int, default=50, help='Maximum number of optimization epochs')
+    parser.add_argument('--model', type=str, default='gemini/gemini-2.5-flash-lite', help='Model to use for LLM calls')
     args = parser.parse_args()
 
     epoch = args.epoch
@@ -127,14 +157,26 @@ def main():
     
     # Step 4: Initialize the optimizer 
     optimizer = OptoPrimeV2([lean_code], max_tokens=25000, initial_var_char_limit=10000)
-    optimizer.objective = """You are optimizing Lean 4 code to make it compile without errors.
+    
+    # Extract just the Python code from user_query, removing the preamble
+    # that contains "wrap in ```lean```" instruction which confuses the optimizer
+    python_program = extract_python_code(user_query)
+    
+    optimizer.objective = f"""You are optimizing Lean 4 code to make it compile without errors.
+
+ORIGINAL TASK:
+The Lean 4 code should implement the following Python program:
+---
+{python_program}
+---
 
 CONTEXT:
 - The variable contains Lean 4 code that needs to compile successfully
+- The Lean 4 code must correctly implement the logic from the original Python specification above
 - The feedback contains compilation results: either success or error messages
 
 YOUR TASK:
-Analyze the compilation errors in the feedback and fix the Lean 4 code.
+Analyze the compilation errors in the feedback and fix the Lean 4 code while preserving the intended functionality.
 
 STRATEGY:
 1. If feedback says "correct": The code is done, no changes needed
@@ -143,9 +185,16 @@ STRATEGY:
    - Determine what Lean 4 syntax or logic is incorrect
    - Fix the specific issues in the code
    - Ensure type annotations are correct
-   - Ensure all imports are valid
+   - Do NOT include import statements (only Init is available)
+   - Preserve the algorithm logic from the original Python specification
 
-OUTPUT: Return the complete fixed Lean 4 code."""
+CRITICAL FORMATTING RULES:
+- Output ONLY raw Lean 4 code
+- Do NOT wrap code in markdown code fences (no triple backticks)
+- Do NOT include any markdown formatting
+- The output must be valid Lean 4 code that can be directly compiled
+
+OUTPUT: Return the complete fixed Lean 4 code that correctly implements the original specification."""
 
     # Step 5: Initialize the guide
     guide = VeribenchGuide()
@@ -184,7 +233,7 @@ OUTPUT: Return the complete fixed Lean 4 code."""
         # Perform optimization step
         optimizer.zero_feedback()
         optimizer.backward(lean_code, feedback)
-        optimizer.step(verbose=False)
+        optimizer.step(verbose='output')
         
         print(f"\nOptimization step completed. Lean code updated.")
     else:
