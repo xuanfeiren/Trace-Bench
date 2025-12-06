@@ -32,7 +32,8 @@ litellm.drop_params = True
 litellm.suppress_debug_info = True
 
 
-os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
+# os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
+import secrets_local  # Load environment variables from gitignored file
 from optimize_veribench_agent import VeribenchGuide
 
 
@@ -88,7 +89,7 @@ def extract_python_code(user_query: str) -> str:
     return user_query
 
 
-def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.5-flash-lite") -> str:
+def get_initial_lean_code(user_query: str, model: str = "claude-3.5-sonnet") -> str:
     """
     Call LLM to get initial Lean code from the user query.
     
@@ -109,7 +110,7 @@ def get_initial_lean_code(user_query: str, model: str = "gemini/gemini-2.5-flash
         {"role": "user", "content": user_query}
     ]
     
-    response = llm(messages=messages, max_tokens=65536)
+    response = llm(messages=messages, max_tokens=8192)
     response_text = response.choices[0].message.content
     
     # Extract the lean code from the response
@@ -130,7 +131,7 @@ def main():
     parser = argparse.ArgumentParser(description='Optimize a single Lean solution using feedback loop')
     parser.add_argument('--task_idx', type=int, default=0, help='Task index from the Veribench dataset')
     parser.add_argument('--epoch', type=int, default=50, help='Maximum number of optimization epochs')
-    parser.add_argument('--model', type=str, default='gemini/gemini-2.5-flash-lite', help='Model to use for LLM calls')
+    parser.add_argument('--model', type=str, default='claude-3.5-sonnet', help='Model to use for LLM calls')
     args = parser.parse_args()
 
     epoch = args.epoch
@@ -156,7 +157,7 @@ def main():
     lean_code = trace.node(initial_lean_code, trainable=True)
     
     # Step 4: Initialize the optimizer 
-    optimizer = OptoPrimeV2([lean_code], max_tokens=25000, initial_var_char_limit=10000)
+    optimizer = OptoPrimeV2([lean_code], max_tokens=8192, initial_var_char_limit=10000)
     
     # Extract just the Python code from user_query, removing the preamble
     # that contains "wrap in ```lean```" instruction which confuses the optimizer
