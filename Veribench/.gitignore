@@ -3,4 +3,5 @@
 my_processing_agents/.env
 my_processing_agents/secrets_local.py
 secrets_local.py
+claude.sh
 
