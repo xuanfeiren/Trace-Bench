@@ -111,7 +111,11 @@ def lean_interpreter(lean4_code: str,
         - summary: Natural language summary of the outcome, advising the next step.
         - error_details: List of formatted error messages with code context
     """
-    server: Server = default_server
+    server: Server = Server(
+        imports=["Init"], 
+        # project_path=os.path.expanduser("~/mathlib_4_15_0_lfs"),
+        timeout=60,
+    )
     result: Dict[str, str] = get_list_lean4_all_mgs_and_error_mgs(lean4_code, server)
     all_messages: List[str] = result['all_messages']
     error_messages: List[str] = result['error_messages']
