@@ -3,7 +3,7 @@ Simple test to verify async_run works with lean evaluation.
 """
 from opto.trainer.utils import async_run
 from opto.optimizers.utils import print_color
-from lean_interpretor import lean_interpreter
+from .lean_interpretor import lean_interpreter
 
 # Test with a simple valid Lean code
 VALID_LEAN_CODE = 'def main : IO Unit := IO.println "Hello, world!"'
