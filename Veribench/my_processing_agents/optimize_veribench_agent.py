@@ -7,6 +7,9 @@ np.random.seed(10)
 torch.manual_seed(10)
 
 import os
+import sys
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import re
 import json
 import time
@@ -22,9 +25,9 @@ from opto.optimizers.utils import print_color
 from opto.trainer.guide import Guide
 from opto.trainer.loggers import WandbLogger, DefaultLogger
 from opto.trainer.utils import async_run
-
-from lean_interpretor import lean_interpreter,remove_import_error
-from system_prompts import SYSTEM_PROMPT, EXAMPLES
+from guide.guide import VeribenchGuide
+from .lean_interpretor import lean_interpreter, remove_import_error
+from .system_prompts import SYSTEM_PROMPT, EXAMPLES
 
 import litellm
 litellm.drop_params = True
@@ -34,9 +37,7 @@ litellm.suppress_debug_info = True
 # nest_asyncio.apply()
 
 # provider = "vertex_ai"
-provider = "gemini"
-os.environ["TRACE_LITELLM_MODEL"] = f"{provider}/gemini-2.5-flash-lite"
-
+import secrets_local
 
 OBJECTIVE = """You are optimizing `additional_instructions` - a text parameter that guides an LLM to translate Python code into valid Lean 4 code.
 
@@ -76,7 +77,7 @@ class VeribenchAgent:
     The task is user_query in the dataset.
     """
 
-    def __init__(self, model: str = "gemini/gemini-2.5-flash-lite"):
+    def __init__(self, model: str = secrets_local.MODEL):
         self.model = model
         self.llm = LLM(model=model)
         self.system_prompt = SYSTEM_PROMPT
@@ -111,7 +112,7 @@ class VeribenchAgent:
             {"role": "user", "content": task_input}
         ]
 
-        response = self.llm(messages=messages, max_tokens=65536)
+        response = self.llm(messages=messages, max_tokens=8192)
         response_text = response.choices[0].message.content
         # extract the lean code from the response
         lean_pattern = r'```lean\s*\n(.*?)\n```'
@@ -127,72 +128,6 @@ class VeribenchAgent:
         return self.solve(self.system_prompt, self.additional_instructions, self.examples, task)
 
 
-class VeribenchGuide(Guide):
-    """
-    Guide that uses lean_interpreter to evaluate Veribench responses
-    and provide feedback.
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    def get_feedback(self, task, response, info=None, **kwargs):
-        """
-        Get feedback from the agent's Lean code response.
-        
-        Args:
-            task: The task being evaluated (user query)
-            response: The LLM-generated Lean code response
-            info: Additional info (optional)
-            
-        Returns:
-            Tuple of (score, feedback)
-        """
-        try:
-            result = lean_interpreter(remove_import_error(response))
-            correctness = result["valid"]
-            score = 1.0 if correctness else 0.0
-
-            if correctness:
-                feedback = "The answer is correct! No need to change anything."
-            else:
-                num_errors = result["num_errors"]
-                
-                # Get error details with context if available, otherwise raw messages
-                error_details = result.get("error_details", result["error_messages"])
-                errors_str = "\n\n".join(error_details)
-                
-                # Build feedback
-                feedback = f"""Lean compilation FAILED with {num_errors} errors.
-
-Errors:
-{errors_str}
-
-Analyze the error messages above and add rules to `additional_instructions` to prevent similar errors."""
-
-            return score, feedback
-
-        except Exception as e:
-            error_str = str(e)
-            # Check for system errors that should be raised, not returned as feedback
-            system_errors = [
-                "event loop is already running",
-                "event loop",
-                "asyncio",
-                "RuntimeError",
-            ]
-            if any(err.lower() in error_str.lower() for err in system_errors):
-                print_color(f"System error (not a Lean compilation error): {error_str}. This is likely due to asyncio conflicts.", "red")
-                raise RuntimeError(
-                    f"System error (not a Lean compilation error): {error_str}. "
-                    "This is likely due to asyncio conflicts."
-                ) from e
-            return 0.0, f"Error occurred: {error_str}. Please fix the error and try again."
-
-    def metric(self, task, response, info=None, **kwargs):
-        """Metric for the agent's performance."""
-        score, _ = self.get_feedback(task, response, info, **kwargs)
-        return score
 
 
 def create_dataset(num_tasks: int, offset: int = 0):
@@ -287,7 +222,7 @@ def main():
                        help='Maximum score for score range (used with UCB)')
     
     # Model parameters
-    parser.add_argument('--model', type=str, default='gemini/gemini-2.5-flash-lite',
+    parser.add_argument('--model', type=str, default='claude-3.5-sonnet',
                        help='Model to use for the agent')
     parser.add_argument('--project_name', type=str, default='veribench-priority-search',
                        help='Name of the project')
@@ -302,7 +237,7 @@ def main():
     parser.add_argument('--regressor_type', type=str, default='logistic', 
                        choices=['logistic', 'linear', 'linear_ucb', 'llm'],
                        help='Type of the regressor')
-    parser.add_argument('--regressor_model_name', type=str, default='gemini/gemini-2.5-flash-lite',
+    parser.add_argument('--regressor_model_name', type=str, default='claude-3.5-sonnet',
                        help='Model name for the regressor')
     parser.add_argument('--regressor_alpha', type=float, default=0.1,
                        help='UCB exploration parameter for the regressor')
@@ -330,7 +265,7 @@ def main():
                        help='Number of attempts to generate new candidates using LLM generator')
     parser.add_argument('--num_generator_candidates', type=int, default=5,
                        help='Number of candidates to generate using LLM generator')
-    parser.add_argument('--generator_model_name', type=str, default='gemini/gemini-2.5-flash-lite',
+    parser.add_argument('--generator_model_name', type=str, default='claude-3.5-sonnet',
                        help='Model name for the LLM generator')
     parser.add_argument('--generator_temperature', type=float, default=0.6,
                        help='Temperature for the LLM generator')
@@ -396,7 +331,7 @@ def main():
             optimizer = OptoPrime(agent.parameters(), max_tokens=8000)
         else:
             from opto.optimizers import OptoPrimeV2
-            optimizer = OptoPrimeV2(agent.parameters(), max_tokens=25000, initial_var_char_limit=10000)
+            optimizer = OptoPrimeV2(agent.parameters(), max_tokens=8192, initial_var_char_limit=10000)
         optimizer.objective = OBJECTIVE
         
         # Prepare configuration for logging

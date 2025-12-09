@@ -4,7 +4,7 @@ from typing import Dict, Any, List
 from pantograph.server import Server
 from pantograph.data import CompilationUnit
 
-from lean4_utils import default_server, get_list_lean4_all_mgs_and_error_mgs
+from .lean4_utils import default_server, get_list_lean4_all_mgs_and_error_mgs
 
 def get_indentation_block(code_lines: List[str], line_num: int) -> List[str]:
     """

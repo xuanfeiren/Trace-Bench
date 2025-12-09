@@ -3,8 +3,8 @@ from opto import trace
 from opto.trainer.guide import Guide
 from opto.utils.llm import LLM
 from opto.optimizers.utils import print_color
-from lean_interpretor import lean_interpreter
-from system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES, SYSTEM_PROMPT, EXAMPLES
+from .lean_interpretor import lean_interpreter
+from .system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES, SYSTEM_PROMPT, EXAMPLES
 import re,os
 
 
@@ -13,7 +13,7 @@ os.environ["TRACE_LITELLM_MODEL"] = f"gemini/gemini-2.5-flash-lite"
 from opto.trainer.utils import async_run
 # import nest_asyncio
 # nest_asyncio.apply()
-from lean_interpretor import remove_import_error
+from .lean_interpretor import remove_import_error
 # lean_interpreter("def main : IO Unit := IO.println \"Hello, world!\"")
 import litellm 
 litellm.drop_params = True
