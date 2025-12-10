@@ -24,8 +24,8 @@ from opto.trainer.loggers import WandbLogger, DefaultLogger
 from opto.trainer.utils import async_run
 from opto.optimizers import OptoPrimeV2
 
-from .lean_interpretor import lean_interpreter
-from .system_prompts import SYSTEM_PROMPT, EXAMPLES
+# from my_processing_agents.lean_interpretor import lean_interpreter
+from my_processing_agents.system_prompts import SYSTEM_PROMPT, EXAMPLES
 
 import litellm
 litellm.drop_params = True
@@ -33,7 +33,7 @@ litellm.suppress_debug_info = True
 
 
 # os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
-import secrets_local  # Load environment variables from gitignored file
+from my_processing_agents import secrets_local  # Load environment variables from gitignored file
 # from optimize_veribench_agent import VeribenchGuide
 from guide.guide import WebGuide as VeribenchGuide
 

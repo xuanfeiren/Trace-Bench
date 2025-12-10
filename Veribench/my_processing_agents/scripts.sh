@@ -119,15 +119,23 @@ python my_processing_agents/optimize_veribench_agent.py \
         --num_candidates 1 \
         --batch_size 1 \
         --num_batches 10 \
-        --num_steps 101 \
+        --num_steps 21 \
         --num_threads 50 \
         --memory_update_frequency 0 \
-        --num_eval_samples 10 \
+        --num_eval_samples 1 \
         --test_frequency 1 \
         --log_frequency 1 \
         --num_proposals 1 \
         --project_name "veribench-10-tasks" \
-        --run_name "PS-candidates-1-batch_size-1-num_batches-10" \
+        --run_name "PS-candidates-1-batch_size-1-num_batches-10-claude-3-5-sonnet" \
         --optoprime_version v2 \
         --use_wandb \
         --ablation
+
+python my_processing_agents/solution_PS.py \
+        --task_idx 0 \
+        --num_steps 10 \
+        --num_threads 30 \
+        --log_frequency 1 \
+        --test_frequency 1 \
+        --num_candidates 5

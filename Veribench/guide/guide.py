@@ -1,7 +1,34 @@
 import requests
 from opto.trainer.guide import Guide
-from my_processing_agents.lean_interpretor import lean_interpreter, remove_import_error
+from my_processing_agents.lean_interpretor import lean_interpreter
 from opto.optimizers.utils import print_color
+
+def remove_import_error(response,result):
+    """Remove the import error from the response."""
+    error_messages = result["error_messages"]
+    has_import_errors = any("invalid 'import' command" in msg for msg in error_messages)
+
+    if has_import_errors:
+        # Remove import error lines
+        code_lines = response.strip().split('\n')
+        problematic_lines = set()
+        
+        for error_msg in error_messages:
+            if "invalid 'import' command" in error_msg:
+                try:
+                    parts = error_msg.split(':')
+                    if len(parts) >= 3:
+                        line_num = int(parts[1])
+                        if 1 <= line_num <= len(code_lines):
+                            problematic_lines.add(line_num - 1)
+                except Exception:
+                    pass
+        
+        # Remove problematic import lines and re-evaluate
+        if problematic_lines:
+            filtered_lines = [line for i, line in enumerate(code_lines) if i not in problematic_lines]
+            response = '\n'.join(filtered_lines)
+    return response
 
 class VeribenchGuide(Guide):
     """
@@ -42,52 +69,36 @@ class VeribenchGuide(Guide):
             # Build feedback
             feedback = f"Lean compilation FAILED with {num_errors} error(s). Please make the Lean code correct and as simple as possible.\n\nErrors:\n{errors_str}"
 
-            if 'TimeoutError' in feedback:
+            if 'TimeoutError' in errors_str:
                 # Time out error is not a simple Lean compilation error, so we return 0.0.
+                print_color("Lean code compilation TIMEOUT. Return timeout feedback.", "yellow")
                 return 0.0, "Lean code compilation TIMEOUT. The generated code is either incorrect or too complex for the interpreter to compile within the time limit. Please make the Lean code correct and as simple as possible."
+
+            cleaned_code = remove_import_error(response,result)
+            if cleaned_code != response:
+                # Re-run interpreter on cleaned code
+                result = lean_interpreter(cleaned_code)
+                # assert current no import errors
             
+                assert not any("invalid 'import' command" in msg for msg in result["error_messages"]), "There are still import errors after removing import errors."
             
-            error_messages = result["error_messages"]
-            has_import_errors = any("invalid 'import' command" in msg for msg in error_messages)
+                correctness = result["valid"]
+                score = 1.0 if correctness else 0.0
             
-            if has_import_errors:
-                # Remove import error lines
-                code_lines = response.strip().split('\n')
-                problematic_lines = set()
-                
-                for error_msg in error_messages:
-                    if "invalid 'import' command" in error_msg:
-                        try:
-                            parts = error_msg.split(':')
-                            if len(parts) >= 3:
-                                line_num = int(parts[1])
-                                if 1 <= line_num <= len(code_lines):
-                                    problematic_lines.add(line_num - 1)
-                        except Exception:
-                            pass
-                
-                # Remove problematic import lines and re-evaluate
-                if problematic_lines:
-                    filtered_lines = [line for i, line in enumerate(code_lines) if i not in problematic_lines]
-                    cleaned_code = '\n'.join(filtered_lines)
-                    
-                    # Re-run interpreter on cleaned code
-                    result = lean_interpreter(cleaned_code)
-                    correctness = result["valid"]
-                    score = 1.0 if correctness else 0.0
-                    
-                    # Update feedback based on new result
-                    if correctness:
-                        feedback = "The answer is correct after removing invalid import statements!"
-                    else:
-                        num_errors = result["num_errors"]
-                        error_details = result.get("error_details", result["error_messages"])
-                        errors_str = "\n\n".join(error_details)
-                        feedback = f"Lean compilation FAILED with {num_errors} error(s) after removing invalid imports. Please make the Lean code correct and as simple as possible.\n\nErrors:\n{errors_str}"
+                # Update feedback based on new result
+                if correctness:
+                    feedback = "The answer is correct after removing invalid import statements!"
+                else:
+                    num_errors = result["num_errors"]
+                    error_details = result.get("error_details", result["error_messages"])
+                    errors_str = "\n\n".join(error_details)
+                    feedback = f"Lean compilation FAILED with {num_errors} error(s) after removing invalid imports. Please make the Lean code correct and as simple as possible.\n\nErrors:\n{errors_str}"
 
             return score, feedback
 
         except Exception as e:
+            print_color(f"Error: {e}", "red")
+            raise e
             error_str = str(e)
             # Check for system errors that should be raised, not returned as feedback
             system_errors = [

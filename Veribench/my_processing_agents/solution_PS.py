@@ -6,6 +6,12 @@
 # 2. Pick candidates. The sample process is very quick, if all scores are 0, the sample/evaluation is just call the guide for one time, the score should still be 0. 
 # 3. Optimizer propose new parameters. According to the picked candidates, with its feedback.
 
+import sys
+import os
+# Add project root to sys.path so we can import from my_processing_agents and guide
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 import numpy as np
 import torch
@@ -20,16 +26,15 @@ from opto.trainer.loggers import DefaultLogger
 from opto.optimizers import OptoPrimeV2
 from opto.features.priority_search.priority_search import PS_veribench as PrioritySearch
 
-from solution_opt import extract_python_code, load_single_task
-# 使用 VeribenchGuide 而不是 WebGuide - 每个线程有自己的 Pantograph 实例，真正并行
+from my_processing_agents.solution_opt import extract_python_code, load_single_task
 from guide.guide import VeribenchGuide  # 直接调用，不走 web server
 
 import litellm
 litellm.drop_params = True
 litellm.suppress_debug_info = True
 
-import secrets_local  # Load environment variables from gitignored file
-from system_prompts import SYSTEM_PROMPT, EXAMPLES,SYSTEM_PROMPT_WITH_EXAMPLES
+from my_processing_agents import secrets_local  # Load environment variables from gitignored file
+from my_processing_agents.system_prompts import SYSTEM_PROMPT, EXAMPLES, SYSTEM_PROMPT_WITH_EXAMPLES
 
 @trace.model
 class LeanCodeAgent:

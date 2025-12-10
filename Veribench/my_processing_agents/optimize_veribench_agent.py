@@ -26,8 +26,8 @@ from opto.trainer.guide import Guide
 from opto.trainer.loggers import WandbLogger, DefaultLogger
 from opto.trainer.utils import async_run
 from guide.guide import VeribenchGuide
-from .lean_interpretor import lean_interpreter, remove_import_error
-from .system_prompts import SYSTEM_PROMPT, EXAMPLES
+from my_processing_agents.lean_interpretor import lean_interpreter, remove_import_error
+from my_processing_agents.system_prompts import SYSTEM_PROMPT, EXAMPLES
 
 import litellm
 litellm.drop_params = True

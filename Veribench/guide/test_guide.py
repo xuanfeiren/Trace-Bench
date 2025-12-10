@@ -105,24 +105,84 @@ theorem empty_list_none :
 
 end BinarySearch"""
 
-LEAN_TRUNCATED_CODE = LEAN_CODE[:100]
+CODE ="""/-!
+# Binary Search Implementation
+
+This module implements binary search over a sorted list of integers.
+Returns the index if found, none if not found.
+-/
+
+namespace BinarySearch
+
+/--
+Binary search implementation that searches for a target value in a sorted array.
+Returns `some idx` if found at index idx, `none` if not found.
+-/
+def binarySearch (arr : Array Int) (target : Int) : Option Nat :=
+  if arr.isEmpty then
+    none
+  else
+    let rec search (left right : Nat) : Option Nat :=
+      if left > right then
+        none
+      else
+        let mid := (left + right) / 2
+        let midVal := arr[mid]!
+        if midVal == target then
+          some mid
+        else if midVal < target then
+          search (mid + 1) right
+        else
+          search left (mid - 1)
+    search 0 (arr.size - 1)
+
+/-!
+# Essential Tests
+-/
+
+/-- Test: Basic search functionality -/
+example : binarySearch #[1, 2, 3, 4, 5] 3 = some 2 := by native_decide
+#eval binarySearch #[1, 2, 3, 4, 5] 3  -- expected: some 2
+
+/-- Test: Element not found -/
+example : binarySearch #[1, 2, 3, 4, 5] 6 = none := by native_decide
+
+/-- Test: Empty array -/
+example : binarySearch #[] 1 = none := by native_decide
+
+/-- Test: Single element array -/
+example : binarySearch #[5] 5 = some 0 := by native_decide
+
+/-!
+# Core Properties
+-/
+
+/-- Property: Found element is at correct index -/
+def found_correct_index (arr : Array Int) (target : Int) (idx : Nat) : Prop :=
+  (binarySearch arr target = some idx) → arr[idx]! = target
+
+/-- Basic correctness theorem -/
+theorem found_correct_index_thm (arr : Array Int) (target : Int) (idx : Nat) :
+  found_correct_index arr target idx := sorry
+
+end BinarySearch"""
 
 def main():
     guide = VeribenchGuide()
-    score, feedback = guide.get_feedback(task=None, response=SIMPLE_LEAN_CODE, info=None)
-    print(f"Simple Lean code: {SIMPLE_LEAN_CODE}")
-    print(f"Score: {score}")
-    print(f"Feedback: {feedback}")
+    # score, feedback = guide.get_feedback(task=None, response=SIMPLE_LEAN_CODE, info=None)
+    # print(f"Simple Lean code: {SIMPLE_LEAN_CODE}")
+    # print(f"Score: {score}")
+    # print(f"Feedback: {feedback}")
 
     score, feedback = guide.get_feedback(task=None, response=LEAN_CODE, info=None)
     print(f"Complex Lean code: {LEAN_CODE[:100]}...")
     print(f"Score: {score}")
     print(f"Feedback: {feedback}")
 
-    score, feedback = guide.get_feedback(task=None, response=LEAN_TRUNCATED_CODE, info=None)
-    print(f"Truncated Lean code: {LEAN_TRUNCATED_CODE}")
-    print(f"Score: {score}")
-    print(f"Feedback: {feedback}")
+    # score, feedback = guide.get_feedback(task=None, response=CODE, info=None)
+    # print(f"Code: {CODE[:100]}...")
+    # print(f"Score: {score}")
+    # print(f"Feedback: {feedback}")
 
 if __name__ == "__main__":
     main()
