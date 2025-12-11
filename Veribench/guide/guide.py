@@ -73,13 +73,18 @@ class VeribenchGuide(Guide):
                 # Time out error is not a simple Lean compilation error, so we return 0.0.
                 print_color("Lean code compilation TIMEOUT. Return timeout feedback.", "yellow")
                 return 0.0, "Lean code compilation TIMEOUT. The generated code is either incorrect or too complex for the interpreter to compile within the time limit. Please make the Lean code correct and as simple as possible."
+            
+            # I assume there will not be timeout error after removing import errors...
 
             cleaned_code = remove_import_error(response,result)
             if cleaned_code != response:
                 # Re-run interpreter on cleaned code
                 result = lean_interpreter(cleaned_code)
                 # assert current no import errors
-            
+                while any("invalid 'import' command" in msg for msg in result["error_messages"]):
+                    cleaned_code = remove_import_error(cleaned_code,result)
+                    result = lean_interpreter(cleaned_code)
+
                 assert not any("invalid 'import' command" in msg for msg in result["error_messages"]), "There are still import errors after removing import errors."
             
                 correctness = result["valid"]

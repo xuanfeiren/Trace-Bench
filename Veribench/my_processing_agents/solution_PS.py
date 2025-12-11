@@ -22,9 +22,8 @@ import time
 import argparse
 
 from opto import trace
-from opto.trainer.loggers import DefaultLogger
+from opto.trainer.loggers import DefaultLogger, WandbLogger
 from opto.optimizers import OptoPrimeV2
-from opto.features.priority_search.priority_search import PS_veribench as PrioritySearch
 
 from my_processing_agents.solution_opt import extract_python_code, load_single_task
 from guide.guide import VeribenchGuide  # 直接调用，不走 web server
@@ -101,6 +100,17 @@ def main():
     parser.add_argument('--num_proposals', type=int, default=1, help='Number of proposals for each candidate')
     parser.add_argument('--log_frequency', type=int, default=1, help='How often to log results')
     parser.add_argument('--test_frequency', type=int, default=None, help='How often to run evaluation')
+
+    parser.add_argument('--algorithm', type=str, default='PS',choices=['PS','PS_Summarizer','PS_epsNet_Summarizer','PS_epsNet'], help='Algorithm to use')
+    
+    # Logger parameters
+    parser.add_argument('--use_wandb', action='store_true', default=False,
+                       help='Whether to use Weights & Biases for logging')
+    parser.add_argument('--project_name', type=str, default='veribench-single-task',
+                       help='Name of the W&B project')
+    parser.add_argument('--run_name', type=str, default=None,
+                       help='Name of the W&B run (default: task_{task_idx})')
+    
     args = parser.parse_args()
 
     task_idx = args.task_idx
@@ -149,19 +159,76 @@ If a theorem keeps giving error, you can use := sorry to skip it.
 
     # Step 5: Initialize guide and logger
     guide = VeribenchGuide()
-    logger = DefaultLogger(verbose=True)
+    
+    # Create config dictionary for logging
+    config_dict = {
+        'task_idx': task_idx,
+        'task_id': task['task_id'],
+        'num_steps': num_steps,
+        'num_candidates': args.num_candidates,
+        'num_threads': num_threads,
+        'num_proposals': num_proposals,
+        'log_frequency': log_frequency,
+        'test_frequency': test_frequency,
+    }
+    
+    # Set run name if not provided
+    run_name = args.run_name if args.run_name else f"task_{task_idx}"
+    
+    # Initialize logger based on wandb flag
+    if args.use_wandb:
+        logger = WandbLogger(project=args.project_name, verbose=True, name=run_name, config=config_dict)
+    else:
+        logger = DefaultLogger(verbose=True)
     
     # Step 6: Create single-task dataset
     train_dataset = create_single_task_dataset(task_idx)
     
     # Step 7: Create PrioritySearch algorithm
     print("\nCreating PrioritySearch algorithm...")
-    algorithm = PrioritySearch(
-        agent=agent,
-        optimizer=optimizer,
-        logger=logger,
-        num_threads=num_threads,
-    )
+    if args.use_wandb:
+        print(f"Using Weights & Biases logging: project='{args.project_name}', run='{run_name}'")
+    else:
+        print("Using DefaultLogger (no W&B logging)")
+
+    # Algorithm selection
+    if args.algorithm == 'PS':
+        from opto.features.priority_search.priority_search import PS_veribench 
+        algorithm = PS_veribench(
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger,
+            num_threads=num_threads,
+        )
+    elif args.algorithm == 'PS_Summarizer':
+        from opto.features.priority_search.priority_search_ablation import PS_veribench
+        algorithm = PS_veribench(
+            epsilon=0.0,
+            use_summarizer=True,
+            summarizer_model_name="claude-3-5-sonnet",
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger,
+            num_threads=num_threads
+        )
+    elif args.algorithm == 'PS_epsNet_Summarizer':
+        from opto.features.priority_search.priority_search_ablation import PS_veribench
+        algorithm = PS_veribench(
+            epsilon=0.1,
+            use_summarizer=True,
+            summarizer_model_name="claude-3-5-sonnet",
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger)
+    elif args.algorithm == 'PS_epsNet':
+        from opto.features.priority_search.priority_search_ablation import PS_veribench
+        algorithm = PS_veribench(
+            epsilon=0.1,
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger)
+    else:
+        raise ValueError(f"Unknown algorithm: {args.algorithm}")
     
     # Step 8: Run PrioritySearch training
     print(f"\nStarting PrioritySearch optimization (max {num_steps} steps)...")
