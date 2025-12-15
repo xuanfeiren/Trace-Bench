@@ -41,6 +41,9 @@ dependencies = [
   "torch>=2.9.1",
   "fastapi>=0.104.0",
   "uvicorn>=0.24.0",
+  "dspy",
+  "gepa",
+  "openevolve",
 ]
 
 [tool.setuptools]
@@ -64,3 +67,6 @@ no-build-isolation-package = ["flash-attn"]
 [tool.uv.sources]
 pantograph = { path = "../external/PyPantograph_Kai" }
 trace-opt = { path = "Trace", editable = true }
+dspy = { path = "dspy-repo", editable = true }
+gepa = { path = "gepa-repo", editable = true }
+openevolve = { path = "openevolve", editable = true }
