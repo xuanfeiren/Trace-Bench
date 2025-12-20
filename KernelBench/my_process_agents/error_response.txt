@@ -1,0 +1,94 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.cpp_extension import load_inline
+
+hinge_loss_cuda_source = """
+#include <torch/extension.h>
+#include <cuda_runtime.h>
+
+__global__ void hinge_loss_kernel(
+    const float* predictions, 
+    const float* targets,
+    float* output,
+    int size) {
+    
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size) {
+        float pred = predictions[idx];
+        float target = targets[idx];
+        float loss = 1.0f - pred * target;
+        output[idx] = loss > 0.0f ? loss : 0.0f;
+    }
+}
+
+__global__ void block_sum(float* array, float* output, int size) {
+    extern __shared__ float shared[];
+    
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    shared[tid] = (idx < size) ? array[idx] : 0.0f;
+    __syncthreads();
+    
+    for (int stride = blockDim.x/2; stride > 0; stride >>= 1) {
+        if (tid < stride) {
+            shared[tid] += shared[tid + stride];
+        }
+        __syncthreads();
+    }
+    
+    if (tid == 0) {
+        output[blockIdx.x] = shared[0];
+    }
+}
+
+torch::Tensor hinge_loss_cuda(torch::Tensor predictions, torch::Tensor targets) {
+    auto size = predictions.numel();
+    auto intermediate = torch::zeros_like(predictions);
+    
+    const int block_size = 256;
+    const int num_blocks = (size + block_size - 1) / block_size;
+    
+    // First kernel: compute element-wise hinge loss
+    hinge_loss_kernel<<<num_blocks, block_size>>>(
+        predictions.data_ptr<float>(),
+        targets.data_ptr<float>(),
+        intermediate.data_ptr<float>(),
+        size
+    );
+    
+    // Second kernel: parallel reduction for mean
+    auto partial_sums = torch::zeros({num_blocks}, predictions.options());
+    block_sum<<<num_blocks, block_size, block_size * sizeof(float)>>>(
+        intermediate.data_ptr<float>(),
+        partial_sums.data_ptr<float>(),
+        size
+    );
+    
+    // Final reduction and mean on CPU (small tensor)
+    auto sum = partial_sums.sum();
+    return sum / size;
+}
+"""
+
+hinge_loss_cpp_source = """
+torch::Tensor hinge_loss_cuda(torch::Tensor predictions, torch::Tensor targets);
+"""
+
+hinge_loss = load_inline(
+    name="hinge_loss",
+    cpp_sources=hinge_loss_cpp_source,
+    cuda_sources=hinge_loss_cuda_source,
+    functions=["hinge_loss_cuda"],
+    verbose=True,
+)
+
+
+class ModelNew(nn.Module):
+    def __init__(self):
+        super(ModelNew, self).__init__()
+        self.hinge_loss = hinge_loss
+
+    def forward(self, predictions, targets):
+        return self.hinge_loss.hinge_loss_cuda(predictions, targets)
