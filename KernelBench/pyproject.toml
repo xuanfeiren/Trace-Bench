@@ -8,7 +8,7 @@ name = "Kernelbench"
 version = "0.0.1"
 description = "Local wrapper to manage KernelBench deps via uv"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 license = {text = "MIT"}
 authors = [
   {name = "KernelBench Maintainers"}

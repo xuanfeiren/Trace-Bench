@@ -33,7 +33,7 @@ from opto.optimizers.utils import print_color
 np.random.seed(10)
 
 @trace.model
-class KernelAgent():
+class KernelCode():
     """This is a kernel program container."""
     def __init__(self, initial_kernel_code: str="# This is a dummy kernel code. You should replace it with your own kernel code based on the task prompt and optimization objectives."):
         self.kernel_code = trace.node(initial_kernel_code, trainable=True)
@@ -78,7 +78,7 @@ class KernelGuide(Guide):
             score = -1
             feedback = f"Evaluation failed with error:\n{error_msg}\n\n Please write a new kernel code based on the task prompt and optimization objectives."
 
-            breakpoint()
+            # breakpoint()
 
             # save the response that cause the error
             with open(f"error_response_{time.time()}.txt", "w") as f:
@@ -220,7 +220,7 @@ def kernel_PS_train(
     # Shouldn't initialize with reference implementation here, because the reference implementation doesn't meet the requirements of custom CUDA kernel (for example, a ModelNew class is not defined)
     # initial_kernel_code = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
     # agent = KernelAgent(initial_kernel_code=initial_kernel_code)
-    agent = KernelAgent()
+    agent = KernelCode()
 
     # Step 3: Initialize Optimizer
     optimizer = OptoPrimeV2(agent.parameters(), max_tokens=8192, initial_var_char_limit=10000)
