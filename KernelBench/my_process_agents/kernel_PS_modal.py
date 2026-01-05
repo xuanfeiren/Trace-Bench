@@ -38,12 +38,8 @@ class KernelAgent():
     def __init__(self, initial_kernel_code: str="# This is a dummy kernel code. You should replace it with your own kernel code based on the task prompt and optimization objectives."):
         self.kernel_code = trace.node(initial_kernel_code, trainable=True)
 
-    @trace.bundle()
-    def get_kernel_code(self, task_prompt: str, kernel_code: str) -> str:
-        return kernel_code
-
     def forward(self, task: str) -> str:
-        return self.get_kernel_code(task, self.kernel_code)
+        return self.kernel_code
 
 class DummyGuide(Guide):
     """This is a dummy guide. Used for debugging the other parts of the code."""
@@ -74,17 +70,19 @@ class KernelGuide(Guide):
                 custom_cuda,
                 self.verbose,
                 gpu_arch_mapping[self.gpu],
-                num_correct_trials=self.num_correct_trials,
-                num_perf_trials=self.num_perf_trials
+                # num_correct_trials=self.num_correct_trials,
+                # num_perf_trials=self.num_perf_trials
             )
         except Exception as e:
             error_msg = str(e)
             score = -1
             feedback = f"Evaluation failed with error:\n{error_msg}\n\n Please write a new kernel code based on the task prompt and optimization objectives."
 
+            breakpoint()
+
             # save the response that cause the error
-            # with open(f"error_response_{time.time()}.txt", "w") as f:
-            #     f.write(custom_cuda)
+            with open(f"error_response_{time.time()}.txt", "w") as f:
+                f.write(custom_cuda)
 
             print_color(feedback, 'yellow')
 
@@ -93,6 +91,7 @@ class KernelGuide(Guide):
         compiled = result.get('compiled', False)
         correctness = result.get('correctness', False)
         runtime = result.get('runtime', -1.0)
+        ref_runtime = result.get('ref_runtime', -1.0)
         runtime_stats = result.get('runtime_stats', {})
         metadata = result.get('metadata', {})
 
@@ -101,44 +100,69 @@ class KernelGuide(Guide):
             # Extract detailed error information from metadata
             error_name = metadata.get('compilation_error_name', metadata.get('error_type', 'Unknown'))
             error_msg = metadata.get('compilation_error', metadata.get('error', 'Unknown error'))
-            traceback_info = metadata.get('traceback', '')
+            feedback_from_eval = metadata.get('feedback', '')
 
-            feedback = f"Compilation/Runtime failed. Please fix the error and try again.\n\n"
+            feedback = f"COMPILATION FAILURE - Score: {score}\n\n"
             feedback += f"Error Type: {error_name}\n"
-            feedback += f"Error Message: {error_msg}\n"
-            if traceback_info:
-                feedback += f"\nDetailed Traceback:\n{traceback_info}\n"
-            feedback += f"\nFull Metadata: {metadata}"
-
-            # save the response that cause the error
-            # with open(f"error_response_{time.time()}.txt", "w") as f:
-            #     f.write(custom_cuda)
+            feedback += f"Error Message: {error_msg}\n\n"
+            if feedback_from_eval:
+                feedback += f"Detailed Feedback:\n{feedback_from_eval}"
+            else:
+                feedback += f"Full Metadata: {metadata}"
         elif not correctness:
-            # save the response that cause the error
-            # with open(f"error_response_{time.time()}.txt", "w") as f:
-            #     f.write(custom_cuda)
             score = 0.0
             runtime_error_name = metadata.get('runtime_error_name', 'Unknown')
             runtime_error = metadata.get('runtime_error', 'Unknown error')
+            feedback_from_eval = metadata.get('feedback', '')
 
-            feedback = f"The kernel code compiled but failed correctness tests.\n\n"
+            feedback = f"CORRECTNESS FAILURE - Score: {score}\n\n"
+            feedback += f"The kernel compiled but failed correctness tests.\n"
             feedback += f"Error Type: {runtime_error_name}\n"
-            feedback += f"Error Details: {runtime_error}\n"
-            feedback += f"\nPlease fix the logic error and try again.\n"
-            feedback += f"\nFull Metadata: {metadata}"
+            feedback += f"Error Details: {runtime_error}\n\n"
+            if feedback_from_eval:
+                feedback += f"Detailed Feedback:\n{feedback_from_eval}"
+            else:
+                feedback += f"Full Metadata: {metadata}"
         else:
-            # save the response that cause the error
-            # with open(f"success_response_{time.time()}.txt", "w") as f:
-            #     f.write(custom_cuda)
-            runtime_seconds = runtime / 1000.0 if runtime > 0 else float('inf')
-            score = 1.0 / runtime_seconds if runtime_seconds > 0 else 0.0
-            feedback = (
-                f"The kernel code compiled and is correct!\n"
-                f"Runtime: {runtime:.4f} ms\n"
-                f"Runtime Stats: {runtime_stats}\n"
-                f"Score (1/runtime_sec): {score:.4f}\n"
-                f"Metadata: {metadata}"
-            )
+            # SUCCESS: Use speedup as score
+            speedup = metadata.get('speedup', None)
+
+            if speedup is not None:
+                score = speedup
+                feedback = (
+                    f"SUCCESS - Score (Speedup): {score:.4f}x\n\n"
+                    f"Custom Kernel Runtime: {runtime:.4f} μs\n"
+                    f"Reference Runtime: {ref_runtime:.4f} μs\n"
+                    f"Speedup: {speedup:.4f}x\n"
+                    f"Runtime Stats: {runtime_stats}\n\n"
+                )
+            else:
+                # Speedup not available - likely due to performance measurement error
+                score = 0.0
+                error_during_perf = metadata.get('error_during_performance', None)
+
+                if error_during_perf:
+                    # Performance measurement failed
+                    error_type = metadata.get('error_during_performance_name', 'Unknown')
+                    feedback = (
+                        f"PERFORMANCE FAILURE - Score: {score}\n\n"
+                        f"The kernel compiled and passed correctness tests, but failed during performance measurement.\n"
+                        f"Error Type: {error_type}\n"
+                        f"Error: {error_during_perf}\n\n"
+                    )
+                else:
+                    # Speedup genuinely missing (shouldn't happen)
+                    feedback = (
+                        f"SUCCESS but speedup not available - Score: {score}\n\n"
+                        f"Custom Kernel Runtime: {runtime:.4f} μs\n"
+                        f"Runtime Stats: {runtime_stats}\n"
+                        f"WARNING: Speedup not found in metadata. Check eval settings.\n\n"
+                    )
+
+            # Add feedback from eval if available
+            feedback_from_eval = metadata.get('feedback', '')
+            if feedback_from_eval:
+                feedback += f"Detailed Feedback:\n{feedback_from_eval}"
         print_color(feedback, 'yellow')
         return score, feedback
 
@@ -146,14 +170,23 @@ class KernelGuide(Guide):
         score, _ = self.get_feedback(task, response, info, **kwargs)
         return score
 
+# def create_single_task_dataset(task_idx: int):
+#     ds = load_dataset("allenanie/kernelbench_with_prompts")
+#     examples = [ex for ex in ds['train'] if ex['backend'] == 'cuda']
+#     task = examples[task_idx]
+#     return {
+#         'inputs': [task['input']],
+#         'infos': [task['ref_arch_src']]
+#     }
+
+from dataset.utils import create_matrix_multiplication_dataset
 def create_single_task_dataset(task_idx: int):
-    ds = load_dataset("allenanie/kernelbench_with_prompts")
-    examples = [ex for ex in ds['train'] if ex['backend'] == 'cuda']
-    task = examples[task_idx]
-    return {
-        'inputs': [task['input']],
-        'infos': [task['ref_arch_src']]
-    }
+    """
+    Create a single task dataset from the matrix multiplication dataset.
+    """
+    ds = create_matrix_multiplication_dataset()
+    return {'inputs': [ds[task_idx]['input']], 'infos': [ds[task_idx]['ref_arch_src']]}
+
 
 @app.local_entrypoint()
 def kernel_PS_train(
@@ -185,129 +218,13 @@ def kernel_PS_train(
 
     # Step 2: Initialize Agent with reference implementation as starting point
     # Shouldn't initialize with reference implementation here, because the reference implementation doesn't meet the requirements of custom CUDA kernel (for example, a ModelNew class is not defined)
-    initial_kernel_code = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
-    agent = KernelAgent(initial_kernel_code=initial_kernel_code)
+    # initial_kernel_code = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
+    # agent = KernelAgent(initial_kernel_code=initial_kernel_code)
+    agent = KernelAgent()
 
     # Step 3: Initialize Optimizer
     optimizer = OptoPrimeV2(agent.parameters(), max_tokens=8192, initial_var_char_limit=10000)
-    optimizer.objective = """
-    You are an expert CUDA kernel optimizer. Your goal is to write CORRECT, COMPILABLE, and FAST custom CUDA kernels.
-
-    ## CRITICAL REQUIREMENTS (Must follow ALL of these):
-
-    1. **Code Structure** - Your code MUST include:
-       - A `ModelNew` class that inherits from `nn.Module`
-       - `get_inputs()` function that returns a list of input tensors
-       - `get_init_inputs()` function that returns initialization parameters
-       - Proper imports: torch, torch.nn, torch.utils.cpp_extension.load_inline
-
-    2. **CUDA Kernel Safety** - ALWAYS add bounds checking:
-       ```cpp
-       int idx = blockIdx.x * blockDim.x + threadIdx.x;
-       if (idx < total_elements) {  // ← CRITICAL: Prevent out-of-bounds access
-           // Your kernel code here
-       }
-       ```
-       **Without bounds checking, you WILL get "illegal memory access" errors!**
-
-    3. **Type Consistency** - Avoid type mismatches:
-       - Cast literals to correct type: `min(65535, (int)((size + threads - 1) / threads))`
-       - Use consistent types: don't mix `int` and `long`
-       - Be explicit with numeric types in CUDA kernels
-
-    4. **Grid/Block Dimensions** - Calculate correctly:
-       ```cpp
-       const int threads = 256;  // Good default for most GPUs
-       const int blocks = min(65535, (size + threads - 1) / threads);
-       kernel<<<blocks, threads>>>(...);
-       ```
-
-    5. **Memory Access Patterns** - Optimize for GPU:
-       - **Coalesced access**: Adjacent threads access adjacent memory
-       - **Shared memory**: Use for frequently accessed data
-       - **Grid-stride loops**: `for (int i = idx; i < size; i += blockDim.x * gridDim.x)`
-
-    ## OPTIMIZATION STRATEGIES (in priority order):
-
-    1. **Correctness First**: Code must compile and pass correctness tests before optimizing
-    2. **Memory Bandwidth**: Minimize global memory access, use shared memory for reused data
-    3. **Parallelization**: Maximize thread utilization, avoid warp divergence
-    4. **Computation**: Use fast math operations, avoid expensive operations (division, sqrt)
-    5. **Register Usage**: Keep register usage low to maximize occupancy
-
-    ## COMMON ERRORS TO AVOID:
-
-    - ❌ Missing bounds checking → Illegal memory access (XID 31 error)
-    - ❌ Type mismatches in min/max → Compilation error
-    - ❌ Missing ModelNew class → AttributeError
-    - ❌ Wrong tensor dimensions → Runtime error
-    - ❌ Race conditions in shared memory → Incorrect results
-    - ❌ Incorrect __syncthreads() usage → Deadlock or incorrect results
-
-    ## EXAMPLE TEMPLATE:
-
-    ```python
-    import torch
-    import torch.nn as nn
-    from torch.utils.cpp_extension import load_inline
-
-    cuda_source = '''
-    __global__ void my_kernel(const float* input, float* output, int size) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if (idx < size) {  // Bounds check!
-            output[idx] = input[idx] * 2.0f;  // Your operation here
-        }
-    }
-
-    torch::Tensor my_operation(torch::Tensor input) {
-        auto output = torch::zeros_like(input);
-        int size = input.numel();
-        const int threads = 256;
-        const int blocks = (size + threads - 1) / threads;
-
-        my_kernel<<<blocks, threads>>>(
-            input.data_ptr<float>(),
-            output.data_ptr<float>(),
-            size
-        );
-        return output;
-    }
-    '''
-
-    cpp_source = "torch::Tensor my_operation(torch::Tensor input);"
-
-    module = load_inline(
-        name='my_kernel',
-        cpp_sources=cpp_source,
-        cuda_sources=cuda_source,
-        functions=['my_operation'],
-        verbose=False
-    )
-
-    class ModelNew(nn.Module):
-        def __init__(self):
-            super(ModelNew, self).__init__()
-            self.op = module
-
-        def forward(self, input):
-            return self.op.my_operation(input)
-
-    def get_inputs():
-        return [torch.randn(1024, device='cuda')]
-
-    def get_init_inputs():
-        return []
-    ```
-
-    ## YOUR TASK:
-    - Study the reference implementation to understand the operation
-    - Write a custom CUDA kernel that is FASTER than the reference
-    - ALWAYS include bounds checking to prevent memory errors
-    - Test your logic carefully - correctness is more important than speed
-    - If compilation fails, fix the error based on the feedback
-    - If correctness fails, debug the kernel logic
-    - Once correct, optimize for performance using the strategies above
-    """
+    optimizer.objective = input_text
 
     # Step 4: Setup Logging
     config_dict = {
@@ -362,6 +279,7 @@ def kernel_PS_train(
         num_threads=num_threads,
         num_eval_samples=1,
         validate_exploration_candidates=False,
+        use_best_candidate_to_explore=False,
         num_candidates=num_candidates,
         num_proposals=num_proposals,
         score_function='mean',
@@ -374,4 +292,4 @@ def kernel_PS_train(
 
 if __name__ == "__main__":
     # When running via 'modal run', this block is ignored.
-    pass
+    print(create_single_task_dataset(3)['infos'][0])

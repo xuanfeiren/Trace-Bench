@@ -40,7 +40,7 @@ command -v git >/dev/null 2>&1 || { echo "git is required"; exit 1; }
 
 EXTERNAL_DIR=${EXTERNAL_DIR:-"$REPO_ROOT/external"}
 KERNELBENCH_DIR=${KERNELBENCH_DIR:-"$EXTERNAL_DIR/KernelBench"}
-KERNELBENCH_URL=${KERNELBENCH_URL:-"https://github.com/ScalingIntelligence/KernelBench.git"}
+KERNELBENCH_URL=${KERNELBENCH_URL:-"https://github.com/xuanfeiren/KernelBench.git"}
 
 mkdir -p "$EXTERNAL_DIR"
 
@@ -74,7 +74,24 @@ fi
 # If KernelBench has a requirements.txt, install those requirements explicitly.
 if [ -f "$KERNELBENCH_DIR/requirements.txt" ]; then
   echo "Installing KernelBench requirements.txt into the uv environment"
-  "$UV_BIN" pip install -r "$KERNELBENCH_DIR/requirements.txt"
+  
+  # On macOS, filter out NVIDIA CUDA packages that are Linux-only
+  if [ "$(uname)" = "Darwin" ]; then
+    echo "Detected macOS - filtering out CUDA/GPU packages (Linux-only)"
+    # Create a filtered requirements file excluding CUDA-related packages
+    # Filter out: nvidia-*, triton, cupy-cuda*, tilelang, torch (torch is in pyproject.toml with macOS-compatible version)
+    # Note: torch, einops are already in pyproject.toml and will be installed via uv sync
+    grep -vE "^(nvidia-|triton|torch|cupy-cuda|tilelang)" "$KERNELBENCH_DIR/requirements.txt" > "$SCRIPT_DIR/.requirements_filtered.txt" || true
+    if [ -s "$SCRIPT_DIR/.requirements_filtered.txt" ]; then
+      "$UV_BIN" pip install -r "$SCRIPT_DIR/.requirements_filtered.txt"
+      rm -f "$SCRIPT_DIR/.requirements_filtered.txt"
+    else
+      echo "No non-CUDA requirements to install"
+    fi
+  else
+    # On Linux, install all requirements including NVIDIA packages
+    "$UV_BIN" pip install -r "$KERNELBENCH_DIR/requirements.txt"
+  fi
 fi
 
 echo "KernelBench setup complete."

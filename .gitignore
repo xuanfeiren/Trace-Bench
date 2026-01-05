@@ -6,3 +6,11 @@ external/*
 *.egg-info/
 **/.venv/
 logs/
+KernelBench/my_process_agents/secrets_local.py
+*.json
+*.txt
+.*
+*.log
+*.png
+*.npy
+stderr

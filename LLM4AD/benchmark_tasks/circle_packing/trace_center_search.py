@@ -39,6 +39,7 @@ class CircleAgent:
         Initialize the agent with initial circle centers.
         """
         initial_centers = np.random.uniform(0.1, 0.9, (26, 2))
+        # initial_centers = np.zeros((26, 2))
         # Convert to string representation for hashability in PrioritySearch
         centers_str = str(initial_centers.tolist())
         self.circle_centers = trace.node(centers_str, trainable=True)
@@ -70,12 +71,12 @@ class CircleAgent:
             centers_array = np.array(centers_list, dtype=np.float64)
             
             if centers_array.shape != (26, 2):
-                print_color(f"Invalid centers shape: {centers_array.shape}, expected (26, 2)", 'red')
+                print_color(f"Agent forward error: Invalid centers shape: {centers_array.shape}, expected (26, 2)", 'red')
                 return np.zeros((26, 3))
             
             # check if the centers are inside [0, 1]×[0, 1]
             if np.any(centers_array[:, 0] < 0) or np.any(centers_array[:, 0] > 1) or np.any(centers_array[:, 1] < 0) or np.any(centers_array[:, 1] > 1):
-                print_color(f"Invalid centers: {centers_array}. Centers must be inside [0, 1]×[0, 1].", 'red')
+                print_color(f"Agent forward error: Invalid centers: {centers_array}. Centers must be inside [0, 1]×[0, 1].", 'red')
                 return np.zeros((26, 3))
             
             # Solve LP for optimal radii given these centers
@@ -86,18 +87,18 @@ class CircleAgent:
             return circles
             
         except SyntaxError as e:
-            print_color(f"[SYNTAX ERROR] Invalid Python syntax in centers string", 'red')
+            print_color(f"Agent forward error: [SYNTAX ERROR] Invalid Python syntax in centers string", 'red')
             print_color(f"Error: {str(e)}", 'red')
             print_color(f"Centers string:\n{centers}", 'yellow')
             return np.zeros((26, 3))
         except ValueError as e:
-            print_color(f"[VALUE ERROR] Centers contain expressions/comprehensions (not allowed)", 'red')
+            print_color(f"Agent forward error: [VALUE ERROR] Centers contain expressions/comprehensions (not allowed)", 'red')
             print_color(f"Error: {str(e)}", 'red')
             print_color(f"Centers must be literal values only - compute and write actual numbers!", 'yellow')
             print_color(f"String preview: {centers[:300]}...", 'cyan')
             return np.zeros((26, 3))
         except Exception as e:
-            print_color(f"[ERROR] in get_circles: {type(e).__name__}: {str(e)}", 'red')
+            print_color(f"Agent forward error: [ERROR] in get_circles: {type(e).__name__}: {str(e)}", 'red')
             print_color(f"Centers string (first 300 chars): {centers[:300]}", 'yellow')
             return np.zeros((26, 3))
 
@@ -169,13 +170,11 @@ class CircleAgent:
         # Bounds: r_i >= 0
         bounds = [(0, None) for _ in range(n)]
         
-        # Solve LP with high precision settings
+        # Solve LP with HiGHS solver options
         options = {
-            'presolve': True,
-            'disp': False,
-            'maxiter': 10000,
-            'tol': 1e-12,  # High precision tolerance
-            'autoscale': True
+            'presolve': True,    # Enable presolve for better conditioning
+            'disp': False,       # Suppress solver output
+            'maxiter': 10000     # Maximum iterations
         }
         
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs', options=options)
@@ -203,6 +202,7 @@ class CircleAgent:
             The circles array as numpy array with shape (26, 3)
         """
         return self.get_circles(dummy_input, self.circle_centers)
+
 
 
 
@@ -327,7 +327,8 @@ class CirclePackingGuide(Guide):
         score = np.sum(circles_array[:, 2])
         
         # Simple feedback for valid solutions
-        feedback = f"Score: {score:.5f}. Adjust centers to improve packing."
+        feedback = f"Score: {score:.5f}. Adjust centers to improve packing. CURRENT SOTA SCORE: 2.64 (this is the target to beat! scores around 2.54 is far from the target)"
+
         return score, feedback
 
     def metric(self, task, response, info=None, **kwargs):
@@ -368,6 +369,8 @@ def main():
 
     parser.add_argument('--algorithm', type=str, default='PS',choices=['PS','PS_Summarizer','PS_epsNet_Summarizer','PS_epsNet'], help='Algorithm to use')
 
+    parser.add_argument('--epsilon', type=float, default=0.1, help='Epsilon for the epsilon-net algorithm')
+
     parser.add_argument('--use_wandb', action='store_true', default=False,
                        help='Whether to use Weights & Biases for logging')
     parser.add_argument('--project_name', type=str, default='circle-packing',
@@ -393,7 +396,7 @@ def main():
         max_tokens = 65536
     else:
         max_tokens = 8192
-    optimizer = OptoPrimeV2(agent.parameters(), max_tokens=8192, initial_var_char_limit=10000)
+    optimizer = OptoPrimeV2(agent.parameters(), max_tokens=max_tokens, initial_var_char_limit=10000)
     optimizer.objective = f"""PROBLEM: Pack 26 circles in a unit square [0,1]×[0,1] to MAXIMIZE the sum of their radii.
 
 CONSTRAINTS:
@@ -409,12 +412,12 @@ OUTPUT FORMAT (CRITICAL):
 - Each center MUST be inside [0, 1]×[0, 1]: 0 ≤ x ≤ 1 and 0 ≤ y ≤ 1
 - MUST write LITERAL NUMERIC VALUES only - compute all values yourself!
   ✓ CORRECT: [[0.1, 0.273205], [0.3, 0.446410], [0.5, 0.619615], ...]
-
+- Use MANY DECIMAL DIGITS for precision (e.g., 0.15384615384615, not just 0.15)
 
 OPTIMIZATION APPROACH:
-Based on the current configuration and feedback, either:
-- Explore: Propose a promising new configuration with different pattern
-- Exploit: Refine current centers by adjusting positions to improve packing
+- You can make minor adjustments to the current circle centers to improve the score
+- Or propose a completely new configuration with a different pattern
+- Write your final answer with high precision (8-12 decimal digits)
 
 You will see:
 - Current centers in # Variables
@@ -454,37 +457,40 @@ You will see:
     else:
         print("Using DefaultLogger (no W&B logging)")
 
+    from opto.features.priority_search.priority_search import PrioritySearch
+    from opto.features.priority_search.epsNetPS_plus_summarizer import EpsilonNetPS_plus_Summarizer
+
     # Algorithm selection
     if args.algorithm == 'PS':
-        from opto.features.priority_search.priority_search import PrioritySearch
         algorithm = PrioritySearch(agent=agent, optimizer=optimizer, logger=logger, num_threads=num_threads)
-    # elif args.algorithm == 'PS_Summarizer':
-    #     from opto.features.priority_search.priority_search_ablation import PS_veribench
-    #     algorithm = PS_veribench(
-    #         epsilon=0.0,
-    #         use_summarizer=True,
-    #         summarizer_model_name="claude-3-5-sonnet",
-    #         agent=agent,
-    #         optimizer=optimizer,
-    #         logger=logger,
-    #         num_threads=num_threads
-    #     )
-    # elif args.algorithm == 'PS_epsNet_Summarizer':
-    #     from opto.features.priority_search.priority_search_ablation import PS_veribench
-    #     algorithm = PS_veribench(
-    #         epsilon=0.1,
-    #         use_summarizer=True,
-    #         summarizer_model_name="claude-3-5-sonnet",
-    #         agent=agent,
-    #         optimizer=optimizer,
-    #         logger=logger)
-    # elif args.algorithm == 'PS_epsNet':
-    #     from opto.features.priority_search.priority_search_ablation import PS_veribench
-    #     algorithm = PS_veribench(
-    #         epsilon=0.1,
-    #         agent=agent,
-    #         optimizer=optimizer,
-    #         logger=logger)
+    elif args.algorithm == 'PS_Summarizer':
+        algorithm = EpsilonNetPS_plus_Summarizer(
+            epsilon=0.0,
+            use_summarizer=True,
+            summarizer_model_name="claude-3.5-sonnet",
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger,
+            num_threads=num_threads
+        )
+    elif args.algorithm == 'PS_epsNet_Summarizer':
+        algorithm = EpsilonNetPS_plus_Summarizer(
+            epsilon=args.epsilon,
+            use_summarizer=True,
+            summarizer_model_name="claude-3.5-sonnet",
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger,
+            num_threads=num_threads
+            )
+    elif args.algorithm == 'PS_epsNet':
+        algorithm = EpsilonNetPS_plus_Summarizer(
+            epsilon=args.epsilon,
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger,
+            num_threads=num_threads
+            )
     else:
         raise ValueError(f"Unknown algorithm: {args.algorithm}")
     
@@ -530,6 +536,7 @@ You will see:
     print("-" * 50)
     print(final_circles_array)
     print("-" * 50)
+
 
 
 if __name__ == "__main__":

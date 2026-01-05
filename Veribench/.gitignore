@@ -5,3 +5,23 @@ my_processing_agents/secrets_local.py
 secrets_local.py
 claude.sh
 
+results/
+
+PyPantograph/
+PyPantograph_Kai/
+external/
+gepa-repo/
+openevolve/
+dspy-repo/
+Trace/
+
+small_experiments/
+my_run_scripts/
+data
+*.pdf
+*.png
+*.csv
+my_plots/
+my_process_data/
+
+self-opt-data-gen/

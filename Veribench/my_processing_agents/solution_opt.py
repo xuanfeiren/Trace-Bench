@@ -7,6 +7,12 @@ np.random.seed(10)
 torch.manual_seed(10)
 
 import os
+import sys
+
+# Add workspace root to Python path to enable package imports
+WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if WORKSPACE_ROOT not in sys.path:
+    sys.path.insert(0, WORKSPACE_ROOT)
 import re
 import json
 import time
@@ -129,7 +135,7 @@ def get_initial_lean_code(user_query: str, model: str = "claude-3.5-sonnet") -> 
 
 def main():
     parser = argparse.ArgumentParser(description='Optimize a single Lean solution using feedback loop')
-    parser.add_argument('--task_idx', type=int, default=0, help='Task index from the Veribench dataset')
+    parser.add_argument('--task_idx', type=int, default=2, help='Task index from the Veribench dataset')
     parser.add_argument('--epoch', type=int, default=50, help='Maximum number of optimization epochs')
     parser.add_argument('--model', type=str, default='claude-3.5-sonnet', help='Model to use for LLM calls')
     args = parser.parse_args()

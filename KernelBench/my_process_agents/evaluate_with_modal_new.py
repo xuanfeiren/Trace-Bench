@@ -11,7 +11,7 @@ import modal
 
 from datasets import load_dataset
 
-app = modal.App("trace_bench_kernel_triton_eval")
+app = modal.App("trace_bench_kernel")  # Changed name to force cache invalidation
 
 # NOTE: this assumes you have run `install.sh` inside this repo so that KernelBench is stored and built under `./external/KernelBench`
 REPO_TOP_PATH = os.path.abspath(
@@ -81,7 +81,7 @@ image = (
             "**/*.egg-info"
         ]
     ).add_local_file(
-        os.path.join(REPO_TOP_PATH, "level1_prob1_cuda_custom_cuda_gpt5_example.txt"),
+        os.path.join(os.path.dirname(__file__), "level1_prob1_cuda_custom_cuda_gpt5_example.txt"),
         remote_path="/root"
     )
 )
@@ -90,9 +90,10 @@ image = (
 def _eval_in_process(ref_arch_src, custom_cuda, verbose, gpu_arch, num_correct_trials, num_perf_trials):
     """
     Wrapper function to run evaluation in an isolated subprocess.
-    This prevents CUDA context corruption and lock file conflicts from affecting future evaluations.
+    This prevents CUDA context corruption from affecting future evaluations.
     """
     import sys
+    import os
     from io import StringIO
     from src.eval import eval_kernel_against_ref
     from src.utils import set_gpu_arch
@@ -122,29 +123,17 @@ def _eval_in_process(ref_arch_src, custom_cuda, verbose, gpu_arch, num_correct_t
             num_perf_trials=num_perf_trials
         )
 
-    # Handle case where eval_kernel_against_ref returns None (e.g., lock file errors)
-    if result is None:
-        return {
-            'compiled': False,
-            'correctness': False,
-            'runtime': -1.0,
-            'runtime_stats': {},
-            'ref_runtime': -1.0,
-            'ref_runtime_stats': {},
-            'metadata': {'error': 'Evaluation failed - likely due to compilation lock or concurrent access'}
-        }
-
     # Convert Pydantic model to dict before returning from subprocess
     return result.model_dump() if hasattr(result, 'model_dump') else result.dict()
 
 
-@app.function(image=image, timeout=3600, gpu="L40S")
+@app.function(image=image, timeout=3600, gpu="L40S", min_containers=1)
 def eval_single_sample_modal(ref_arch_src, custom_cuda, verbose, gpu_arch, num_correct_trials=5, num_perf_trials=100):
     """
-    Evaluate kernel in an isolated subprocess to prevent CUDA context corruption and lock file conflicts.
+    Evaluate kernel in an isolated subprocess to prevent CUDA context corruption.
 
     Each evaluation runs in a fresh process, so CUDA errors (like illegal memory access,
-    lock files from concurrent compilations, etc.) don't contaminate future evaluations.
+    XID faults, etc.) from buggy kernels don't contaminate future evaluations.
     """
     import multiprocessing as mp
 
@@ -163,8 +152,6 @@ def eval_single_sample_modal(ref_arch_src, custom_cuda, verbose, gpu_arch, num_c
                 'correctness': False,
                 'runtime': -1.0,
                 'runtime_stats': {},
-                'ref_runtime': -1.0,
-                'ref_runtime_stats': {},
                 'metadata': {'error': 'Evaluation timed out'}
             }
         except Exception as e:
@@ -177,8 +164,6 @@ def eval_single_sample_modal(ref_arch_src, custom_cuda, verbose, gpu_arch, num_c
                 'correctness': False,
                 'runtime': -1.0,
                 'runtime_stats': {},
-                'ref_runtime': -1.0,
-                'ref_runtime_stats': {},
                 'metadata': {
                     'error': str(e),
                     'error_type': type(e).__name__,
@@ -199,13 +184,27 @@ def quick_test_on_setup():
     examples = [ex for ex in ds['train'] if ex['backend'] == 'cuda']
     ex1 = examples[0]
     ref_arch_src = ex1['ref_arch_src']
-    custom_cuda = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
+    # custom_cuda = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
+    custom_cuda = open("my_process_agents/error_response.txt").read()
     gpu = "L40S"
     verbose = True
 
-    kernel_exec_result = eval_single_sample_modal.remote(ref_arch_src, custom_cuda, verbose, gpu_arch_mapping[gpu])
-    print(f"Evaluation result:")
+    # first try
+
+    kernel_exec_result = eval_single_sample_modal.remote(ref_arch_src, custom_cuda, False, gpu_arch_mapping[gpu])
+    print(f"Evaluation result 1:")
     print(kernel_exec_result)
+
+    # second try
+    kernel_exec_result = eval_single_sample_modal.remote(ref_arch_src, custom_cuda, False, gpu_arch_mapping[gpu])
+    print(f"Evaluation result 2:")
+    print(kernel_exec_result)
+
+    kernel_exec_result = eval_single_sample_modal.remote(ref_arch_src, custom_cuda, False, gpu_arch_mapping[gpu])
+    print(f"Evaluation result 3:")
+    print(kernel_exec_result)
+
+
 
 
 @app.local_entrypoint()

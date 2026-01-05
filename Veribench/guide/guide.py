@@ -134,6 +134,8 @@ class VeribenchGuide(Guide):
     def __init__(self):
         super().__init__()
 
+    
+
     def get_feedback(self, task, response, info=None, **kwargs):
         """
         Get feedback from the agent's Lean code response.
@@ -175,6 +177,10 @@ def combine_code_with_tests(task_id: int, lean_code: str) -> str:
     from veribench.metrics.lean_test_extractor import extract_unit_tests as extract_tests
     from main_eval_unit_test_acc import create_combined_file
     import re
+    import logging
+    
+    # Suppress INFO logging from lean_test_extractor
+    logging.getLogger('veribench.metrics.lean_test_extractor').setLevel(logging.WARNING)
     
     # Alternative: Load from our local dataset JSON to avoid fastchat dependency
     dataset_root = Path(__file__).resolve().parent.parent / "veribench_dataset_utils" / "dataset"
@@ -353,11 +359,17 @@ class VeribenchGuidewithUnitTests(VeribenchGuide):
         # Test step 2: Unit tests with automatic name matching
         lean_code_with_unit_tests = combine_code_with_tests(task_id, response)
         unit_test_score, unit_test_feedback = compile(lean_code_with_unit_tests)
+        
+        # for debugging, print the lean code before and after the unit tests
+        print_color("Lean code before the unit tests: ", "green")
+        print_color(response, "yellow")
+        print_color("Lean code after the unit tests: ", "green")
+        print_color(lean_code_with_unit_tests, "yellow")
 
         if unit_test_score == 1.0:
             return 1.0, "The answer is correct! All unit tests passed."
         elif unit_test_score == 0.0 and compile_score == 1.0:
-            print_color(unit_test_feedback, "yellow")
+            # print_color(unit_test_feedback, "yellow")
             return 0.5, f"The lean code compiled but the unit tests failed. Feedback from the compilation with unit tests: {unit_test_feedback}"
         
     

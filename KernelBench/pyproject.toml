@@ -4,11 +4,11 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kernelbench-local"
+name = "Kernelbench"
 version = "0.0.1"
 description = "Local wrapper to manage KernelBench deps via uv"
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.13"
 license = {text = "MIT"}
 authors = [
   {name = "KernelBench Maintainers"}
@@ -25,7 +25,16 @@ dependencies = [
   "uvicorn",
   "fastapi",
   "pydantic",
-  "asyncio"
+  "asyncio",
+  "datasets>=4.4.1",
+  "huggingface-hub>=0.34.0,<1.0",
+  "transformers",
+  "openai",
+  "litellm",
+  "trace-opt",
+  "torch>=2.0.0",
+  "einops",
+  "wandb>=0.23.1",
 ]
 
 [project.optional-dependencies]
@@ -43,3 +52,5 @@ py-modules = []
 # Optionally install KernelBench in editable mode from the cloned external repo
 # Path will be set/used by install.sh after cloning to ../external/KernelBench
 kernelbench = { path = "../external/KernelBench" }
+trace-opt = { path = "../Trace", editable = true }
+

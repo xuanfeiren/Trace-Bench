@@ -1,0 +1,43 @@
+[build-system]
+# Tells pip how to build this package (using setuptools)
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "circle-packing"
+version = "0.0.1"
+description = "Circle packing optimization task for LLM4AD benchmark"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "Apache-2.0"
+authors = [
+  {name = "Brando Miranda", email = "brandojazz@gmail.com"}
+]
+urls = {Homepage = "https://github.com/brando90/self-opt-data-gen/"}
+
+dependencies = [
+  "numpy>=1.21.0",
+  "scipy",
+  "matplotlib",
+  "pandas",
+  "requests",
+  "litellm",
+  "trace-opt",
+  "dspy",
+  "openevolve",
+  "torch>=2.9.1",
+  "wandb>=0.23.1",
+]
+
+[tool.setuptools]
+py-modules = ["__init__", "run_eoh"]
+
+[project.optional-dependencies]
+build = [
+  "psutil>=7.0.0",
+]
+
+[tool.uv.sources]
+trace-opt = { path = "../../../Trace", editable = true }
+dspy = { path = "../../../Veribench/dspy-repo", editable = true }
+openevolve = { path = "../../../Veribench/openevolve", editable = true }

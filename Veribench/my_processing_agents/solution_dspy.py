@@ -243,11 +243,9 @@ def main():
     
     # Configure DSPy
     print(f"Configuring DSPy with {model_name}...")
-    lm = dspy.LM(model=model_name, max_tokens=8192)
+    lm = dspy.LM(model=model_name, max_tokens=8192,cache=False)
     dspy.configure(lm=lm)
     
-    # Add system prompt with examples to the LM
-    dspy.configure(lm=lm)
     
     # Load task
     print(f"\nLoading task {args.task_idx} from Veribench dataset...")
@@ -285,8 +283,9 @@ def main():
     
     # Save result if requested
     if args.save_results:
-        save_path = f"results/dspy_task_{args.task_idx}_result.json"
-        
+        save_path = f"results/dspy_2/dspy_task_{args.task_idx}_result.json"
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
         result_data = {
             'task_idx': args.task_idx,
             'task_id': task['task_id'],

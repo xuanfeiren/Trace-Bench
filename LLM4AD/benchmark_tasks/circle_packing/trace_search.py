@@ -305,7 +305,11 @@ def main():
     agent = CircleAgent()
     
     # Step 4: Initialize the optimizer with a clear objective
-    optimizer = OptoPrimeV2(agent.parameters(), max_tokens=8192, initial_var_char_limit=10000)
+    if os.environ.get("TRACE_LITELLM_MODEL") == "gemini/gemini-2.5-flash-lite":
+        max_tokens = 65536
+    else:
+        max_tokens = 8192
+    optimizer = OptoPrimeV2(agent.parameters(), max_tokens=max_tokens, initial_var_char_limit=10000)
     optimizer.objective = f"""Your task is to pack 26 circles in a unit square [0,1]×[0,1] to MAXIMIZE the sum of their radii.
 
 CONSTRAINTS (must satisfy ALL):

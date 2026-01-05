@@ -170,7 +170,7 @@ uv run python my_processing_agents/solution_PS.py \
 for task_idx in {0..139}; do
         uv run python my_processing_agents/solution_PS.py \
                 --task_idx $task_idx \
-                --num_steps 15 \
+                --num_steps 20 \
                 --num_threads 30 \
                 --log_frequency 1 \
                 --test_frequency 1 \
@@ -179,3 +179,108 @@ for task_idx in {0..139}; do
                 --algorithm PS_epsNet_Summarizer \
                 --project_name "new_veribench-per-task_PS_epsNet_Summarizer"
 done
+for task_idx in {0..139}; do
+        uv run python my_processing_agents/solution_PS.py \
+                --task_idx $task_idx \
+                --num_steps 11 \
+                --num_threads 30 \
+                --log_frequency 1 \
+                --test_frequency 1 \
+                --num_candidates 5 \
+                --use_wandb \
+                --algorithm PS \
+                --project_name "veribench-per-task-PS2" 
+done    
+for task_idx in {0..139}; do
+        uv run python my_processing_agents/solution_PS.py \
+                --task_idx $task_idx \
+                --num_steps 11 \
+                --num_threads 30 \
+                --log_frequency 1 \
+                --test_frequency 1 \
+                --num_candidates 5 \
+                --use_wandb \
+                --algorithm PS \
+                --project_name "veribench-per-task-PS3" 
+done    
+
+
+uv run python my_processing_agents/solution_PS.py \
+                --task_idx 0 \
+                --num_steps 11 \
+                --num_threads 30 \
+                --log_frequency 1 \
+                --test_frequency 1 \
+                --num_candidates 5 \
+                --use_wandb \
+                --algorithm PS \
+                --project_name "veribench-per-task-PS2" \
+
+uv run python my_processing_agents/solution_PS.py \
+                --task_idx 131 \
+                --num_steps 50 \
+                --num_threads 30 \
+                --log_frequency 1 \
+                --test_frequency 1 \
+                --num_candidates 5 \
+                --use_wandb \
+                --algorithm PS_epsNet \
+                --epsilon 0.02 \
+                --project_name "veribench-debug" 
+# Dec 25 noon
+for task_idx in {0..139}; do
+        uv run python my_processing_agents/solution_PS.py \
+                --task_idx $task_idx \
+                --num_steps 20 \
+                --num_threads 30 \
+                --log_frequency 1 \
+                --test_frequency 1 \
+                --num_candidates 5 \
+                --use_wandb \
+                --algorithm PS_epsNet \
+                --epsilon 0.02 \
+                --project_name "veribench-PS_epsNet-3"
+done
+for task_idx in {0..139}; do
+        uv run python my_processing_agents/solution_PS.py \
+                --task_idx $task_idx \
+                --num_steps 20 \
+                --num_threads 30 \
+                --log_frequency 1 \
+                --test_frequency 1 \
+                --num_candidates 5 \
+                --use_wandb \
+                --algorithm PS_Summarizer \
+                --epsilon 0.0 \
+                --project_name "veribench-PS_Summarizer-3"
+done
+
+for task_idx in {0..139}; do
+        uv run python my_processing_agents/solution_dspy3.py \
+                --task_idx $task_idx \
+                --save_results
+done
+
+for task_idx in {113..139}; do
+        uv run python my_processing_agents/solution_openevolve.py \
+                --task_idx $task_idx \
+                --save_results
+done
+for task_idx in {85..139}; do
+        uv run python my_processing_agents/solution_openevolve3.py \
+                --task_idx $task_idx \
+                --save_results
+done
+
+# uv run python my_processing_agents/solution_PS.py \
+#                 --task_idx 3 \
+#                 --num_steps 10 \
+#                 --num_threads 30 \
+#                 --log_frequency 1 \
+#                 --test_frequency 1 \
+#                 --num_candidates 5 \
+#                 --algorithm PS \
+#                 --with_unit_tests
+uv run python my_processing_agents/solution_dspy.py \
+                --task_idx 1 \
+                --save_results

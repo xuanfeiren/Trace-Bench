@@ -44,6 +44,7 @@ class CircleAgent:
     def circle_centers(self) -> np.ndarray:
         """
         Generate circle centers using a trainable function.
+        Can use all kinds of mathematical tools and optimization methods (e.g., scipy.optimize.minimize) to find the optimal centers.
         
         Returns:
             np.ndarray: Array of shape (26, 2) with circle centers
@@ -78,7 +79,7 @@ class CircleAgent:
     @trace.bundle()
     def check_centers_output(self, centers: np.ndarray) -> np.ndarray:
         """
-        Check if the centers are valid.
+        Check if the centers are valid. If the shape is wrong, output an assert error message. If the centers are not inside [0, 1]×[0, 1], clip to ensure everything is inside the unit square.
         
         Args:
             centers: The circle centers as numpy array
@@ -88,7 +89,8 @@ class CircleAgent:
         """
         assert centers.shape == (26, 2), f"Centers must be a numpy array of shape (26, 2), but got {centers.shape}. Please modify the function circle_centers() to return a numpy array of shape (26, 2)."
 
-        assert  (np.any(centers[:, 0] >= 0) and np.any(centers[:, 0] <= 1) and np.any(centers[:, 1] >= 0) and np.any(centers[:, 1] <= 1)), f"Centers must be inside [0, 1]×[0, 1]. Current centers: {centers}. Please modify the function circle_centers() to return centers inside [0, 1]×[0, 1]."
+        # check if the centers are inside [0, 1]×[0, 1], clip to ensure everything is inside the unit square
+        centers = np.clip(centers, 0.000001, 0.999999)
 
         return centers
 
@@ -113,8 +115,6 @@ class CircleAgent:
         """
 
         try:
-            assert centers.shape == (26, 2), f"Centers must be a numpy array of shape (26, 2), but got {centers.shape}. Please modify the function circle_centers() to return a numpy array of shape (26, 2)."
-            assert  (np.any(centers[:, 0] >= 0) and np.any(centers[:, 0] <= 1) and np.any(centers[:, 1] >= 0) and np.any(centers[:, 1] <= 1)), f"Centers must be inside [0, 1]×[0, 1]. Current centers: {centers}. Please modify the function circle_centers() to return centers inside [0, 1]×[0, 1]."
             # Solve LP for optimal radii given these centers
             radii = self._solve_lp_for_radii(centers)
             
@@ -227,7 +227,17 @@ class CircleAgent:
             The circles array as numpy array with shape (26, 3)
         """
         np.random.seed(10)
-        centers = self.circle_centers()
+        from scipy.optimize import minimize
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError
+        
+        # Add a timeout of 90 seconds for self.circle_centers()
+        try:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(self.circle_centers)
+                centers = future.result(timeout=90)
+        except TimeoutError:
+            print_color("circle_centers() timed out after 90 seconds, using fallback centers", 'yellow')
+            centers = np.zeros((26, 2))
         centers = self.check_centers_output(centers)
         circles = self.get_circles(dummy_input, centers)
         return circles
@@ -355,7 +365,7 @@ class CirclePackingGuide(Guide):
         score = np.sum(circles_array[:, 2])
         
         # Simple feedback for valid solutions
-        feedback = f"Score: {score:.5f}. Adjust centers to improve packing. CURRENT SOTA SCORE: 2.64 (this is the target to beat! scores around 2.54 is far from the target)"
+        feedback = f"Score: {score:.5f}. Adjust centers to improve packing. CURRENT SOTA SCORE: 2.64 (this is the target to beat!) You can use optimization methods (e.g., scipy.optimize.minimize) to find the optimal centers."
         return score, feedback
 
     def metric(self, task, response, info=None, **kwargs):
@@ -425,7 +435,9 @@ def main():
         max_tokens = 8192
 
     optimizer = OptoPrimeV2(agent.parameters(), max_tokens=max_tokens, initial_var_char_limit=10000)
-    optimizer.objective = f"""PROBLEM: Pack 26 circles in a unit square [0,1]×[0,1] to MAXIMIZE the sum of their radii.
+    optimizer.objective = f"""You are an expert mathematician specializing in circle packing problems and computational geometry. 
+    
+PROBLEM: Pack 26 circles in a unit square [0,1]×[0,1] to MAXIMIZE the sum of their radii.
 
 CONSTRAINTS:
 1. All circles fully inside [0,1]×[0,1]
@@ -433,7 +445,20 @@ CONSTRAINTS:
 
 YOUR TASK: Write a PYTHON FUNCTION that generates the CENTER POSITIONS for 26 circles.
 - The function will be executed to get centers, then LP solver computes optimal radii
-- You have FULL FLEXIBILITY: use loops, patterns, formulas, random, math functions, etc.
+- You have FULL FLEXIBILITY: use loops, patterns, formulas, random, math functions, etc. You can use optimization methods (e.g., scipy.optimize.minimize) to find the optimal centers.
+
+ We're trying to reach the AlphaEvolve target of 2.64 for the sum of radii when packing 26 circles in a unit square. So we need significant improvements.
+
+Key insights to explore:
+1. The optimal arrangement likely involves variable-sized circles
+2. A pure hexagonal arrangement may not be optimal due to edge effects
+3. The densest known circle packings often use a hybrid approach
+4. The optimization routine is critically important - simple physics-based models with carefully tuned parameters
+5. Consider strategic placement of circles at square corners and edges
+6. Adjusting the pattern to place larger circles at the center and smaller at the edges
+7. The math literature suggests special arrangements for specific values of n
+
+Focus on breaking through the plateau by trying fundamentally different approaches - don't just tweak parameters.
 
 FUNCTION REQUIREMENTS:
 - Function signature: def circle_centers(self) -> np.ndarray:
@@ -495,12 +520,11 @@ Write clean, working Python code that returns np.array of shape (26, 2)!
     else:
         print("Using DefaultLogger (no W&B logging)")
 
-    from opto.features.priority_search.priority_search import PrioritySearch
     from opto.features.priority_search.epsNetPS_plus_summarizer import EpsilonNetPS_plus_Summarizer
 
     # Algorithm selection
     if args.algorithm == 'PS':
-        algorithm = PrioritySearch(agent=agent, optimizer=optimizer, logger=logger, num_threads=num_threads)
+        algorithm = EpsilonNetPS_plus_Summarizer(epsilon=0.0, use_summarizer=False, summarizer_model_name="claude-3.5-sonnet", agent=agent, optimizer=optimizer, logger=logger, num_threads=num_threads)
     elif args.algorithm == 'PS_Summarizer':
         algorithm = EpsilonNetPS_plus_Summarizer(
             epsilon=0.0,

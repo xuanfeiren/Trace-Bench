@@ -26,8 +26,7 @@ from opto.trainer.loggers import DefaultLogger, WandbLogger
 from opto.optimizers import OptoPrimeV2
 
 from my_processing_agents.solution_opt import extract_python_code, load_single_task
-from guide.guide import VeribenchGuide  # 直接调用，不走 web server
-
+from guide.guide import VeribenchGuide, VeribenchGuidewithUnitTests 
 import litellm
 litellm.drop_params = True
 litellm.suppress_debug_info = True
@@ -73,22 +72,23 @@ class LeanCodeAgent:
         return self.get_lean_code(task, self.lean_code)
 
 
-def create_single_task_dataset(task_idx: int):
-    """
-    Create a dataset with a single task for PrioritySearch training.
+# def create_single_task_dataset(task_idx: int):
+#     """
+#     Create a dataset with a single task for PrioritySearch training.
     
-    Args:
-        task_idx: Index of the task to load
+#     Args:
+#         task_idx: Index of the task to load
         
-    Returns:
-        Dictionary with 'inputs' (extracted Python code) and 'infos' (task ids)
-    """
-    task = load_single_task(task_idx)
-    python_code = extract_python_code(task['user_query'])
-    return {
-        'inputs': [python_code],
-        'infos': [task_idx]
-    }
+#     Returns:
+#         Dictionary with 'inputs' (extracted Python code) and 'infos' (task ids)
+#     """
+#     task = load_single_task(task_idx)
+#     python_code = extract_python_code(task['user_query'])
+#     return {
+#         'inputs': [python_code],
+#         'infos': [task_idx]
+#     }
+from veribench_dataset_utils.create_datasets import create_single_task_dataset
 
 
 def main():
@@ -102,7 +102,11 @@ def main():
     parser.add_argument('--test_frequency', type=int, default=None, help='How often to run evaluation')
 
     parser.add_argument('--algorithm', type=str, default='PS',choices=['PS','PS_Summarizer','PS_epsNet_Summarizer','PS_epsNet'], help='Algorithm to use')
-    
+
+    parser.add_argument('--epsilon', type=float, default=0.1, help='Epsilon value for EpsilonNetPS')
+
+    parser.add_argument('--with_unit_tests', action='store_true', default=False,
+                       help='Whether to run with unit tests')
     # Logger parameters
     parser.add_argument('--use_wandb', action='store_true', default=False,
                        help='Whether to use Weights & Biases for logging')
@@ -158,7 +162,10 @@ If a theorem keeps giving error, you can use := sorry to skip it.
 """
 
     # Step 5: Initialize guide and logger
-    guide = VeribenchGuide()
+    if args.with_unit_tests:
+        guide = VeribenchGuidewithUnitTests()
+    else:
+        guide = VeribenchGuide()
     
     # Create config dictionary for logging
     config_dict = {
@@ -203,9 +210,9 @@ If a theorem keeps giving error, you can use := sorry to skip it.
     elif args.algorithm == 'PS_Summarizer':
         from opto.features.priority_search.priority_search_ablation import PS_veribench
         algorithm = PS_veribench(
-            epsilon=0.0,
+            epsilon=args.epsilon,
             use_summarizer=True,
-            summarizer_model_name="claude-3-5-sonnet",
+            summarizer_model_name="claude-3.5-sonnet",
             agent=agent,
             optimizer=optimizer,
             logger=logger,
@@ -214,19 +221,19 @@ If a theorem keeps giving error, you can use := sorry to skip it.
     elif args.algorithm == 'PS_epsNet_Summarizer':
         from opto.features.priority_search.priority_search_ablation import PS_veribench
         algorithm = PS_veribench(
-            epsilon=0.1,
+            epsilon=args.epsilon,
             use_summarizer=True,
-            summarizer_model_name="claude-3-5-sonnet",
+            summarizer_model_name="claude-3.5-sonnet",
             agent=agent,
             optimizer=optimizer,
             logger=logger)
     elif args.algorithm == 'PS_epsNet':
         from opto.features.priority_search.priority_search_ablation import PS_veribench
         algorithm = PS_veribench(
-            epsilon=0.1,
             agent=agent,
             optimizer=optimizer,
-            logger=logger)
+            logger=logger,
+            epsilon=args.epsilon)
     else:
         raise ValueError(f"Unknown algorithm: {args.algorithm}")
     
