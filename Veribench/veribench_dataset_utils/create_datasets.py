@@ -87,25 +87,25 @@ def load_task_full(task_idx: int) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
+    pass
     # Test the function
-    print("Testing create_single_task_dataset()...")
+    # print("Testing create_single_task_dataset()...")
     
-    # Test task 0
-    task_id = 2
-    dataset = create_single_task_dataset(task_id)
-    print(f"Task {task_id} loaded successfully")
-    print(f"  Python code: {len(dataset['inputs'][0])} chars")
-    print(f"  Task ID: {dataset['infos'][0]}")
-    
-    # Compare with solution_PS.py if available
-    
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from my_processing_agents.solution_PS import create_single_task_dataset as create_single_task_dataset_PS
-    
-    dataset_PS = create_single_task_dataset_PS(task_id)
-    match = dataset_PS['inputs'][0] == dataset['inputs'][0]
-    print(f"\n✅ Comparison with solution_PS.py: {'MATCH' if match else 'MISMATCH'}")
+    # for task_id in range(140):
+    #     dataset = create_single_task_dataset(task_id)
+    #     print(f"Task {task_id} loaded successfully")
+    #     print(f"  Python code: {len(dataset['inputs'][0])} chars")
+    #     print(f"  Task ID: {dataset['infos'][0]}")
+        
+    #     # Compare with solution_PS.py if available
+        
+    #     import sys
+    #     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    #     from my_processing_agents.solution_PS import create_single_task_dataset as create_single_task_dataset_PS
+        
+    #     dataset_PS = create_single_task_dataset_PS(task_id)
+    #     match = dataset_PS['inputs'][0] == dataset['inputs'][0]
+    #     print(f"\n✅ Comparison with solution_PS.py: {'MATCH' if match else 'MISMATCH'}")
     
 
 
