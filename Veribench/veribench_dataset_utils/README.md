@@ -65,6 +65,37 @@ uv run python veribench_dataset_utils/demo/compile_with_unit_tests.py
 
 This mirrors the `VeribenchGuidewithUnitTests` workflow from `guide/guide.py`.
 
+## Dataset Analysis
+
+### Unit Test Coverage
+
+**Coverage**: 123 out of 140 tasks (87.9%) have unit tests in their gold reference code.
+
+**`task_lists.py`** - Pre-computed task categorization:
+```python
+from veribench_dataset_utils.task_lists import (
+    TASKS_WITH_UNIT_TESTS,      # 123 tasks with unit tests
+    TASKS_WITHOUT_UNIT_TESTS,   # 17 placeholder tasks
+    TASKS_WITH_BOTH_EVAL_AND_EXAMPLE,  # 120 tasks
+    has_unit_tests,             # Helper function
+)
+
+# Filter tasks for evaluation
+for task_id in TASKS_WITH_UNIT_TESTS:
+    evaluate_with_unit_tests(task_id)
+```
+
+**`check_unit_tests.py`** - Verification script:
+```bash
+python veribench_dataset_utils/check_unit_tests.py
+```
+Analyzes all 140 tasks and reports:
+- Tasks with/without unit tests
+- Test type distribution (#eval vs example)
+- Detailed statistics
+
+See **`unit_test_coverage_report.md`** for full analysis.
+
 ## Other Files
 
 - **`create_datasets.py`**: Script for creating the dataset from VeriBench source
