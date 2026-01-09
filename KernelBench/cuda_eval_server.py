@@ -103,6 +103,10 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
 
             try:
                 result_data = json.loads(json_str)
+                
+                # Log any stderr output even on success (for warnings/debug info)
+                if result.stderr:
+                    logger.warning(f"Evaluation stderr output: {result.stderr}")
 
                 # Create a simple object with the data
                 class SimpleResult:
@@ -114,7 +118,9 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
                         self.runtime_stats = data.get("runtime_stats", {})
 
                 return SimpleResult(result_data)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON decode error: {e}")
+                logger.error(f"Failed to parse JSON string: {json_str}")
                 pass
 
         # Fallback result - log the actual output for debugging

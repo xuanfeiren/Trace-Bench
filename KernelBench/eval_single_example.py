@@ -6,14 +6,41 @@ import json
 import multiprocessing as mp
 import os
 import sys
-import torch
-from pydra import REQUIRED, Config
-from dataclasses import dataclass
-from datasets import load_dataset
 
-from src.dataset import construct_kernelbench_dataset
-from src.eval import build_compile_cache, eval_kernel_against_ref, KernelExecResult, check_metadata_serializable_all_types
-from src.utils import set_gpu_arch, read_file
+# Ensure the current working directory is in sys.path for imports
+# This script should be run from external/KernelBench/ directory
+if os.getcwd() not in sys.path:
+    sys.path.insert(0, os.getcwd())
+
+try:
+    import torch
+    from pydra import REQUIRED, Config
+    from dataclasses import dataclass
+    from datasets import load_dataset
+
+    from src.dataset import construct_kernelbench_dataset
+    from src.eval import build_compile_cache, eval_kernel_against_ref, KernelExecResult, check_metadata_serializable_all_types
+    from src.utils import set_gpu_arch, read_file
+except ImportError as e:
+    print(f"ERROR: Failed to import required modules: {e}", file=sys.stderr)
+    print(f"Current working directory: {os.getcwd()}", file=sys.stderr)
+    print(f"sys.path: {sys.path}", file=sys.stderr)
+    # Output error as JSON for server to parse
+    error_result = {
+        "compiled": False,
+        "correctness": False,
+        "metadata": {
+            "error": f"Import error: {str(e)}",
+            "cwd": os.getcwd(),
+            "error_type": "import_error"
+        },
+        "runtime": -1.0,
+        "runtime_stats": {}
+    }
+    print("=== KERNEL_EXEC_RESULT_JSON ===")
+    print(json.dumps(error_result))
+    print("=== END_KERNEL_EXEC_RESULT_JSON ===")
+    sys.exit(1)
 
 torch.set_printoptions(precision=4, threshold=10)
 
@@ -29,7 +56,7 @@ class EvalConfig(Config):
     def __init__(self):
         self.run_name = "priority_search_trial"  # name of the run to evaluate
 
-        self.dataset_src = REQUIRED  # either huggingface or local
+        self.dataset_src = "local"  # either huggingface or local (set to local for server mode)
 
         # name of dataset name on Hugging Face
         self.dataset_name = "ScalingIntelligence/KernelBench"
@@ -54,7 +81,8 @@ class EvalConfig(Config):
 
         # Logging
         # Top Directory to Store Runs
-        self.runs_dir = os.path.join("/home/ubuntu/KernelBench", "runs")
+        # Use dynamic path based on current working directory
+        self.runs_dir = os.path.join(os.getcwd(), "runs")
 
         self.verbose = False
 
@@ -70,7 +98,8 @@ class EvalConfig(Config):
         self.num_cpu_workers = 20  # number of parallel process to to parallelize the build on CPUs
 
         # Directory to build kernels for evaluation
-        self.kernel_eval_build_dir = os.path.join("/home/ubuntu/KernelBench", "cache")
+        # Use dynamic path based on current working directory
+        self.kernel_eval_build_dir = os.path.join(os.getcwd(), "cache")
 
         # number of GPUs to do batch evaluation
         self.num_gpu_devices = 1
@@ -320,7 +349,9 @@ def main():
         print("Evaluation interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"Error during evaluation: {e}")
+        import traceback
+        print(f"Error during evaluation: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
         # Create an error result and output it as JSON too
         error_result = KernelExecResult(
             compiled=False,
@@ -328,6 +359,7 @@ def main():
             metadata={
                 "error": str(e),
                 "error_type": "main_exception",
+                "traceback": traceback.format_exc(),
                 "problem_id": args.problem_id,
                 "sample_id": args.sample_id,
                 "device": args.device
