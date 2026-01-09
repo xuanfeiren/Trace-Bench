@@ -18,12 +18,8 @@ import os
 import sys
 from typing import Dict, Any
 
-# Add KernelBench to Python path
-KERNELBENCH_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../external/KernelBench")
-)
-if os.path.exists(KERNELBENCH_PATH) and KERNELBENCH_PATH not in sys.path:
-    sys.path.insert(0, KERNELBENCH_PATH)
+# Note: This client-server approach doesn't require external KernelBench installation
+# The server handles all CUDA evaluation internally
 
 
 def evaluate(
