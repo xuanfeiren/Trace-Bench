@@ -116,6 +116,8 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
                         self.metadata = data.get("metadata", {})
                         self.runtime = data.get("runtime", -1.0)
                         self.runtime_stats = data.get("runtime_stats", {})
+                        self.ref_runtime = data.get("ref_runtime", -1.0)
+                        self.ref_runtime_stats = data.get("ref_runtime_stats", {})
 
                 return SimpleResult(result_data)
             except json.JSONDecodeError as e:
@@ -187,7 +189,9 @@ def kernel_exec_result_to_dict(result) -> dict:
             "correctness": getattr(result, 'correctness', False),
             "metadata": getattr(result, 'metadata', {}),
             "runtime": getattr(result, 'runtime', -1.0),
-            "runtime_stats": getattr(result, 'runtime_stats', {})
+            "runtime_stats": getattr(result, 'runtime_stats', {}),
+            "ref_runtime": getattr(result, 'ref_runtime', -1.0),
+            "ref_runtime_stats": getattr(result, 'ref_runtime_stats', {})
         }
     except Exception as e:
         logger.error(f"Error converting KernelExecResult to dict: {e}")

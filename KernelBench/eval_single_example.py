@@ -230,7 +230,9 @@ def kernel_exec_result_to_dict(result: KernelExecResult) -> dict:
         "correctness": result.correctness,
         "metadata": result.metadata,
         "runtime": result.runtime,
-        "runtime_stats": result.runtime_stats
+        "runtime_stats": result.runtime_stats,
+        "ref_runtime": result.ref_runtime,
+        "ref_runtime_stats": result.ref_runtime_stats
     }
 
 
