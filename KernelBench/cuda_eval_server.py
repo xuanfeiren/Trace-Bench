@@ -519,7 +519,7 @@ if __name__ == "__main__":
     parser.add_argument("--cuda-devices", nargs="+",
                         default=["cuda:0", "cuda:1", "cuda:2", "cuda:3"],
                         help="List of CUDA devices to use (default: cuda:0 cuda:1 cuda:2 cuda:3)")
-    parser.add_argument("--workers", type=int, default=1, help="Number of worker processes (default: 1)")
+    parser.add_argument("--workers", type=int, default=4, help="Number of worker processes (default: 1)")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload for development")
     parser.add_argument("--log-level", default="info",
                         choices=["critical", "error", "warning", "info", "debug"],
