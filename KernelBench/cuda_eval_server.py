@@ -40,6 +40,7 @@ except ImportError:
 
 import subprocess
 import sys
+import shutil
 
 REPO_EXTERNAL_LIB_PATH = os.path.abspath(
     os.path.join(
@@ -47,11 +48,24 @@ REPO_EXTERNAL_LIB_PATH = os.path.abspath(
         "../external/",
     )
 )
+CURRENT_FOLDER_PATH = os.path.dirname(__file__)
 
 def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None, ref_arch_src=None,
                                      device="cuda:0", level=None, verbose=False):
-    # Use the script path from the external KernelBench installation
-    script_path = os.path.join(REPO_EXTERNAL_LIB_PATH, "KernelBench/scripts/eval_single_example.py")
+    # Use the script path from the attached file
+
+    # Copy eval_single_example.py to the external scripts folder
+    source_script = os.path.join(CURRENT_FOLDER_PATH, "eval_single_example.py")
+    target_dir = os.path.join(REPO_EXTERNAL_LIB_PATH, "scripts")
+    os.makedirs(target_dir, exist_ok=True)
+    target_script = os.path.join(target_dir, "eval_single_example.py")
+    
+    if os.path.exists(source_script):
+        shutil.copy2(source_script, target_script)
+    
+    # Run the script
+    
+    script_path = os.path.join(REPO_EXTERNAL_LIB_PATH, "scripts/eval_single_example.py")
     args = [
         sys.executable,
         script_path,
@@ -66,14 +80,12 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
         args.extend(["--level", str(level)])
 
     try:
-        # Use the current KernelBench directory as working directory
-        kernelbench_dir = os.path.dirname(os.path.abspath(__file__))
         result = subprocess.run(
             args,
             capture_output=True,
             text=True,
             timeout=300,
-            cwd=kernelbench_dir
+            cwd="/home/ubuntu/KernelBench"
         )
 
         # Parse JSON result from output
@@ -519,7 +531,7 @@ if __name__ == "__main__":
     parser.add_argument("--cuda-devices", nargs="+",
                         default=["cuda:0", "cuda:1", "cuda:2", "cuda:3"],
                         help="List of CUDA devices to use (default: cuda:0 cuda:1 cuda:2 cuda:3)")
-    parser.add_argument("--workers", type=int, default=4, help="Number of worker processes (default: 1)")
+    parser.add_argument("--workers", type=int, default=1, help="Number of worker processes (default: 1)")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload for development")
     parser.add_argument("--log-level", default="info",
                         choices=["critical", "error", "warning", "info", "debug"],
@@ -540,21 +552,11 @@ if __name__ == "__main__":
     print()
 
     # Start the server
-    if args.workers > 1 or args.reload:
-        # Use import string for multiple workers or reload mode
-        uvicorn.run(
-            "cuda_eval_server:app",
-            host=args.host,
-            port=args.port,
-            workers=args.workers,
-            reload=args.reload,
-            log_level=args.log_level
-        )
-    else:
-        # Use app object for single worker mode
-        uvicorn.run(
-            app,
-            host=args.host,
-            port=args.port,
-            log_level=args.log_level
-        )
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port,
+        workers=args.workers,
+        reload=args.reload,
+        log_level=args.log_level
+    )
