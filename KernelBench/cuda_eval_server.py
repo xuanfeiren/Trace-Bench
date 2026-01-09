@@ -540,11 +540,21 @@ if __name__ == "__main__":
     print()
 
     # Start the server
-    uvicorn.run(
-        app,
-        host=args.host,
-        port=args.port,
-        workers=args.workers,
-        reload=args.reload,
-        log_level=args.log_level
-    )
+    if args.workers > 1 or args.reload:
+        # Use import string for multiple workers or reload mode
+        uvicorn.run(
+            "cuda_eval_server:app",
+            host=args.host,
+            port=args.port,
+            workers=args.workers,
+            reload=args.reload,
+            log_level=args.log_level
+        )
+    else:
+        # Use app object for single worker mode
+        uvicorn.run(
+            app,
+            host=args.host,
+            port=args.port,
+            log_level=args.log_level
+        )
