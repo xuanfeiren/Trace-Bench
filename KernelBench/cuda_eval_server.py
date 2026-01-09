@@ -50,8 +50,8 @@ REPO_EXTERNAL_LIB_PATH = os.path.abspath(
 
 def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None, ref_arch_src=None,
                                      device="cuda:0", level=None, verbose=False):
-    # Use the script path from the attached file
-    script_path = os.path.join(REPO_EXTERNAL_LIB_PATH, "scripts/eval_single_example.py")
+    # Use the script path from the external KernelBench installation
+    script_path = os.path.join(REPO_EXTERNAL_LIB_PATH, "KernelBench/scripts/eval_single_example.py")
     args = [
         sys.executable,
         script_path,
@@ -66,12 +66,14 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
         args.extend(["--level", str(level)])
 
     try:
+        # Use the current KernelBench directory as working directory
+        kernelbench_dir = os.path.dirname(os.path.abspath(__file__))
         result = subprocess.run(
             args,
             capture_output=True,
             text=True,
             timeout=300,
-            cwd="/home/ubuntu/KernelBench"
+            cwd=kernelbench_dir
         )
 
         # Parse JSON result from output
