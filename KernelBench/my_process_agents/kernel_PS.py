@@ -16,7 +16,7 @@ from opto import trace
 from opto.trainer.loggers import DefaultLogger, WandbLogger
 from opto.optimizers import OptoPrimeV2
 from opto.trainer.guide import Guide
-import secrets_local
+# import secrets_local
 
 litellm.drop_params = True
 litellm.suppress_debug_info = True
