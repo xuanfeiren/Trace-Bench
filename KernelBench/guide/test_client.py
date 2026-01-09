@@ -22,3 +22,4 @@ job_id = client.submit_evaluation(
 
 result = client.wait_for_job(job_id, timeout=300)
 kernel_exec_result = result['result']
+print(kernel_exec_result)
