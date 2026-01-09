@@ -1,0 +1,105 @@
+import torch
+import torch.nn as nn
+from torch.utils.cpp_extension import load_inline
+
+cuda_source = """
+__global__ void hinge_loss_kernel(const float* predictions, const float* targets, 
+                                 float* output, int size, float* partial_sums) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    __shared__ float shared_mem[256];
+    float thread_sum = 0.0f;
+    
+    // Grid-stride loop for coalesced memory access
+    for(int i = idx; i < size; i += blockDim.x * gridDim.x) {
+        float prod = predictions[i] * targets[i];
+        float loss = 1.0f - prod;
+        // Clamp operation
+        loss = loss > 0.0f ? loss : 0.0f;
+        thread_sum += loss;
+    }
+    
+    // Store in shared memory
+    shared_mem[threadIdx.x] = thread_sum;
+    __syncthreads();
+    
+    // Parallel reduction in shared memory
+    for(int offset = blockDim.x/2; offset > 0; offset >>= 1) {
+        if(threadIdx.x < offset) {
+            shared_mem[threadIdx.x] += shared_mem[threadIdx.x + offset];
+        }
+        __syncthreads();
+    }
+    
+    // Store block result
+    if(threadIdx.x == 0) {
+        partial_sums[blockIdx.x] = shared_mem[0];
+    }
+}
+
+__global__ void final_mean_kernel(float* partial_sums, float* result, int size, int total_elements) {
+    float sum = 0.0f;
+    for(int i = 0; i < size; i++) {
+        sum += partial_sums[i];
+    }
+    *result = sum / total_elements;
+}
+
+torch::Tensor hinge_loss_cuda(torch::Tensor predictions, torch::Tensor targets) {
+    const int size = predictions.numel();
+    const int threads = 256;
+    const int blocks = min(65535, (size + threads - 1) / threads);
+    
+    auto partial_sums = torch::zeros({blocks}, predictions.options());
+    auto result = torch::zeros({1}, predictions.options());
+    
+    hinge_loss_kernel<<<blocks, threads>>>(
+        predictions.data_ptr<float>(),
+        targets.data_ptr<float>(),
+        nullptr,  // Not used in this implementation
+        size,
+        partial_sums.data_ptr<float>()
+    );
+    
+    final_mean_kernel<<<1, 1>>>(
+        partial_sums.data_ptr<float>(),
+        result.data_ptr<float>(),
+        blocks,
+        size
+    );
+    
+    return result;
+}
+"""
+
+cpp_source = """
+torch::Tensor hinge_loss_cuda(torch::Tensor predictions, torch::Tensor targets);
+"""
+
+module = load_inline(
+    name="hinge_loss_kernel",
+    cpp_sources=cpp_source,
+    cuda_sources=cuda_source,
+    functions=["hinge_loss_cuda"],
+    verbose=False,
+)
+
+
+class ModelNew(nn.Module):
+    def __init__(self):
+        super(ModelNew, self).__init__()
+        self.op = module
+
+    def forward(self, predictions, targets):
+        return self.op.hinge_loss_cuda(predictions, targets)
+
+
+def get_inputs():
+    return [
+        torch.rand(32768, 32768).cuda(),
+        torch.randint(0, 2, (32768,)).float().cuda() * 2 - 1,
+    ]
+
+
+def get_init_inputs():
+    return []

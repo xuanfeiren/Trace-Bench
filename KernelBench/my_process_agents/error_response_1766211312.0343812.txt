@@ -1,0 +1,90 @@
+import torch
+import torch.nn as nn
+from torch.utils.cpp_extension import load_inline
+
+hinge_loss_cuda_source = """
+#include <torch/extension.h>
+#include <cuda_runtime.h>
+
+__global__ void hinge_loss_kernel(const float* predictions, const float* targets, float* output, int size) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size) {
+        float pred = predictions[idx];
+        float target = targets[idx];
+        float loss = 1.0f - pred * target;
+        output[idx] = loss > 0.0f ? loss : 0.0f;
+    }
+}
+
+__global__ void reduce_mean_kernel(float* output, float* result, int size) {
+    extern __shared__ float sdata[];
+    unsigned int tid = threadIdx.x;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    sdata[tid] = 0.0f;
+    if (i < size) {
+        sdata[tid] = output[i];
+    }
+    __syncthreads();
+
+    for (unsigned int s = blockDim.x/2; s > 0; s >>= 1) {
+        if (tid < s && tid + s < size) {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0) {
+        result[blockIdx.x] = sdata[0];
+    }
+}
+
+torch::Tensor hinge_loss_cuda(torch::Tensor predictions, torch::Tensor targets) {
+    auto size = predictions.numel();
+    auto temp_output = torch::zeros_like(predictions);
+    
+    const int block_size = 256;
+    const int num_blocks = (size + block_size - 1) / block_size;
+    
+    // Compute element-wise hinge loss
+    hinge_loss_kernel<<<num_blocks, block_size>>>(
+        predictions.data_ptr<float>(),
+        targets.data_ptr<float>(),
+        temp_output.data_ptr<float>(),
+        size
+    );
+    
+    // Perform reduction to compute mean
+    int reduced_size = num_blocks;
+    auto result = torch::zeros({reduced_size}, predictions.options());
+    
+    reduce_mean_kernel<<<num_blocks, block_size, block_size * sizeof(float)>>>(
+        temp_output.data_ptr<float>(),
+        result.data_ptr<float>(),
+        size
+    );
+    
+    return torch::mean(result) / ((float)num_blocks);
+}
+"""
+
+hinge_loss_cpp_source = """
+torch::Tensor hinge_loss_cuda(torch::Tensor predictions, torch::Tensor targets);
+"""
+
+hinge_loss_cuda = load_inline(
+    name="hinge_loss_cuda",
+    cpp_sources=hinge_loss_cpp_source,
+    cuda_sources=hinge_loss_cuda_source,
+    functions=["hinge_loss_cuda"],
+    verbose=True,
+)
+
+
+class ModelNew(nn.Module):
+    def __init__(self):
+        super(ModelNew, self).__init__()
+        self.hinge_loss = hinge_loss_cuda
+
+    def forward(self, predictions, targets):
+        return self.hinge_loss.hinge_loss_cuda(predictions, targets)
