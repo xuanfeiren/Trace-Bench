@@ -17,16 +17,28 @@ def main():
     print("="*60)
 
     # Step 1: Connect to server
-    print("\n[1/5] Connecting to server at http://127.0.0.1:6000...")
-    SERVER_URL = "http://127.0.0.1:6000"  # Use 127.0.0.1 instead of localhost to avoid IPv6 issues
-    client = CUDAEvalClient(SERVER_URL)
+    # Try both localhost and 127.0.0.1 to handle different network configurations
+    SERVER_URLS = ["http://127.0.0.1:6000", "http://localhost:6000"]
+
+    client = None
+
+    for url in SERVER_URLS:
+        print(f"\n[1/5] Trying to connect to server at {url}...")
+        test_client = CUDAEvalClient(url)
+        if test_client.health_check():
+            client = test_client
+            print(f"✓ Connected successfully to {url}!")
+            break
 
     # Step 2: Health check
-    print("[2/5] Testing connection...")
-    if not client.health_check():
+    if client is None:
+        print("\n[2/5] Testing connection...")
         print("❌ ERROR: Cannot connect to server!")
         print("\nMake sure server is running:")
-        print("  python cuda_eval_server.py --cuda-devices cuda:0 --port 6000 --host 127.0.0.1")
+        print("  python cuda_eval_server.py --cuda-devices cuda:0 cuda:1 cuda:2 cuda:3 --port 6000")
+        print("\nTried connecting to:")
+        for url in SERVER_URLS:
+            print(f"  - {url}")
         return
 
     print("✓ Connected successfully!")
