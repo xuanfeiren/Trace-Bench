@@ -292,6 +292,20 @@ def create_argparser():
         help="Treat --ref-arch-src as file path instead of direct source code"
     )
     
+    # Evaluation parameters
+    parser.add_argument(
+        "--num-correct-trials",
+        type=int,
+        default=5,
+        help="Number of correctness validation trials (default: 5)"
+    )
+    parser.add_argument(
+        "--num-perf-trials",
+        type=int,
+        default=100,
+        help="Number of performance measurement trials (default: 100)"
+    )
+    
     return parser
 
 
@@ -331,6 +345,10 @@ def main():
     
     # Create fixed EvalConfig
     configs = EvalConfig()
+    
+    # Override with command line arguments
+    configs.num_correct_trials = args.num_correct_trials
+    configs.num_perf_trials = args.num_perf_trials
     
     # Call the wrapper function (now without multiprocessing)
     try:

@@ -62,7 +62,9 @@ class CUDAEvalClient:
 
     def evaluate_sync(self, problem_id: int, sample_id: int, custom_cuda: str,
                       ref_arch_src: str, level: Optional[int] = None,
-                      timeout: Optional[int] = None) -> Dict[str, Any]:
+                      timeout: Optional[int] = None,
+                      num_correct_trials: Optional[int] = None,
+                      num_perf_trials: Optional[int] = None) -> Dict[str, Any]:
         """Submit evaluation and wait for completion (synchronous)"""
         data = {
             "problem_id": problem_id,
@@ -75,6 +77,10 @@ class CUDAEvalClient:
             data["level"] = level
         if timeout is not None:
             data["timeout"] = timeout
+        if num_correct_trials is not None:
+            data["num_correct_trials"] = num_correct_trials
+        if num_perf_trials is not None:
+            data["num_perf_trials"] = num_perf_trials
 
         response = self.session.post(f"{self.server_url}/evaluate_sync", json=data)
         response.raise_for_status()

@@ -51,7 +51,8 @@ REPO_EXTERNAL_LIB_PATH = os.path.abspath(
 CURRENT_FOLDER_PATH = os.path.dirname(__file__)
 
 def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None, ref_arch_src=None,
-                                     device="cuda:0", level=None, verbose=False):
+                                     device="cuda:0", level=None, verbose=False,
+                                     num_correct_trials=5, num_perf_trials=100):
     # Use the script path from the attached file
 
     # Copy eval_single_example.py to the external scripts folder
@@ -73,7 +74,9 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
         "--sample-id", str(sample_id),
         "--device", device,
         "--custom-cuda", custom_cuda or "// Default kernel\n__global__ void default_kernel() { }",
-        "--ref-arch-src", ref_arch_src or "import torch\nclass DefaultModel(torch.nn.Module): pass"
+        "--ref-arch-src", ref_arch_src or "import torch\nclass DefaultModel(torch.nn.Module): pass",
+        "--num-correct-trials", str(num_correct_trials),
+        "--num-perf-trials", str(num_perf_trials)
     ]
 
     if level is not None:
@@ -218,6 +221,8 @@ class EvaluationRequest(BaseModel):
     ref_arch_src: str
     level: Optional[int] = None
     timeout: Optional[int] = 300  # seconds
+    num_correct_trials: Optional[int] = 5
+    num_perf_trials: Optional[int] = 100
 
 
 class EvaluationResponse(BaseModel):
@@ -353,7 +358,9 @@ class CUDADeviceManager:
                 ref_arch_src=job.request.ref_arch_src,
                 device=job.device,
                 level=job.request.level,
-                verbose=False  # Don't print verbose output in server
+                verbose=False,  # Don't print verbose output in server
+                num_correct_trials=job.request.num_correct_trials,
+                num_perf_trials=job.request.num_perf_trials
             )
 
             job.result = result

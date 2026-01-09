@@ -24,6 +24,8 @@ from typing import Tuple
 def evaluate(
     ref_arch_src: str,
     custom_cuda: str,
+    num_correct_trials: int = 5,
+    num_perf_trials: int = 100,
     server_url: str = "http://localhost:6000",
     timeout: int = 300
 ) -> Tuple[float, str]:
@@ -36,6 +38,10 @@ def evaluate(
         PyTorch reference implementation source code
     custom_cuda : str
         Custom CUDA kernel implementation source code
+    num_correct_trials : int
+        Number of correctness validation trials (default: 5)
+    num_perf_trials : int
+        Number of performance measurement trials (default: 100)
     server_url : str
         URL of the CUDA evaluation server (default: "http://localhost:6000")
     timeout : int
@@ -71,7 +77,9 @@ def evaluate(
             sample_id=0,
             custom_cuda=custom_cuda,
             ref_arch_src=ref_arch_src,
-            timeout=timeout
+            timeout=timeout,
+            num_correct_trials=num_correct_trials,
+            num_perf_trials=num_perf_trials
         )
     except Exception as e:
         score = -1
