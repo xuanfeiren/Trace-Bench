@@ -156,7 +156,8 @@ def evaluate_sequential(
         start_time = time.time()
 
         try:
-            result = evaluate(
+            # Get score and feedback from evaluate
+            score, feedback = evaluate(
                 ref_arch_src=ref_arch_src,
                 custom_cuda=kernel['code'],
                 num_correct_trials=num_correct_trials,
@@ -165,28 +166,33 @@ def evaluate_sequential(
 
             elapsed = time.time() - start_time
 
-            # Add metadata
-            result['filename'] = kernel['filename']
-            result['evaluation_time'] = elapsed
+            # Parse result from feedback
+            # Determine compiled and correctness from score and feedback
+            compiled = score >= 0  # score is -1 on errors, 0 on failures, >0 on success
+            correctness = score > 0  # score > 0 means it passed correctness and has speedup
+            
+            # Create result dict
+            result = {
+                'filename': kernel['filename'],
+                'score': score,
+                'feedback': feedback,
+                'compiled': compiled,
+                'correctness': correctness,
+                'runtime': -1.0,  # Will be parsed from feedback if available
+                'evaluation_time': elapsed
+            }
+            
             results.append(result)
 
             # Print summary
-            status = "✓ PASSED" if result['correctness'] else "✗ FAILED"
+            status = "✓ PASSED" if correctness else "✗ FAILED"
             print(f"\n{status}")
-            print(f"  Compiled:     {result['compiled']}")
-            print(f"  Correctness:  {result['correctness']}")
-            print(f"  Score:        {result.get('score', 0.0):.4f}")
+            print(f"  Compiled:     {compiled}")
+            print(f"  Correctness:  {correctness}")
+            print(f"  Score:        {score:.4f}")
 
-            if result['correctness'] and num_perf_trials > 0:
-                runtime_us = result['runtime']
-                runtime_ms = runtime_us / 1000  # Convert μs to ms
-                speedup = result.get('metadata', {}).get('speedup', 'N/A')
-                print(f"  Runtime:      {runtime_ms:.3f} ms ({runtime_us:.2f} μs)")
-                print(f"  Speedup:      {speedup:.2f}x" if isinstance(speedup, (int, float)) else f"  Speedup:      {speedup}")
-
-            # Print feedback (first 300 chars)
-            feedback = result.get('feedback', 'No feedback available')
-            feedback_preview = feedback[:300] + '...' if len(feedback) > 300 else feedback
+            # Print feedback (first 500 chars for more context)
+            feedback_preview = feedback[:500] + '...' if len(feedback) > 500 else feedback
             print(f"\n  Feedback:\n    {feedback_preview.replace(chr(10), chr(10) + '    ')}")
 
             print(f"\n  Eval time:    {elapsed:.1f}s")
@@ -199,10 +205,11 @@ def evaluate_sequential(
 
             results.append({
                 'filename': kernel['filename'],
+                'score': -1,
+                'feedback': f"Exception: {str(e)}",
                 'compiled': False,
                 'correctness': False,
                 'runtime': -1.0,
-                'metadata': {'error': str(e)},
                 'evaluation_time': elapsed
             })
 
@@ -261,20 +268,37 @@ def evaluate_async(
 
         try:
             # Run synchronous evaluate() in thread pool
-            result = await loop.run_in_executor(
+            # Create wrapper function that evaluate returns tuple
+            def evaluate_wrapper():
+                return evaluate(
+                    ref_arch_src=ref_arch_src,
+                    custom_cuda=kernel['code'],
+                    num_correct_trials=num_correct_trials,
+                    num_perf_trials=num_perf_trials
+                )
+            
+            score, feedback = await loop.run_in_executor(
                 None,  # Use default executor
-                evaluate,
-                ref_arch_src,
-                kernel['code'],
-                num_correct_trials,
-                num_perf_trials
+                evaluate_wrapper
             )
 
             elapsed = time.time() - start_time
-            result['filename'] = kernel['filename']
-            result['evaluation_time'] = elapsed
+            
+            # Parse result from score and feedback
+            compiled = score >= 0
+            correctness = score > 0
+            
+            result = {
+                'filename': kernel['filename'],
+                'score': score,
+                'feedback': feedback,
+                'compiled': compiled,
+                'correctness': correctness,
+                'runtime': -1.0,
+                'evaluation_time': elapsed
+            }
 
-            status = "✓ PASSED" if result['correctness'] else "✗ FAILED"
+            status = "✓ PASSED" if correctness else "✗ FAILED"
             print(f"[{index}/{len(kernels)}] {status}: {kernel['filename']} ({elapsed:.1f}s)")
 
             return result
@@ -285,10 +309,11 @@ def evaluate_async(
 
             return {
                 'filename': kernel['filename'],
+                'score': -1,
+                'feedback': f"Exception: {str(e)}",
                 'compiled': False,
                 'correctness': False,
                 'runtime': -1.0,
-                'metadata': {'error': str(e)},
                 'evaluation_time': elapsed
             }
 
@@ -328,17 +353,13 @@ def print_summary(results: List[Dict[str, Any]]):
     print(f"Compiled:          {compiled}/{total} ({compiled/total*100:.1f}%)")
     print(f"Correct:           {correct}/{total} ({correct/total*100:.1f}%)")
 
-    # Find fastest kernel
+    # Find best scoring kernel
     correct_results = [r for r in results if r.get('correctness', False)]
     if correct_results:
-        fastest = min(correct_results, key=lambda r: r.get('runtime', float('inf')))
-        print(f"\nFastest correct kernel:")
-        print(f"  File:      {fastest['filename']}")
-        print(f"  Runtime:   {fastest['runtime']*1000:.3f} ms")
-
-        speedup = fastest.get('metadata', {}).get('speedup', None)
-        if speedup:
-            print(f"  Speedup:   {speedup:.2f}x")
+        best = max(correct_results, key=lambda r: r.get('score', 0))
+        print(f"\nBest scoring kernel:")
+        print(f"  File:      {best['filename']}")
+        print(f"  Score:     {best['score']:.4f}x")
 
     # Total evaluation time
     total_eval_time = sum(r.get('evaluation_time', 0) for r in results)
