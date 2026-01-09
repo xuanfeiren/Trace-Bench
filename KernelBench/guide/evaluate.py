@@ -30,13 +30,17 @@ def evaluate(
     ref_arch_src: str,
     custom_cuda: str,
     num_correct_trials: int = 1,
-    num_perf_trials: int = 5
+    num_perf_trials: int = 5,
+    server_url: str = "http://localhost:6000",
+    timeout: int = 300
 ) -> Dict[str, Any]:
     """
-    Evaluate a CUDA kernel against PyTorch reference implementation.
+    Evaluate a CUDA kernel against PyTorch reference implementation using remote server.
 
-    This function directly calls KernelBench's eval_kernel_against_ref with
-    minimal parameters. Thread-safe for parallel execution.
+    This function creates a new client instance for each evaluation call and sends
+    the request to a remote CUDA evaluation server. Each call is independent and
+    isolated, making it suitable for concurrent evaluations and preventing CUDA
+    errors from affecting subsequent evaluations.
 
     Parameters
     ----------
@@ -124,7 +128,7 @@ def evaluate(
         - 20+: Production/publication quality
 
     num_perf_trials : int, optional
-        Number of performance measurement trials (default: 1).
+        Number of performance measurement trials (default: 5).
 
         Each trial measures kernel runtime using CUDA events. Statistics
         (mean, std, min, max) are computed across all trials.
@@ -134,6 +138,15 @@ def evaluate(
         - 10-50: Fast performance estimate
         - 100-500: Stable benchmark results
         - 1000+: Publication-quality measurements
+
+    server_url : str, optional
+        URL of the remote CUDA evaluation server (default: "http://localhost:6000").
+        Each call to evaluate() creates a new client instance and sends a request
+        to this server. The server must be running and accessible.
+
+    timeout : int, optional
+        Maximum time in seconds to wait for evaluation completion (default: 300).
+        If the evaluation takes longer than this, a timeout error will be raised.
 
     Returns
     -------
@@ -225,16 +238,19 @@ def evaluate(
 
     Raises
     ------
-    ImportError
-        If KernelBench is not installed or not in Python path
-    RuntimeError
-        If no GPU is available
+    ConnectionError
+        If the remote server is not reachable or not running
+    TimeoutError
+        If the evaluation takes longer than the specified timeout
+    requests.RequestException
+        For various network-related errors during communication with server
     Exception
-        Various exceptions from compilation or execution errors
+        Various exceptions from server-side compilation or execution errors
 
     Thread Safety
     -------------
-    This function is thread-safe and can be called from multiple threads:
+    This function is fully thread-safe since each call creates a new client instance.
+    Multiple threads can call evaluate() concurrently without interference:
 
     >>> from concurrent.futures import ThreadPoolExecutor
     >>> from guide.evaluate import evaluate
@@ -268,7 +284,7 @@ def evaluate(
     ...     print(f"Speedup: {speedup:.2f}x")
     ...     print(f"Runtime: {runtime_ms:.3f} ms")
 
-    # Parallel evaluation
+    # Parallel evaluation with multiple server requests
     >>> from concurrent.futures import ThreadPoolExecutor
     >>> data = [
     ...     {'ref': ref1, 'cuda': cuda1},
@@ -282,47 +298,98 @@ def evaluate(
     >>> correct = sum(1 for r in results if r['correctness'])
     >>> print(f"{correct}/{len(results)} kernels passed")
 
+    # Custom server URL and timeout
+    >>> result = evaluate(
+    ...     ref, cuda, 
+    ...     server_url="http://gpu-server:8000",
+    ...     timeout=600  # 10 minutes
+    ... )
+
     Notes
     -----
-    - Requires KernelBench to be installed in external/KernelBench
-    - First evaluation takes longer (~30-60s) due to CUDA compilation
-    - Subsequent evaluations are faster due to PyTorch's compilation cache
-    - Uses current CUDA device (set via torch.cuda.set_device())
+    - Requires a running CUDA evaluation server at the specified URL
+    - Each call creates a new HTTP client instance for complete isolation
+    - Server handles CUDA compilation and execution in isolated processes
+    - First evaluation on server may take longer due to CUDA compilation
+    - Network latency affects total evaluation time
+    - Server must have GPU access and CUDA toolkit installed
     - All tensors are float32 by default
     - Correctness uses torch.allclose with rtol=1e-4, atol=1e-8
     - Performance uses CUDA events for precise timing
-    - GPU memory is synchronized between tests
     """
-    try:
-        from src.eval import eval_kernel_against_ref
-    except ImportError:
+    # Import the client (do this inside function to avoid import issues)
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    client_path = os.path.join(parent_dir, 'cuda_eval_client.py')
+
+    if not os.path.exists(client_path):
         raise ImportError(
-            "Cannot import eval_kernel_against_ref from KernelBench. "
-            f"Make sure KernelBench is installed at: {KERNELBENCH_PATH}\n"
-            "Run: bash install.sh"
+            f"Cannot find cuda_eval_client.py at {client_path}. "
+            "Make sure you're running from the KernelBench directory."
         )
 
-    # Call KernelBench evaluation with minimal parameters
-    result = eval_kernel_against_ref(
-        original_model_src=ref_arch_src,
-        custom_model_src=custom_cuda,
-        verbose=False,                      # Silent mode
-        measure_performance=(num_perf_trials > 0),  # Only if perf trials requested
-        num_correct_trials=num_correct_trials,
-        num_perf_trials=num_perf_trials
-    )
+    # Add parent to path and import
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
 
-    # Convert to dict if it's a Pydantic model or dataclass
-    if hasattr(result, 'model_dump'):
-        result_dict = result.model_dump()
-    elif hasattr(result, 'dict'):
-        result_dict = result.dict()
-    elif hasattr(result, '__dict__'):
-        result_dict = vars(result)
+    from cuda_eval_client import CUDAEvalClient
+
+    # Create a new client instance for this evaluation
+    # This ensures complete isolation between calls
+    client = CUDAEvalClient(server_url=server_url)
+
+    # Check if server is running
+    if not client.health_check():
+        raise ConnectionError(
+            f"CUDA evaluation server not reachable at {server_url}. "
+            "Please start the server with: python cuda_eval_server.py"
+        )
+
+    try:
+        # Submit evaluation synchronously with custom parameters
+        # Use dummy IDs since we're providing source code directly
+        response = client.evaluate_sync(
+            problem_id=1,  # Dummy ID
+            sample_id=0,   # Dummy ID
+            custom_cuda=custom_cuda,
+            ref_arch_src=ref_arch_src,
+            timeout=timeout
+        )
+    except Exception as e:
+        # Handle client-side errors (network, timeout, etc.)
+        return {
+            'compiled': False,
+            'correctness': False,
+            'runtime': -1.0,
+            'score': 0.0,
+            'metadata': {'error': f"Client error: {str(e)}"},
+            'feedback': f"Client-side error during evaluation: {str(e)}"
+        }
+
+    # Process server response
+    if response['status'] == 'completed':
+        result_dict = response.get('result', {})
+    elif response['status'] == 'failed':
+        # Server-side failure
+        result_dict = {
+            'compiled': False,
+            'correctness': False,
+            'runtime': -1.0,
+            'score': 0.0,
+            'metadata': {'error': response.get('error', 'Server evaluation failed')},
+            'feedback': f"Server evaluation failed: {response.get('error', 'Unknown error')}"
+        }
     else:
-        result_dict = result
+        # Unexpected status
+        result_dict = {
+            'compiled': False,
+            'correctness': False,
+            'runtime': -1.0,
+            'score': 0.0,
+            'metadata': {'error': f"Unexpected status: {response['status']}"},
+            'feedback': f"Unexpected server response status: {response['status']}"
+        }
 
-    # Extract score and feedback (same logic as KernelGuide in kernel_PS_modal.py)
+    # Extract and process evaluation results
     compiled = result_dict.get('compiled', False)
     correctness = result_dict.get('correctness', False)
     runtime = result_dict.get('runtime', -1.0)
@@ -330,6 +397,7 @@ def evaluate(
     runtime_stats = result_dict.get('runtime_stats', {})
     metadata = result_dict.get('metadata', {})
 
+    # Generate score and feedback based on results
     if not compiled:
         # COMPILATION FAILURE
         score = 0.0
@@ -403,7 +471,7 @@ def evaluate(
         if feedback_from_eval:
             feedback += f"Detailed Feedback:\n{feedback_from_eval}"
 
-    # Add score and feedback to result dict
+    # Add computed score and feedback to result dict
     result_dict['score'] = score
     result_dict['feedback'] = feedback
 
@@ -425,14 +493,16 @@ if __name__ == "__main__":
     print("      ref_arch_src=pytorch_code,    # PyTorch reference (string)")
     print("      custom_cuda=cuda_kernel,      # CUDA kernel (string)")
     print("      num_correct_trials=5,         # Correctness tests (1-20)")
-    print("      num_perf_trials=100           # Performance trials (0-1000)")
+    print("      num_perf_trials=100,          # Performance trials (0-1000)")
+    print("      server_url='http://localhost:6000',  # Remote server URL")
+    print("      timeout=300                   # Timeout in seconds")
     print("  )")
     print()
     print("  print(f\"Compiled: {result['compiled']}\")")
     print("  print(f\"Correct: {result['correctness']}\")")
     print("  print(f\"Speedup: {result['metadata']['speedup']:.2f}x\")")
     print()
-    print("PARALLEL USAGE:")
+    print("PARALLEL USAGE (Each call creates new client):")
     print("  from concurrent.futures import ThreadPoolExecutor")
     print()
     print("  with ThreadPoolExecutor(max_workers=10) as executor:")
@@ -445,28 +515,53 @@ if __name__ == "__main__":
     print("  ref_arch_src       - PyTorch reference implementation (string)")
     print("  custom_cuda        - CUDA kernel implementation (string)")
     print("  num_correct_trials - Number of correctness tests (default: 1)")
-    print("  num_perf_trials    - Number of performance trials (default: 1)")
+    print("  num_perf_trials    - Number of performance trials (default: 5)")
+    print("  server_url         - Remote CUDA server URL (default: localhost:6000)")
+    print("  timeout            - Evaluation timeout in seconds (default: 300)")
     print()
     print("RETURNS:")
     print("  Dictionary with: compiled, correctness, runtime, speedup, metadata")
     print()
+    print("SERVER REQUIREMENTS:")
+    print("  - Remote CUDA evaluation server must be running")
+    print("  - Server must be accessible at the specified URL")
+    print("  - Each evaluate() call creates a new client instance")
+    print()
     print("=" * 80)
 
-    # Check if KernelBench is available
-    if os.path.exists(KERNELBENCH_PATH):
+    # Check if client is available and server connectivity
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    client_path = os.path.join(parent_dir, 'cuda_eval_client.py')
+    
+    if os.path.exists(client_path):
         print()
-        print(f"✓ KernelBench found at: {KERNELBENCH_PATH}")
+        print(f"✓ CUDA client found at: {client_path}")
         try:
-            from src.eval import eval_kernel_against_ref
-            print("✓ eval_kernel_against_ref imported successfully")
+            if parent_dir not in sys.path:
+                sys.path.insert(0, parent_dir)
+            from cuda_eval_client import CUDAEvalClient
+            print("✓ CUDAEvalClient imported successfully")
+            
+            # Test server connectivity
+            client = CUDAEvalClient()
+            if client.health_check():
+                print("✓ Server is running and accessible!")
+                try:
+                    status = client.get_server_status()
+                    print(f"✓ Server status: {status}")
+                except:
+                    print("✓ Server is running (status details unavailable)")
+            else:
+                print("✗ Server not reachable at http://localhost:6000")
+                print("  Start server with: python cuda_eval_server.py")
             print()
-            print("✓ Ready to evaluate!")
+            print("✓ Ready to evaluate with remote server!")
         except ImportError as e:
-            print(f"✗ Cannot import eval_kernel_against_ref: {e}")
+            print(f"✗ Cannot import CUDAEvalClient: {e}")
             print()
-            print("  Run: bash install.sh")
+            print("  Make sure cuda_eval_client.py is available")
     else:
         print()
-        print(f"✗ KernelBench not found at: {KERNELBENCH_PATH}")
+        print(f"✗ CUDA client not found at: {client_path}")
         print()
-        print("  Run: bash install.sh")
+        print("  Make sure you're running from the KernelBench directory")
