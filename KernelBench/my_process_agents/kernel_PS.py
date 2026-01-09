@@ -64,38 +64,113 @@ def create_single_task_dataset(task_idx: int):
     return {'inputs': [ds[task_idx]['input']], 'infos': [ds[task_idx]['ref_arch_src']]}
 
 
-@app.local_entrypoint()
-def kernel_PS_train(
-    task_idx: int = 0,
-    num_steps: int = 20,
-    num_candidates: int = 1,
-    num_threads: int = 1,
-    num_proposals: int = 1,
-    log_frequency: int = 1,
-    test_frequency: int = 1,
-    algorithm_name: str = 'PS',
-    gpu: str = 'L40S',
-    verbose: bool = False,
-    use_wandb: bool = False,
-    project_name: str = 'kernelbench-single-task',
-    run_name: str = None
-):
+def main():
     """
-    Optimize a single kernel using PrioritySearch with persistent Modal GPU.
-    Modal automatically maps CLI flags (e.g., --task-idx) to these arguments.
+    Main function to optimize a single kernel using PrioritySearch.
     """
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Optimize CUDA kernels using PrioritySearch algorithm"
+    )
+    
+    # Task parameters
+    parser.add_argument(
+        '--task-idx',
+        type=int,
+        default=0,
+        help='Task index from dataset (default: 0)'
+    )
+    
+    # Training parameters
+    parser.add_argument(
+        '--num-steps',
+        type=int,
+        default=20,
+        help='Number of optimization steps (default: 20)'
+    )
+    parser.add_argument(
+        '--num-candidates',
+        type=int,
+        default=1,
+        help='Number of candidates per step (default: 1)'
+    )
+    parser.add_argument(
+        '--num-threads',
+        type=int,
+        default=1,
+        help='Number of threads for parallel evaluation (default: 1)'
+    )
+    parser.add_argument(
+        '--num-proposals',
+        type=int,
+        default=1,
+        help='Number of proposals per candidate (default: 1)'
+    )
+    
+    # Logging parameters
+    parser.add_argument(
+        '--log-frequency',
+        type=int,
+        default=1,
+        help='Frequency of logging (default: 1)'
+    )
+    parser.add_argument(
+        '--test-frequency',
+        type=int,
+        default=1,
+        help='Frequency of testing (default: 1)'
+    )
+    
+    # Algorithm parameters
+    parser.add_argument(
+        '--algorithm',
+        type=str,
+        default='PS',
+        choices=['PS'],
+        help='Algorithm to use (default: PS)'
+    )
+    parser.add_argument(
+        '--gpu',
+        type=str,
+        default='L40S',
+        help='GPU type for Modal evaluation (default: L40S)'
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Enable verbose output'
+    )
+    
+    # WandB parameters
+    parser.add_argument(
+        '--use-wandb',
+        action='store_true',
+        help='Enable Weights & Biases logging'
+    )
+    parser.add_argument(
+        '--project-name',
+        type=str,
+        default='kernelbench-single-task',
+        help='WandB project name (default: kernelbench-single-task)'
+    )
+    parser.add_argument(
+        '--run-name',
+        type=str,
+        default=None,
+        help='WandB run name (default: kernel_task_{task_idx})'
+    )
+    
+    args = parser.parse_args()
 
     # Step 1: Load the task
-    print(f"Loading task {task_idx} from KernelBench dataset...")
-    task = create_single_task_dataset(task_idx)
+    print(f"Loading task {args.task_idx} from KernelBench dataset...")
+    task = create_single_task_dataset(args.task_idx)
     input_text = task['inputs'][0]
     ref_arch_src = task['infos'][0]
-    print(f"Task loaded successfully. Task ID: {task_idx}")
+    print(f"Task loaded successfully. Task ID: {args.task_idx}")
 
-    # Step 2: Initialize Agent with reference implementation as starting point
-    # Shouldn't initialize with reference implementation here, because the reference implementation doesn't meet the requirements of custom CUDA kernel (for example, a ModelNew class is not defined)
-    # initial_kernel_code = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
-    # agent = KernelAgent(initial_kernel_code=initial_kernel_code)
+    # Step 2: Initialize Agent
     agent = KernelCode()
 
     # Step 3: Initialize Optimizer
@@ -104,33 +179,33 @@ def kernel_PS_train(
 
     # Step 4: Setup Logging
     config_dict = {
-        'task_idx': task_idx,
-        'num_steps': num_steps,
-        'num_candidates': num_candidates,
-        'num_threads': num_threads,
-        'num_proposals': num_proposals,
-        'gpu': gpu,
-        'algorithm': algorithm_name,
+        'task_idx': args.task_idx,
+        'num_steps': args.num_steps,
+        'num_candidates': args.num_candidates,
+        'num_threads': args.num_threads,
+        'num_proposals': args.num_proposals,
+        'gpu': args.gpu,
+        'algorithm': args.algorithm,
     }
     
-    actual_run_name = run_name if run_name else f"kernel_task_{task_idx}"
+    actual_run_name = args.run_name if args.run_name else f"kernel_task_{args.task_idx}"
     
-    if use_wandb:
-        logger = WandbLogger(project=project_name, verbose=True, name=actual_run_name, config=config_dict)
+    if args.use_wandb:
+        logger = WandbLogger(project=args.project_name, verbose=True, name=actual_run_name, config=config_dict)
     else:
         logger = DefaultLogger(verbose=True)
 
     # Step 5: Initialize Guide
-    print(f"\nUsing Modal GPU evaluator (GPU: {gpu})...")
+    print(f"\nUsing Modal GPU evaluator (GPU: {args.gpu})...")
     guide = KernelGuide(
-        gpu=gpu,
-        verbose=verbose,
+        gpu=args.gpu,
+        verbose=args.verbose,
         num_correct_trials=5,
         num_perf_trials=100
     )
 
     # Step 6: Create Algorithm
-    if algorithm_name == 'PS':
+    if args.algorithm == 'PS':
         from opto.features.priority_search.priority_search import PrioritySearch
         algorithm = PrioritySearch(
             agent=agent,
@@ -138,10 +213,10 @@ def kernel_PS_train(
             logger=logger
         )
     else:
-        raise ValueError(f"Algorithm {algorithm_name} not implemented in this entrypoint.")
+        raise ValueError(f"Algorithm {args.algorithm} not implemented.")
 
     # Step 7: Run Training
-    print(f"\nStarting PrioritySearch optimization (max {num_steps} steps)...")
+    print(f"\nStarting PrioritySearch optimization (max {args.num_steps} steps)...")
     start_time = time.time()
 
     algorithm.train(
@@ -151,21 +226,21 @@ def kernel_PS_train(
         test_dataset=task,
         batch_size=1,
         num_batches=1,
-        num_steps=num_steps,
-        num_threads=num_threads,
+        num_steps=args.num_steps,
+        num_threads=args.num_threads,
         num_eval_samples=1,
         validate_exploration_candidates=False,
         use_best_candidate_to_explore=False,
-        num_candidates=num_candidates,
-        num_proposals=num_proposals,
+        num_candidates=args.num_candidates,
+        num_proposals=args.num_proposals,
         score_function='mean',
-        log_frequency=log_frequency,
-        test_frequency=test_frequency
+        log_frequency=args.log_frequency,
+        test_frequency=args.test_frequency
     )
 
     duration = time.time() - start_time
     print(f"\nOptimization completed in {duration:.2f} seconds")
 
+
 if __name__ == "__main__":
-    # When running via 'modal run', this block is ignored.
-    print(create_single_task_dataset(3)['infos'][0])
+    main()
