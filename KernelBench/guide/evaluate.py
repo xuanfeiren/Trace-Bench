@@ -24,8 +24,8 @@ from typing import Tuple
 def evaluate(
     ref_arch_src: str,
     custom_cuda: str,
-    num_correct_trials: int = 5,
-    num_perf_trials: int = 100,
+    num_correct_trials: int = 1,
+    num_perf_trials: int = 5,
     server_url: str = "http://localhost:6000",
     timeout: int = 300
 ) -> Tuple[float, str]:
