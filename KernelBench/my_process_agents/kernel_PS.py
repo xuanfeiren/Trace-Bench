@@ -200,8 +200,8 @@ def main():
     guide = KernelGuide(
         gpu=args.gpu,
         verbose=args.verbose,
-        num_correct_trials=5,
-        num_perf_trials=100
+        num_correct_trials=1,
+        num_perf_trials=5
     )
 
     # Step 6: Create Algorithm
