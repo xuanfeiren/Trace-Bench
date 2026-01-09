@@ -117,16 +117,29 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
             except json.JSONDecodeError:
                 pass
 
-        # Fallback result
+        # Fallback result - log the actual output for debugging
+        logger.error(f"Failed to parse evaluation result. Return code: {result.returncode}")
+        logger.error(f"STDOUT: {result.stdout}")
+        logger.error(f"STDERR: {result.stderr}")
+        
         class ErrorResult:
-            def __init__(self, error_msg):
+            def __init__(self, error_msg, stdout, stderr):
                 self.compiled = False
                 self.correctness = False
-                self.metadata = {"error": error_msg, "return_code": result.returncode}
+                self.metadata = {
+                    "error": error_msg, 
+                    "return_code": result.returncode,
+                    "stdout": stdout,
+                    "stderr": stderr
+                }
                 self.runtime = -1.0
                 self.runtime_stats = {}
 
-        return ErrorResult(f"Failed to parse result. Return code: {result.returncode}")
+        return ErrorResult(
+            f"Failed to parse result. Return code: {result.returncode}",
+            result.stdout,
+            result.stderr
+        )
 
     except Exception as e:
         class ExceptionResult:
