@@ -59,6 +59,27 @@ else
   git clone "$KERNELBENCH_URL" "$KERNELBENCH_DIR"
 fi
 
+# Clone or update Trace repository (experimental branch)
+TRACE_DIR=${TRACE_DIR:-"$REPO_ROOT/Trace"}
+TRACE_URL=${TRACE_URL:-"https://github.com/xuanfeiren/Trace.git"}
+TRACE_BRANCH=${TRACE_BRANCH:-"experimental"}
+
+if [ -d "$TRACE_DIR/.git" ]; then
+  echo "Updating Trace repository in $TRACE_DIR"
+  if ! (
+    git -C "$TRACE_DIR" fetch --prune
+    git -C "$TRACE_DIR" checkout "$TRACE_BRANCH"
+    git -C "$TRACE_DIR" pull --ff-only origin "$TRACE_BRANCH"
+  ); then
+    echo "Trace update failed; recloning..."
+    rm -rf "$TRACE_DIR"
+    git clone -b "$TRACE_BRANCH" "$TRACE_URL" "$TRACE_DIR"
+  fi
+else
+  echo "Cloning Trace repository (branch: $TRACE_BRANCH) into $TRACE_DIR"
+  git clone -b "$TRACE_BRANCH" "$TRACE_URL" "$TRACE_DIR"
+fi
+
 # Install Python dependencies for this task using uv
 echo "Installing Python dependencies with uv in $SCRIPT_DIR"
 (cd "$SCRIPT_DIR" && "$UV_BIN" sync)
