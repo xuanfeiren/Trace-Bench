@@ -192,7 +192,7 @@ def evaluate_sequential(
             print(f"  Score:        {score:.4f}")
 
             # Print feedback (first 500 chars for more context)
-            feedback_preview = feedback[:500] + '...' if len(feedback) > 500 else feedback
+            feedback_preview = feedback
             print(f"\n  Feedback:\n    {feedback_preview.replace(chr(10), chr(10) + '    ')}")
 
             print(f"\n  Eval time:    {elapsed:.1f}s")
