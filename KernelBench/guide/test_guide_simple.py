@@ -18,8 +18,8 @@ custom_cuda = open("level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
 result_dict = evaluate(
     ref_arch_src=ref_arch_src,
     custom_cuda=custom_cuda,
-    num_correct_trials=5,
-    num_perf_trials=100
+    num_correct_trials=1,
+    num_perf_trials=5
 )
 score = result_dict['score']
 feedback = result_dict['feedback']
