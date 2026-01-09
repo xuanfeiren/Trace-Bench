@@ -85,7 +85,7 @@ def invoke_eval_with_subprocess_list(problem_id=1, sample_id=0, custom_cuda=None
             capture_output=True,
             text=True,
             timeout=300,
-            cwd="/home/ubuntu/KernelBench"
+            cwd=os.path.join(REPO_EXTERNAL_LIB_PATH, "KernelBench")
         )
 
         # Parse JSON result from output
