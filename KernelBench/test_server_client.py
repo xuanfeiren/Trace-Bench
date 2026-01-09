@@ -17,8 +17,8 @@ def main():
     print("="*60)
 
     # Step 1: Connect to server
-    print("\n[1/5] Connecting to server at http://localhost:6000...")
-    SERVER_URL = "http://localhost:6000"  # Change if using different port
+    print("\n[1/5] Connecting to server at http://127.0.0.1:6000...")
+    SERVER_URL = "http://127.0.0.1:6000"  # Use 127.0.0.1 instead of localhost to avoid IPv6 issues
     client = CUDAEvalClient(SERVER_URL)
 
     # Step 2: Health check
