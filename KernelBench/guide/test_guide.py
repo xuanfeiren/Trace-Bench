@@ -46,13 +46,13 @@ def load_cuda_kernels(directory: str = "../my_process_agents") -> List[Dict[str,
 
     print(f"Loading CUDA kernels from: {kernel_dir}")
 
-    # Find all .txt files that are not error files
+    # Find all .txt files (including error files)
     txt_files = glob.glob(str(kernel_dir / "*.txt"))
-    kernel_files = [f for f in txt_files if not os.path.basename(f).startswith("error_")]
+    kernel_files = txt_files  # Include all .txt files
 
     if not kernel_files:
         print(f"⚠️  No kernel files found in {kernel_dir}")
-        print(f"    Looking for .txt files (excluding error_*.txt)")
+        print(f"    Looking for .txt files")
         return []
 
     print(f"Found {len(kernel_files)} kernel file(s)")
