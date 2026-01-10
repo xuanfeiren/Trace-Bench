@@ -26,14 +26,18 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from guide.evaluate import evaluate
 
 
-def load_cuda_kernels(directory: str = "../my_process_agents") -> List[Dict[str, str]]:
+def load_cuda_kernels(directory: str = "../my_process_agents", specific_file: str = None, num_repeats: int = 1) -> List[Dict[str, str]]:
     """
-    Load all CUDA kernel .txt files from the specified directory.
+    Load CUDA kernel .txt files from the specified directory.
 
     Parameters
     ----------
     directory : str
         Directory containing .txt files with CUDA kernels
+    specific_file : str, optional
+        If provided, load only this specific file (can be relative to directory or absolute path)
+    num_repeats : int
+        Number of times to repeat the evaluation of the file(s)
 
     Returns
     -------
@@ -42,35 +46,78 @@ def load_cuda_kernels(directory: str = "../my_process_agents") -> List[Dict[str,
     """
     # Resolve directory path relative to this script
     script_dir = Path(__file__).parent
-    kernel_dir = (script_dir / directory).resolve()
-
-    print(f"Loading CUDA kernels from: {kernel_dir}")
-
-    # Find all .txt files (including error files)
-    txt_files = glob.glob(str(kernel_dir / "*.txt"))
-    kernel_files = txt_files  # Include all .txt files
-
-    if not kernel_files:
-        print(f"⚠️  No kernel files found in {kernel_dir}")
-        print(f"    Looking for .txt files")
-        return []
-
-    print(f"Found {len(kernel_files)} kernel file(s)")
-
+    
     kernels = []
-    for filepath in sorted(kernel_files):
-        filename = os.path.basename(filepath)
+    
+    if specific_file:
+        # Handle specific file loading
+        # First try as absolute path
+        if os.path.isabs(specific_file):
+            filepath = specific_file
+        else:
+            # Try relative to script directory
+            filepath = (script_dir / specific_file).resolve()
+            if not os.path.exists(filepath):
+                # Try relative to provided directory
+                kernel_dir = (script_dir / directory).resolve()
+                filepath = kernel_dir / specific_file
+        
+        print(f"Loading specific CUDA kernel: {filepath}")
+        
+        if not os.path.exists(filepath):
+            print(f"⚠️  File not found: {filepath}")
+            return []
+        
         try:
             with open(filepath, 'r') as f:
                 code = f.read()
-            kernels.append({
-                'filename': filename,
-                'filepath': filepath,
-                'code': code
-            })
-            print(f"  ✓ Loaded: {filename}")
+            
+            # Add the kernel num_repeats times
+            for i in range(num_repeats):
+                kernels.append({
+                    'filename': f"{os.path.basename(filepath)} (Run {i+1}/{num_repeats})",
+                    'filepath': str(filepath),
+                    'code': code,
+                    'run_number': i+1
+                })
+            print(f"  ✓ Loaded: {os.path.basename(filepath)} x{num_repeats} times")
         except Exception as e:
-            print(f"  ✗ Failed to load {filename}: {e}")
+            print(f"  ✗ Failed to load {filepath}: {e}")
+            return []
+    else:
+        # Original behavior - load all files
+        kernel_dir = (script_dir / directory).resolve()
+        print(f"Loading CUDA kernels from: {kernel_dir}")
+
+        # Find all .txt files (including error files)
+        txt_files = glob.glob(str(kernel_dir / "*.txt"))
+        kernel_files = txt_files  # Include all .txt files
+
+        if not kernel_files:
+            print(f"⚠️  No kernel files found in {kernel_dir}")
+            print(f"    Looking for .txt files")
+            return []
+
+        print(f"Found {len(kernel_files)} kernel file(s)")
+
+        for filepath in sorted(kernel_files):
+            filename = os.path.basename(filepath)
+            try:
+                with open(filepath, 'r') as f:
+                    code = f.read()
+                
+                # Add each file num_repeats times
+                for i in range(num_repeats):
+                    suffix = f" (Run {i+1}/{num_repeats})" if num_repeats > 1 else ""
+                    kernels.append({
+                        'filename': filename + suffix,
+                        'filepath': filepath,
+                        'code': code,
+                        'run_number': i+1 if num_repeats > 1 else None
+                    })
+                print(f"  ✓ Loaded: {filename}" + (f" x{num_repeats} times" if num_repeats > 1 else ""))
+            except Exception as e:
+                print(f"  ✗ Failed to load {filename}: {e}")
 
     return kernels
 
@@ -383,6 +430,18 @@ def main():
         help='Directory containing CUDA kernel .txt files (default: ../my_process_agents)'
     )
     parser.add_argument(
+        '--file',
+        type=str,
+        default='level1_prob1_cuda_custom_gpt5_example.txt',
+        help='Specific file to evaluate (default: level1_prob1_cuda_custom_gpt5_example.txt)'
+    )
+    parser.add_argument(
+        '--repeats',
+        type=int,
+        default=3,
+        help='Number of times to evaluate the file (default: 3)'
+    )
+    parser.add_argument(
         '--problem-id',
         type=int,
         default=1,
@@ -414,11 +473,15 @@ def main():
     print("="*80)
 
     # Load CUDA kernels
-    kernels = load_cuda_kernels(args.kernels_dir)
+    kernels = load_cuda_kernels(
+        directory=args.kernels_dir,
+        specific_file=args.file,
+        num_repeats=args.repeats
+    )
 
     if not kernels:
         print("\n❌ No kernels to evaluate!")
-        print(f"   Place .txt files with CUDA kernels in: {args.kernels_dir}")
+        print(f"   Check file: {args.file}")
         return
 
     # Load reference implementation

@@ -41,19 +41,40 @@ class KernelCode():
     def forward(self, task: str) -> str:
         return self.kernel_code
 
-class DummyGuide(Guide):
-    """This is a dummy guide. Used for debugging the other parts of the code."""
-    def __init__(self,*args, **kwargs):
-        pass
+# class DummyGuide(Guide):
+#     """This is a dummy guide. Used for debugging the other parts of the code."""
+#     def __init__(self,*args, **kwargs):
+#         pass
 
-    def get_feedback(self, task, response, info, **kwargs):
-        return 1.0, "Dummy feedback"    
+#     def get_feedback(self, task, response, info, **kwargs):
+#         return 1.0, "Dummy feedback"    
     
+#     def metric(self, task, response, info=None, **kwargs):
+#         return 1.0
+# address the import issue
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from guide.evaluate import evaluate
+class KernelGuide(Guide):
+    def __init__(self, gpu="L40S", verbose=False, num_correct_trials=1, num_perf_trials=5):
+        self.gpu = gpu
+        self.verbose = verbose
+        self.num_correct_trials = num_correct_trials
+        self.num_perf_trials = num_perf_trials
+    def get_feedback(self, task, response, info, **kwargs):
+        score, feedback = evaluate(
+                    ref_arch_src=info,
+                    custom_cuda=response,
+                    num_correct_trials=1,
+                    num_perf_trials=5
+            )
+        print_color(f"Score: {score}", 'green')
+        print_color(f"Feedback: {feedback}", 'yellow')
+        breakpoint()
+        return score, feedback
+        
     def metric(self, task, response, info=None, **kwargs):
-        return 1.0
-
-class KernelGuide(DummyGuide):
-    pass
+        score, _ = self.get_feedback(task, response, info, **kwargs)
+        return score
 
 from dataset.utils import create_matrix_multiplication_dataset
 def create_single_task_dataset(task_idx: int):
