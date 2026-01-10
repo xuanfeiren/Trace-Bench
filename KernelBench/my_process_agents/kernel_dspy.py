@@ -28,8 +28,8 @@ from dataset.utils import create_matrix_multiplication_dataset
 
 # Import evaluation function
 # from guide.evaluate import evaluate
-def evaluate(ref_arch_src, custom_cuda, num_correct_trials, num_perf_trials):
-    return 1.0, "Dummy feedback"
+# def evaluate(ref_arch_src, custom_cuda, num_correct_trials, num_perf_trials):
+#     return 1.0, "Dummy feedback"
 from opto.optimizers.utils import print_color
 
 # Set random seeds for reproducibility
@@ -253,7 +253,7 @@ def main():
     # Logging parameters
     parser.add_argument('--verbose', action='store_true', default=True,
                        help='Print detailed logs during optimization')
-    parser.add_argument('--save_results', action='store_true', default=True,
+    parser.add_argument('--save_results', action='store_true', default=False,
                        help='Save results to JSON file')
     
     args = parser.parse_args()
