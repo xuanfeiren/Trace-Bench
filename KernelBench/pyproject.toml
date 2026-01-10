@@ -32,6 +32,9 @@ dependencies = [
   "openai",
   "litellm",
   "trace-opt",
+  "dspy-ai",
+  "gepa",
+  "openevolve",
   "torch>=2.0.0",
   "einops",
   "wandb>=0.23.1",
@@ -53,4 +56,7 @@ py-modules = []
 # Path will be set/used by install.sh after cloning to ../external/KernelBench
 kernelbench = { path = "../external/KernelBench" }
 trace-opt = { path = "../Trace", editable = true }
+dspy-ai = { path = "../external/dspy-repo", editable = true }
+gepa = { path = "../external/gepa-repo", editable = true }
+openevolve = { path = "../external/openevolve", editable = true }
 

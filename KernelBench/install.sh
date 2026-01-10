@@ -80,6 +80,63 @@ else
   git clone -b "$TRACE_BRANCH" "$TRACE_URL" "$TRACE_DIR"
 fi
 
+# Clone or update DSPy repository
+DSPY_DIR=${DSPY_DIR:-"$EXTERNAL_DIR/dspy-repo"}
+DSPY_URL=${DSPY_URL:-"https://github.com/xuanfeiren/dspy-repo.git"}
+
+if [ -d "$DSPY_DIR/.git" ]; then
+  echo "Updating DSPy repository in $DSPY_DIR"
+  if ! (
+    git -C "$DSPY_DIR" fetch --prune
+    git -C "$DSPY_DIR" pull --ff-only
+  ); then
+    echo "DSPy update failed; recloning..."
+    rm -rf "$DSPY_DIR"
+    git clone "$DSPY_URL" "$DSPY_DIR"
+  fi
+else
+  echo "Cloning DSPy repository into $DSPY_DIR"
+  git clone "$DSPY_URL" "$DSPY_DIR"
+fi
+
+# Clone or update GEPA repository
+GEPA_DIR=${GEPA_DIR:-"$EXTERNAL_DIR/gepa-repo"}
+GEPA_URL=${GEPA_URL:-"https://github.com/xuanfeiren/gepa-repo.git"}
+
+if [ -d "$GEPA_DIR/.git" ]; then
+  echo "Updating GEPA repository in $GEPA_DIR"
+  if ! (
+    git -C "$GEPA_DIR" fetch --prune
+    git -C "$GEPA_DIR" pull --ff-only
+  ); then
+    echo "GEPA update failed; recloning..."
+    rm -rf "$GEPA_DIR"
+    git clone "$GEPA_URL" "$GEPA_DIR"
+  fi
+else
+  echo "Cloning GEPA repository into $GEPA_DIR"
+  git clone "$GEPA_URL" "$GEPA_DIR"
+fi
+
+# Clone or update OpenEvolve repository
+OPENEVOLVE_DIR=${OPENEVOLVE_DIR:-"$EXTERNAL_DIR/openevolve"}
+OPENEVOLVE_URL=${OPENEVOLVE_URL:-"https://github.com/xuanfeiren/openevolve.git"}
+
+if [ -d "$OPENEVOLVE_DIR/.git" ]; then
+  echo "Updating OpenEvolve repository in $OPENEVOLVE_DIR"
+  if ! (
+    git -C "$OPENEVOLVE_DIR" fetch --prune
+    git -C "$OPENEVOLVE_DIR" pull --ff-only
+  ); then
+    echo "OpenEvolve update failed; recloning..."
+    rm -rf "$OPENEVOLVE_DIR"
+    git clone "$OPENEVOLVE_URL" "$OPENEVOLVE_DIR"
+  fi
+else
+  echo "Cloning OpenEvolve repository into $OPENEVOLVE_DIR"
+  git clone "$OPENEVOLVE_URL" "$OPENEVOLVE_DIR"
+fi
+
 # Install Python dependencies for this task using uv
 echo "Installing Python dependencies with uv in $SCRIPT_DIR"
 (cd "$SCRIPT_DIR" && "$UV_BIN" sync)
@@ -90,6 +147,24 @@ echo "Activating the Python environment at $SCRIPT_DIR/.venv"
 if [ -f "$KERNELBENCH_DIR/pyproject.toml" ] || [ -f "$KERNELBENCH_DIR/setup.py" ]; then
   echo "Installing/updating upstream KernelBench package in editable mode with uv"
   "$UV_BIN" pip install -e "$KERNELBENCH_DIR"
+fi
+
+# Install DSPy repository as editable package
+if [ -f "$DSPY_DIR/pyproject.toml" ] || [ -f "$DSPY_DIR/setup.py" ]; then
+  echo "Installing/updating DSPy package in editable mode with uv"
+  "$UV_BIN" pip install -e "$DSPY_DIR"
+fi
+
+# Install GEPA repository as editable package
+if [ -f "$GEPA_DIR/pyproject.toml" ] || [ -f "$GEPA_DIR/setup.py" ]; then
+  echo "Installing/updating GEPA package in editable mode with uv"
+  "$UV_BIN" pip install -e "$GEPA_DIR"
+fi
+
+# Install OpenEvolve repository as editable package
+if [ -f "$OPENEVOLVE_DIR/pyproject.toml" ] || [ -f "$OPENEVOLVE_DIR/setup.py" ]; then
+  echo "Installing/updating OpenEvolve package in editable mode with uv"
+  "$UV_BIN" pip install -e "$OPENEVOLVE_DIR"
 fi
 
 # If KernelBench has a requirements.txt, install those requirements explicitly.
