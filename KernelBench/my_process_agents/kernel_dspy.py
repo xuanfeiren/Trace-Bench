@@ -28,6 +28,7 @@ from dataset.utils import create_matrix_multiplication_dataset
 
 # Import evaluation function
 from guide.evaluate import evaluate
+from opto.optimizers.utils import print_color
 
 # Set random seeds for reproducibility
 np.random.seed(10)
@@ -153,7 +154,9 @@ def sequential_optimization(
                 num_correct_trials=num_correct_trials,
                 num_perf_trials=num_perf_trials
             )
-            
+
+            print_color(f"Score: {score}", 'green')
+            print_color(f"Feedback: {feedback}", 'yellow')
             if verbose:
                 print(f"\n✓ Evaluation complete")
                 
@@ -289,7 +292,6 @@ def main():
     print(f"  Max attempts: {args.max_attempts}")
     print(f"  Correctness trials: {args.num_correct_trials}")
     print(f"  Performance trials: {args.num_perf_trials}")
-    print(f"  Target: Achieve score >= 1.0 (correct and faster than PyTorch)")
     print()
     
     start_time = time.time()
