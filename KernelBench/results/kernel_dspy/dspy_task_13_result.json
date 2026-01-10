@@ -1,0 +1,66 @@
+{
+  "task_idx": 13,
+  "success": false,
+  "attempts": 10,
+  "best_score": 0.43826530612244896,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the CUDA kernel for matrix multiplication optimized for small K\nmatmul_small_k_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cuda.h>\n\n// Matrix multiplication kernel optimized for very small K dimension (K<<M,N)\n__global__ void matmul_small_k_kernel(\n    const float* __restrict__ A,\n    const float* __restrict__ B,\n    float* __restrict__ C,\n    const int M,\n    const int N, \n    const int K) {\n    \n    // Each thread computes one output element\n    // Using grid-stride loop for better occupancy\n    const int tid = blockIdx.x * blockDim.x + threadIdx.x;\n    const int stride = blockDim.x * gridDim.x;\n    \n    const int size = M * N;\n    \n    for (int i = tid; i < size; i += stride) {\n        const int row = i / N;\n        const int col = i % N;\n        \n        // Each thread directly computes its element\n        // For small K, this fits well in registers\n        float sum = 0.0f;\n        \n        // Direct loop over K dimension (which is small)\n        // This avoids shared memory overhead\n        for (int k = 0; k < K; ++k) {\n            sum += A[row * K + k] * B[k * N + col];\n        }\n        \n        C[row * N + col] = sum;\n    }\n}\n\n// Optimized kernel for larger matrices that uses vectorized memory access\n__global__ void matmul_small_k_vec_kernel(\n    const float4* __restrict__ A4,\n    const float* __restrict__ B,\n    float4* __restrict__ C4,\n    const int M,\n    const int N, \n    const int K) {\n    \n    // Each thread processes 4 elements in the output\n    const int row = blockIdx.y * blockDim.y + threadIdx.y;\n    const int col_base = (blockIdx.x * blockDim.x + threadIdx.x) * 4; // Each thread handles 4 columns\n    \n    if (row >= M || col_base >= N)\n        return;\n        \n    float sum0 = 0.0f, sum1 = 0.0f, sum2 = 0.0f, sum3 = 0.0f;\n    \n    // Process 4 columns at a time for output\n    const int col_limit = min(col_base + 4, N);\n    const int col_valid = col_limit - col_base;\n    \n    // For each element in K\n    for (int k = 0; k < K; ++k) {\n        const float a_val = ((const float*)A4)[row * K + k];\n        \n        // For each of the 4 columns\n        if (col_valid > 0) sum0 += a_val * B[k * N + col_base];\n        if (col_valid > 1) sum1 += a_val * B[k * N + col_base + 1];\n        if (col_valid > 2) sum2 += a_val * B[k * N + col_base + 2];\n        if (col_valid > 3) sum3 += a_val * B[k * N + col_base + 3];\n    }\n    \n    // Store results - handle boundary cases\n    float4 result;\n    result.x = sum0;\n    result.y = (col_valid > 1) ? sum1 : 0.0f;\n    result.z = (col_valid > 2) ? sum2 : 0.0f;\n    result.w = (col_valid > 3) ? sum3 : 0.0f;\n    \n    // Write output if within bounds\n    if (col_base < N) {\n        // Only write the valid elements\n        if (col_valid == 4) {\n            C4[row * N/4 + col_base/4] = result;\n        } else {\n            float* C_ptr = (float*)C4;\n            if (col_valid > 0) C_ptr[row * N + col_base] = result.x;\n            if (col_valid > 1) C_ptr[row * N + col_base + 1] = result.y;\n            if (col_valid > 2) C_ptr[row * N + col_base + 2] = result.z;\n            if (col_valid > 3) C_ptr[row * N + col_base + 3] = result.w;\n        }\n    }\n}\n\ntorch::Tensor matmul_small_k_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get dimensions\n    const int M = A.size(0);\n    const int K = A.size(1);\n    const int N = B.size(1);\n    \n    // Create output tensor\n    auto C = torch::empty({M, N}, A.options());\n    \n    // Make sure tensors are contiguous for efficient memory access\n    auto A_cont = A.contiguous();\n    auto B_cont = B.contiguous();\n    \n    // Determine if we should use the vectorized kernel\n    bool use_vec = (N % 4 == 0) && (N >= 128);\n    \n    if (use_vec) {\n        // Use vectorized kernel for better memory throughput\n        const int threads_per_block_x = 16;\n        const int threads_per_block_y = 16;\n        \n        dim3 threads(threads_per_block_x, threads_per_block_y);\n        dim3 blocks((N/4 + threads_per_block_x - 1) / threads_per_block_x,\n                    (M + threads_per_block_y - 1) / threads_per_block_y);\n        \n        matmul_small_k_vec_kernel<<<blocks, threads>>>(\n            reinterpret_cast<const float4*>(A_cont.data_ptr<float>()),\n            B_cont.data_ptr<float>(),\n            reinterpret_cast<float4*>(C.data_ptr<float>()),\n            M, N, K\n        );\n    } else {\n        // Use the simple kernel which is better for non-aligned dimensions\n        // For small K, we want high thread occupancy\n        const int block_size = 256;\n        const int num_blocks = min(65535, (M * N + block_size - 1) / block_size);\n        \n        matmul_small_k_kernel<<<num_blocks, block_size>>>(\n            A_cont.data_ptr<float>(),\n            B_cont.data_ptr<float>(),\n            C.data_ptr<float>(),\n            M, N, K\n        );\n    }\n    \n    return C;\n}\n\"\"\"\n\nmatmul_small_k_cpp_source = \"\"\"\ntorch::Tensor matmul_small_k_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\nmatmul_small_k = load_inline(\n    name=\"matmul_small_k\",\n    cpp_sources=matmul_small_k_cpp_source,\n    cuda_sources=matmul_small_k_source,\n    functions=[\"matmul_small_k_cuda\"],\n    verbose=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B) \n    with a small K dimension using a custom CUDA kernel\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_op = matmul_small_k\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        return self.matmul_op.matmul_small_k_cuda(A.cuda(), B.cuda())",
+  "duration_seconds": 409.3505668640137,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 7,
+      "score": 0.3303846153846154,
+      "feedback": "SUCCESS - Score (Speedup): 0.3304x\n\nCustom Kernel Runtime: 26.0000 \u03bcs\nReference Runtime: 8.5900 \u03bcs\nSpeedup: 0.3304x\nRuntime Stats: {'mean': 26.0, 'std': 0.407, 'min': 25.7, 'max': 26.8, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:0'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 8,
+      "score": 0.43826530612244896,
+      "feedback": "SUCCESS - Score (Speedup): 0.4383x\n\nCustom Kernel Runtime: 19.6000 \u03bcs\nReference Runtime: 8.5900 \u03bcs\nSpeedup: 0.4383x\nRuntime Stats: {'mean': 19.6, 'std': 0.471, 'min': 18.9, 'max': 20.4, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:1'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_small_k'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_small_k'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 428.788208. Average output differences: 30.428127. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computation logic, nume"
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 10,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}

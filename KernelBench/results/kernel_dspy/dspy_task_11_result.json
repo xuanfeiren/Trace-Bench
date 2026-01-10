@@ -1,0 +1,66 @@
+{
+  "task_idx": 11,
+  "success": false,
+  "attempts": 10,
+  "best_score": 0.8377403846153846,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel that leverages cuBLAS for batched matrix multiplication\nbatched_matmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\n// Helper function to check CUDA errors\n#define CHECK_CUDA(x) TORCH_CHECK(x.is_cuda(), #x \" must be a CUDA tensor\")\n#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x \" must be contiguous\")\n#define CHECK_CUBLAS(err) { if (err != CUBLAS_STATUS_SUCCESS) { \\\n    std::stringstream ss; \\\n    ss << \"cuBLAS error: \" << err; \\\n    throw std::runtime_error(ss.str()); \\\n}}\n\ntorch::Tensor batched_matmul_cublas(torch::Tensor A, torch::Tensor B) {\n    CHECK_CUDA(A);\n    CHECK_CUDA(B);\n    CHECK_CONTIGUOUS(A);\n    CHECK_CONTIGUOUS(B);\n    \n    // Get tensor dimensions\n    const int batch_size = A.size(0);\n    const int m = A.size(1);\n    const int k = A.size(2);\n    const int n = B.size(2);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    \n    auto C = torch::empty({batch_size, m, n}, options);\n    \n    // Get pointers to tensor data\n    float* A_data = A.data_ptr<float>();\n    float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n\n    // Create cuBLAS handle\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n\n    // Set up scaling factors\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Stride values for the tensors\n    long long int strideA = m * k;\n    long long int strideB = k * n;\n    long long int strideC = m * n;\n    \n    // Perform batched matrix multiplication using cuBLAS\n    // Note: cuBLAS uses column-major order, while PyTorch uses row-major order\n    // So we compute C = B^T * A^T which is equivalent to C = A * B in row-major\n    CHECK_CUBLAS(cublasGemmStridedBatchedEx(\n        handle,\n        CUBLAS_OP_N, CUBLAS_OP_N,\n        n, m, k,\n        &alpha,\n        B_data, CUDA_R_32F, n, strideB,\n        A_data, CUDA_R_32F, k, strideA,\n        &beta,\n        C_data, CUDA_R_32F, n, strideC,\n        batch_size,\n        CUDA_R_32F, CUBLAS_GEMM_DEFAULT_TENSOR_OP\n    ));\n    \n    // Destroy cuBLAS handle\n    cublasDestroy(handle);\n    \n    return C;\n}\n\n// Alternative implementation that uses tensor strides for handling non-contiguous tensors\ntorch::Tensor batched_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    CHECK_CUDA(A);\n    CHECK_CUDA(B);\n    \n    // Make contiguous if needed\n    if (!A.is_contiguous()) {\n        A = A.contiguous();\n    }\n    if (!B.is_contiguous()) {\n        B = B.contiguous();\n    }\n    \n    return batched_matmul_cublas(A, B);\n}\n\"\"\"\n\nbatched_matmul_cpp_source = \"\"\"\ntorch::Tensor batched_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code for batched matrix multiplication\nbatched_matmul = load_inline(\n    name=\"batched_matmul\",\n    cpp_sources=batched_matmul_cpp_source,\n    cuda_sources=batched_matmul_cuda_source,\n    functions=[\"batched_matmul_cuda\"],\n    verbose=True,\n    extra_ldflags=[\"-lcublas\"]  # Link against cuBLAS library\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized version of batched matrix multiplication (C = A * B) where A, B, and C have the same batch dimension.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.batched_matmul = batched_matmul\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs batched matrix multiplication using cuBLAS through a custom CUDA kernel.\n\n        Args:\n            A: Input tensor of shape (batch_size, m, k).\n            B: Input tensor of shape (batch_size, k, n).\n\n        Returns:\n            C: Output tensor of shape (batch_size, m, n).\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        # Make sure tensors are float32\n        if A.dtype != torch.float32:\n            A = A.float()\n        if B.dtype != torch.float32:\n            B = B.float()\n            \n        return self.batched_matmul.batched_matmul_cuda(A, B)",
+  "duration_seconds": 553.0572552680969,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 5,
+      "score": 0.1537444933920705,
+      "feedback": "SUCCESS - Score (Speedup): 0.1537x\n\nCustom Kernel Runtime: 45.4000 \u03bcs\nReference Runtime: 6.9800 \u03bcs\nSpeedup: 0.1537x\nRuntime Stats: {'mean': 45.4, 'std': 0.245, 'min': 45.3, 'max': 45.9, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 6,
+      "score": 0.8377403846153846,
+      "feedback": "SUCCESS - Score (Speedup): 0.8377x\n\nCustom Kernel Runtime: 8.3200 \u03bcs\nReference Runtime: 6.9700 \u03bcs\nSpeedup: 0.8377x\nRuntime Stats: {'mean': 8.32, 'std': 0.924, 'min': 7.44, 'max': 10.1, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ker"
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'batched_matmul'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'batched_matmul'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'batched_matmul'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'batched_matmul'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'batched_matmul_extension': [1/3] c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=batched_matmul_extension -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_640015/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_640015/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/in"
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'batched_matmul_extension'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'batched_matmul_extension'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 10,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}

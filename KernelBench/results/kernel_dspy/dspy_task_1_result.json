@@ -1,0 +1,66 @@
+{
+  "task_idx": 1,
+  "success": false,
+  "attempts": 10,
+  "best_score": 0.0,
+  "best_cuda_code": null,
+  "duration_seconds": 248.2007224559784,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 10,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}

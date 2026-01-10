@@ -1,0 +1,46 @@
+{
+  "task_idx": 14,
+  "success": true,
+  "attempts": 6,
+  "best_score": 1.9757785467128026,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel using cuBLAS for matrix multiplication\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get the dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto C = torch::empty({M, N}, A.options());\n    \n    // Get pointers to tensor data\n    const float* A_data = A.data_ptr<float>();\n    const float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    // Set cuBLAS to use Tensor Core operations if available\n    cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);\n    \n    // Constants for GEMM operation\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Perform matrix multiplication using cuBLAS\n    // Note: cuBLAS uses column-major order, but PyTorch uses row-major\n    // So we compute C = B^T * A^T which is equivalent to C = A * B in row-major\n    cublasSgemm(handle, \n                CUBLAS_OP_N, CUBLAS_OP_N,\n                N, M, K,\n                &alpha,\n                B_data, N,    // B in column-major view (transposed)\n                A_data, K,    // A in column-major view (transposed)\n                &beta,\n                C_data, N);   // C in column-major view\n    \n    // Destroy cuBLAS handle\n    cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_extension = load_inline(\n    name=\"matmul_extension\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\"],\n    verbose=True,\n    with_cuda=True,\n    extra_cuda_cflags=[\"-lcublas\"]\n)\n\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B) with irregular shapes\n    using cuBLAS directly\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_extension = matmul_extension\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication of A and B using cuBLAS directly.\n\n        Args:\n            A: Input tensor with shape (M, K).\n            B: Input tensor with shape (K, N).\n\n        Returns:\n            C: Output tensor with shape (M, N).\n        \"\"\"\n        # Make sure tensors are on CUDA\n        A = A.cuda() if not A.is_cuda else A\n        B = B.cuda() if not B.is_cuda else B\n        \n        # Make sure tensors are float32 for the kernel\n        A = A.float() if A.dtype != torch.float32 else A\n        B = B.float() if B.dtype != torch.float32 else B\n        \n        return self.matmul_extension.matmul_cuda(A, B)",
+  "duration_seconds": 242.0876579284668,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 5,
+      "score": 0.0980968858131488,
+      "feedback": "SUCCESS - Score (Speedup): 0.0981x\n\nCustom Kernel Runtime: 57.8000 \u03bcs\nReference Runtime: 5.6700 \u03bcs\nSpeedup: 0.0981x\nRuntime Stats: {'mean': 57.8, 'std': 0.00201, 'min': 57.8, 'max': 57.8, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:0'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom "
+    },
+    {
+      "attempt": 6,
+      "score": 1.9757785467128026,
+      "feedback": "SUCCESS - Score (Speedup): 1.9758x\n\nCustom Kernel Runtime: 2.8900 \u03bcs\nReference Runtime: 5.7100 \u03bcs\nSpeedup: 1.9758x\nRuntime Stats: {'mean': 2.89, 'std': 0.563, 'min': 2.61, 'max': 4.02, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:1'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ker"
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 10,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
