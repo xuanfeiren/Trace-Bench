@@ -64,12 +64,12 @@ class KernelGuide(Guide):
         score, feedback = evaluate(
                     ref_arch_src=info,
                     custom_cuda=response,
-                    num_correct_trials=1,
-                    num_perf_trials=5
+                    num_correct_trials=self.num_correct_trials,
+                    num_perf_trials=self.num_perf_trials
             )
         print_color(f"Score: {score}", 'green')
         print_color(f"Feedback: {feedback}", 'yellow')
-        breakpoint()
+        # breakpoint()
         return score, feedback
         
     def metric(self, task, response, info=None, **kwargs):
@@ -100,7 +100,8 @@ def main():
         '--task-idx',
         type=int,
         default=0,
-        help='Task index from dataset (default: 0)'
+        choices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        help='Task index from dataset (default: 0, choices: 0-15)'
     )
     
     # Training parameters
@@ -148,8 +149,14 @@ def main():
         '--algorithm',
         type=str,
         default='PS',
-        choices=['PS'],
+        choices=['PS', 'PS_Summarizer', 'PS_epsNet_Summarizer', 'PS_epsNet'],
         help='Algorithm to use (default: PS)'
+    )
+    parser.add_argument(
+        '--epsilon',
+        type=float,
+        default=0.1,
+        help='Epsilon value for EpsilonNetPS (default: 0.1)'
     )
     parser.add_argument(
         '--gpu',
@@ -183,6 +190,7 @@ def main():
     )
     
     args = parser.parse_args()
+    num_threads = args.num_threads
 
     # Step 1: Load the task
     print(f"Loading task {args.task_idx} from KernelBench dataset...")
@@ -201,6 +209,7 @@ def main():
     # Step 4: Setup Logging
     config_dict = {
         'task_idx': args.task_idx,
+        'epsilon': args.epsilon,
         'num_steps': args.num_steps,
         'num_candidates': args.num_candidates,
         'num_threads': args.num_threads,
@@ -209,7 +218,7 @@ def main():
         'algorithm': args.algorithm,
     }
     
-    actual_run_name = args.run_name if args.run_name else f"kernel_task_{args.task_idx}"
+    actual_run_name = args.run_name if args.run_name else f"task_{args.task_idx}"
     
     if args.use_wandb:
         logger = WandbLogger(project=args.project_name, verbose=True, name=actual_run_name, config=config_dict)
@@ -226,16 +235,45 @@ def main():
     )
 
     # Step 6: Create Algorithm
+    # Algorithm selection
+    from opto.features.priority_search.priority_search_ablation import EpsilonNetPS 
     if args.algorithm == 'PS':
-        from opto.features.priority_search.priority_search import PrioritySearch
-        algorithm = PrioritySearch(
+        algorithm = EpsilonNetPS(
+            epsilon=0,
+            use_summarizer=False,
             agent=agent,
             optimizer=optimizer,
-            logger=logger
+            logger=logger,
+            num_threads=num_threads,
         )
+    elif args.algorithm == 'PS_Summarizer':
+        algorithm = EpsilonNetPS(
+            epsilon=0,
+            use_summarizer=True,
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger,
+            num_threads=num_threads
+        )
+    elif args.algorithm == 'PS_epsNet_Summarizer':
+        algorithm = EpsilonNetPS(
+            epsilon=args.epsilon,
+            use_summarizer=True,
+            agent=agent,
+            optimizer=optimizer,
+            logger=logger)
+    elif args.algorithm == 'PS_epsNet':
+        algorithm = EpsilonNetPS(
+            agent=agent,
+            optimizer=optimizer,
+            use_summarizer=False,
+            logger=logger,
+            epsilon=args.epsilon,
+            num_threads=num_threads
+            )
     else:
-        raise ValueError(f"Algorithm {args.algorithm} not implemented.")
-
+        raise ValueError(f"Unknown algorithm: {args.algorithm}")
+    
     # Step 7: Run Training
     print(f"\nStarting PrioritySearch optimization (max {args.num_steps} steps)...")
     start_time = time.time()
