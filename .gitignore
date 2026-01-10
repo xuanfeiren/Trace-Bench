@@ -13,4 +13,4 @@ KernelBench/my_process_agents/secrets_local.py
 *.log
 *.png
 *.npy
-stderr
+stderrTrace/
