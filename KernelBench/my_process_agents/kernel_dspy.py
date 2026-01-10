@@ -187,20 +187,20 @@ def sequential_optimization(
                 print(f"★ New best score: {best_score:.4f}")
         
         # Check for success (score > 1.0 means correct and faster than reference)
-        if score > 1.0:
-            if verbose:
-                print(f"\n{'='*70}")
-                print(f"✓ SUCCESS at attempt {attempt}!")
-                print(f"  Score: {score:.4f} (> 1.0 means faster than PyTorch reference)")
-                print(f"{'='*70}")
-            return {
-                'success': True,
-                'attempts': attempt,
-                'best_score': best_score,
-                'best_cuda_code': best_cuda_code,
-                'final_feedback': feedback,
-                'history': history
-            }
+        # if score > 1.0:
+        #     if verbose:
+        #         print(f"\n{'='*70}")
+        #         print(f"✓ SUCCESS at attempt {attempt}!")
+        #         print(f"  Score: {score:.4f} (> 1.0 means faster than PyTorch reference)")
+        #         print(f"{'='*70}")
+        #     return {
+        #         'success': True,
+        #         'attempts': attempt,
+        #         'best_score': best_score,
+        #         'best_cuda_code': best_cuda_code,
+        #         'final_feedback': feedback,
+        #         'history': history
+        #     }
         
         # Prepare for next iteration
         current_cuda_code = cuda_code
