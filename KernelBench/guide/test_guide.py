@@ -432,8 +432,8 @@ def main():
     parser.add_argument(
         '--file',
         type=str,
-        default='level1_prob1_cuda_custom_gpt5_example.txt',
-        help='Specific file to evaluate (default: level1_prob1_cuda_custom_gpt5_example.txt)'
+        default='level1_prob1_cuda_custom_cuda_gpt5_example.txt',
+        help='Specific file to evaluate (default: level1_prob1_cuda_custom_cuda_gpt5_example.txt)'
     )
     parser.add_argument(
         '--repeats',
