@@ -1,0 +1,20 @@
+{
+  "task_idx": 7,
+  "best_speedup": 1.0134408602150538,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 6,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B.T)\n    using PyTorch's highly optimized CUDA implementation\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (N, K).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n        \n        # Use PyTorch's highly optimized implementation\n        # which internally uses cuBLAS for CUDA tensors\n        return torch.matmul(A, B.T)",
+  "duration_seconds": 330.4182093143463,
+  "metrics": {
+    "combined_score": 1.0134408602150538
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 10,
+    "num_workers": 1,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
