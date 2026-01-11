@@ -1,0 +1,20 @@
+{
+  "task_idx": 10,
+  "best_speedup": 0.9494584837545126,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 5,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    auto C = torch::empty({M, N}, options);\n    \n    // Get pointers to data\n    float* a_ptr = A.data_ptr<float>();\n    float* b_ptr = B.data_ptr<float>();\n    float* c_ptr = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    // Constants for GEMM operation\n    float alpha = 1.0f;\n    float beta = 0.0f;\n    \n    // Perform matrix multiplication using cuBLAS\n    // Note: cuBLAS assumes column-major order, but PyTorch uses row-major order\n    // So we compute B * A instead of A * B and adjust parameters accordingly\n    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, \n                N, M, K, \n                &alpha,\n                b_ptr, N,\n                a_ptr, K,\n                &beta,\n                c_ptr, N);\n    \n    // Destroy cuBLAS handle\n    cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the custom CUDA kernel\nmatmul_module = load_inline(\n    name=\"matmul_cuda\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\"],\n    extra_ldflags=[\"-lcublas\"],\n    with_cuda=True,\n    verbose=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication using custom CUDA kernel\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication using a custom CUDA kernel.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        return matmul_module.matmul_cuda(A, B)",
+  "duration_seconds": 431.5797243118286,
+  "metrics": {
+    "combined_score": 0.9494584837545126
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 10,
+    "num_workers": 1,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
