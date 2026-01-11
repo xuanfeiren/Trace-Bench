@@ -121,6 +121,15 @@ def evaluate(program_path):
             # Fallback: use entire file if markers not found
             cuda_code = cuda_code_full.strip()
 
+        # Strip markdown code fences (```python, ```cuda, ```cpp, ```, etc.)
+        import re
+        # Remove opening fence with optional language identifier
+        cuda_code = re.sub(r'^```[a-zA-Z]*\\n?', '', cuda_code)
+        # Remove closing fence
+        cuda_code = re.sub(r'\\n?```\\s*$', '', cuda_code)
+        # Strip again after fence removal
+        cuda_code = cuda_code.strip()
+
         # Handle empty code
         if not cuda_code or cuda_code == "":
             print_color("\\n" + "="*70, 'blue')
@@ -148,7 +157,7 @@ def evaluate(program_path):
         # Debug output: Print kernel, score, and feedback
         print_color("\\n" + "="*70, 'blue')
         print_color("CUDA KERNEL:", 'cyan')
-        print_color(cuda_code , 'white')
+        print_color(cuda_code[:500] + ("..." if len(cuda_code) > 500 else "") , 'white')
         print_color(f"\\nScore: {{score}}", 'green' if score > 0 else 'red')
         print_color(f"Feedback: {{feedback[:300]}}{{('...' if len(feedback) > 300 else '')}}", 'yellow')
         print_color("="*70 + "\\n", 'blue')
@@ -351,9 +360,9 @@ def main():
     ref_arch_src = ds[args.task_idx]['ref_arch_src']
 
     print(f"Task loaded successfully. Task ID: {args.task_idx}")
-    print(f"\nTask description:")
-    print("=" * 70)
-    print(task_description)
+    # print(f"\nTask description:")
+    # print("=" * 70)
+    # print(task_description)
     print("=" * 70)
     
     # Create temporary directory for OpenEvolve files
