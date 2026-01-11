@@ -1,0 +1,20 @@
+{
+  "task_idx": 2,
+  "best_speedup": 14.334975369458128,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 6,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for diagonal matrix multiplication\ndiag_matmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\ntemplate <typename scalar_t>\n__global__ void diag_matmul_kernel(\n    const scalar_t* __restrict__ diag,\n    const scalar_t* __restrict__ matrix, \n    scalar_t* __restrict__ output, \n    int rows, int cols) {\n    \n    int row = blockIdx.y * blockDim.y + threadIdx.y;\n    int col = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    if (row < rows && col < cols) {\n        output[row * cols + col] = diag[row] * matrix[row * cols + col];\n    }\n}\n\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor matrix) {\n    auto rows = matrix.size(0);\n    auto cols = matrix.size(1);\n    \n    auto output = torch::empty_like(matrix);\n    \n    const dim3 threads(32, 32);  // Optimized thread block size\n    const dim3 blocks((cols + threads.x - 1) / threads.x, \n                      (rows + threads.y - 1) / threads.y);\n    \n    AT_DISPATCH_FLOATING_TYPES(matrix.scalar_type(), \"diag_matmul_kernel\", ([&] {\n        diag_matmul_kernel<scalar_t><<<blocks, threads>>>(\n            diag.data_ptr<scalar_t>(), \n            matrix.data_ptr<scalar_t>(), \n            output.data_ptr<scalar_t>(), \n            rows, cols\n        );\n    }));\n    \n    return output;\n}\n\"\"\"\n\ndiag_matmul_cpp_source = \"\"\"\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor matrix);\n\"\"\"\n\n# Compile the inline CUDA code\ndiag_matmul_module = load_inline(\n    name=\"diag_matmul\",\n    cpp_sources=diag_matmul_cpp_source,\n    cuda_sources=diag_matmul_source,\n    functions=[\"diag_matmul_cuda\"],\n    verbose=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a matrix multiplication of a diagonal matrix with another matrix.\n    C = diag(A) * B\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs the optimized matrix multiplication.\n\n        Args:\n            A (torch.Tensor): A 1D tensor representing the diagonal of the diagonal matrix. Shape: (N,).\n            B (torch.Tensor): A 2D tensor representing the second matrix. Shape: (N, M).\n\n        Returns:\n            torch.Tensor: The result of the matrix multiplication. Shape: (N, M).\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        A_cuda = A.cuda() if not A.is_cuda else A\n        B_cuda = B.cuda() if not B.is_cuda else B\n        \n        # Use our custom CUDA kernel\n        return diag_matmul_module.diag_matmul_cuda(A_cuda, B_cuda)",
+  "duration_seconds": 224.20257115364075,
+  "metrics": {
+    "combined_score": 14.334975369458128
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 10,
+    "num_workers": 1,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
