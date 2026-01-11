@@ -1,0 +1,20 @@
+{
+  "task_idx": 3,
+  "best_speedup": 0.9172661870503597,
+  "num_metric_calls": 22,
+  "best_at_metric_call": 3,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for matrix multiplication of symmetric matrices\nsymmetric_matmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor symmetric_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Since both matrices are symmetric, we can use specialized GEMM for symmetric matrices\n    // Using cublasXsyrkx: C = alpha * (A * B) + beta * C, where A and B are symmetric\n\n    int n = A.size(0);\n    auto C = torch::zeros({n, n}, A.options());\n    \n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    float alpha = 1.0f;\n    float beta = 0.0f;\n    \n    // Using CUBLAS for the matrix multiplication\n    // Since cublas uses column-major format and PyTorch uses row-major, \n    // we compute B * A instead of A * B to account for the difference\n    cublasSgemm(handle, \n               CUBLAS_OP_N, CUBLAS_OP_N, \n               n, n, n, \n               &alpha,\n               static_cast<const float*>(B.data_ptr()), n,\n               static_cast<const float*>(A.data_ptr()), n,\n               &beta,\n               static_cast<float*>(C.data_ptr()), n);\n    \n    cublasDestroy(handle);\n    return C;\n}\n\"\"\"\n\nsymmetric_matmul_cpp_source = \"\"\"\ntorch::Tensor symmetric_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code for symmetric matrix multiplication\nsymmetric_matmul = load_inline(\n    name=\"symmetric_matmul\",\n    cpp_sources=symmetric_matmul_cpp_source,\n    cuda_sources=symmetric_matmul_source,\n    functions=[\"symmetric_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\"-O3\"],\n    extra_ldflags=[\"-lcublas\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication of two symmetric matrices using a custom CUDA kernel.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.symmetric_matmul = symmetric_matmul\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs optimized matrix multiplication of two symmetric matrices.\n\n        Args:\n            A (torch.Tensor): Input matrix A, shape (N, N), symmetric.\n            B (torch.Tensor): Input matrix B, shape (N, N), symmetric.\n\n        Returns:\n            torch.Tensor: Output matrix C, shape (N, N).\n        \"\"\"\n        return self.symmetric_matmul.symmetric_matmul_cuda(A, B)",
+  "num_candidates": 2,
+  "duration_seconds": 899.7397882938385,
+  "val_aggregate_scores": [
+    0.0,
+    0.9172661870503597
+  ],
+  "settings": {
+    "reflection_lm": "anthropic/claude-3.7-sonnet",
+    "max_metric_calls": 10,
+    "reflection_minibatch_size": 1,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
