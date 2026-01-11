@@ -1,0 +1,11 @@
+{
+  "task_idx": 4,
+  "best_speedup": 0.9208860759493671,
+  "num_metric_calls": 23,
+  "best_at_metric_call": 14,
+  "duration_seconds": 901.5729117393494,
+  "model": "anthropic/claude-3.7-sonnet",
+  "method": "gepa",
+  "num_correct_trials": 1,
+  "num_perf_trials": 5
+}
