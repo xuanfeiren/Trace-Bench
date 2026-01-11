@@ -305,7 +305,7 @@ def main():
                        help='LLM model name (e.g., claude-3.5-sonnet, gpt-4o)')
     parser.add_argument('--max_iterations', type=int, default=10,
                        help='Maximum number of evolution iterations (default: 10)')
-    parser.add_argument('--num_workers', type=int, default=2,
+    parser.add_argument('--num_workers', type=int, default=1,
                        help='Number of parallel workers for evaluation (1=sequential, 4+=parallel)')
     parser.add_argument('--num_correct_trials', type=int, default=1,
                        help='Number of correctness trials (default: 1)')
