@@ -148,7 +148,7 @@ def evaluate(program_path):
         # Debug output: Print kernel, score, and feedback
         print_color("\\n" + "="*70, 'blue')
         print_color("CUDA KERNEL:", 'cyan')
-        print_color(cuda_code), 'white')
+        print_color(cuda_code , 'white')
         print_color(f"\\nScore: {{score}}", 'green' if score > 0 else 'red')
         print_color(f"Feedback: {{feedback[:300]}}{{('...' if len(feedback) > 300 else '')}}", 'yellow')
         print_color("="*70 + "\\n", 'blue')
