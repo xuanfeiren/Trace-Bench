@@ -19,11 +19,24 @@ import json
 import re
 
 import gepa  # GEPA optimization library
+from gepa.core.state import GEPAState
 
 # Import dataset and evaluation utilities
 from dataset.utils import create_matrix_multiplication_dataset
 from guide.evaluate import evaluate
 from opto.optimizers.utils import print_color
+
+
+# Custom stopper to limit GEPA iterations
+class MaxIterationsStopper:
+    """Stop GEPA after a maximum number of proposal iterations."""
+
+    def __init__(self, max_iterations: int):
+        self.max_iterations = max_iterations
+
+    def __call__(self, gepa_state: GEPAState) -> bool:
+        """Return True if max iterations reached."""
+        return gepa_state.i >= self.max_iterations
 
 import litellm
 litellm.drop_params = True
@@ -190,12 +203,14 @@ def main():
                        help='Task index from KernelBench dataset (0-15)')
 
     # Model parameters
-    parser.add_argument('--model', type=str, default='claude-3.5-sonnet',
-                       help='Reflection LM model name (e.g., claude-3.5-sonnet, gpt-4o)')
+    parser.add_argument('--model', type=str, default='claude-3.7-sonnet',
+                       help='Reflection LM model name (e.g., claude-3.7-sonnet, gpt-4o)')
 
     # Optimization parameters
+    parser.add_argument('--max_iterations', type=int, default=None,
+                       help='Maximum number of proposal iterations (default: None, use max_metric_calls)')
     parser.add_argument('--max_metric_calls', type=int, default=10,
-                       help='Budget for GEPA (number of evaluations)')
+                       help='Budget for GEPA (number of evaluations, ignored if max_iterations is set)')
     parser.add_argument('--num_correct_trials', type=int, default=1,
                        help='Number of correctness trials per evaluation')
     parser.add_argument('--num_perf_trials', type=int, default=5,
@@ -255,10 +270,20 @@ def main():
     # Prepare reflection prompt with task description (only context)
     reflection_prompt = REFLECTION_PROMPT_TEMPLATE.replace("<task_description>", task_description)
 
+    # Prepare stopping condition based on max_iterations or max_metric_calls
+    if args.max_iterations is not None:
+        stop_callback = MaxIterationsStopper(args.max_iterations)
+        max_metric_calls = None  # Don't use max_metric_calls when using iteration stopper
+        budget_desc = f"Max iterations: {args.max_iterations}"
+    else:
+        stop_callback = None
+        max_metric_calls = args.max_metric_calls
+        budget_desc = f"Max metric calls: {max_metric_calls}"
+
     # Run GEPA optimization
     print(f"\nStarting GEPA optimization:")
     print(f"  Reflection LM: {reflection_lm}")
-    print(f"  Max metric calls: {args.max_metric_calls}")
+    print(f"  Budget: {budget_desc}")
     print(f"  Correctness trials: {args.num_correct_trials}")
     print(f"  Performance trials: {args.num_perf_trials}")
     print(f"  Objective: Maximize speedup")
@@ -285,8 +310,9 @@ def main():
         # Component selection
         module_selector='all',
 
-        # Budget
-        max_metric_calls=args.max_metric_calls,
+        # Budget - use either max_iterations (via stop_callback) or max_metric_calls
+        max_metric_calls=max_metric_calls,
+        stop_callbacks=stop_callback,
 
         # Logging
         run_dir=args.log_dir if args.save_results else None,
