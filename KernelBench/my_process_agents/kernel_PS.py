@@ -188,6 +188,14 @@ def main():
         default=None,
         help='WandB run name (default: kernel_task_{task_idx})'
     )
+    parser.add_argument(
+        '--epsilon_for_summarizer',
+        type=float,
+        default=None,
+        help='Epsilon value for the summarizer (default: 0.1)'
+    )
+    # epsilon for the summarizer could only be set, if use the algorithm PS_epsNet_Summarizer 
+    
     
     args = parser.parse_args()
     num_threads = args.num_threads
@@ -258,6 +266,7 @@ def main():
     elif args.algorithm == 'PS_epsNet_Summarizer':
         algorithm = EpsilonNetPS(
             epsilon=args.epsilon,
+            epsilon_for_summarizer=args.epsilon_for_summarizer,
             use_summarizer=True,
             agent=agent,
             optimizer=optimizer,
