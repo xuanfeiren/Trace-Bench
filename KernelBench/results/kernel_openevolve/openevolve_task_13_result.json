@@ -1,0 +1,20 @@
+{
+  "task_idx": 13,
+  "best_speedup": 0.3135036496350365,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 9,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define custom CUDA kernel for matrix multiplication optimized for small K\nmatmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\n// Optimized matrix multiplication kernel for large M,N and small K\n__global__ void matmul_small_k_kernel(\n    const float* __restrict__ A,\n    const float* __restrict__ B,\n    float* __restrict__ C,\n    int M, int N, int K) {\n    \n    // Calculate global row and column indices\n    const int row = blockIdx.y * blockDim.y + threadIdx.y;\n    const int col = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    // Check if within bounds\n    if (row < M && col < N) {\n        // Compute dot product\n        float sum = 0.0f;\n        \n        // For small K, direct loop with unrolling is efficient\n        #pragma unroll 8\n        for (int k = 0; k < K; ++k) {\n            sum += A[row * K + k] * B[k * N + col];\n        }\n        \n        // Write result\n        C[row * N + col] = sum;\n    }\n}\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get dimensions\n    const int M = A.size(0);\n    const int K = A.size(1);\n    const int N = B.size(1);\n    \n    // Create output tensor\n    auto C = torch::empty({M, N}, A.options());\n    \n    // Define block and grid dimensions\n    const int BLOCK_SIZE = 32;\n    dim3 threads(BLOCK_SIZE, BLOCK_SIZE);\n    dim3 grid((N + BLOCK_SIZE - 1) / BLOCK_SIZE, (M + BLOCK_SIZE - 1) / BLOCK_SIZE);\n    \n    // Launch kernel\n    matmul_small_k_kernel<<<grid, threads>>>(\n        A.data_ptr<float>(), B.data_ptr<float>(), C.data_ptr<float>(),\n        M, N, K);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_op = load_inline(\n    name=\"matmul_op\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_source,\n    functions=[\"matmul_cuda\"],\n    verbose=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B) with a small K dimension\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication using custom CUDA kernel optimized for small K.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Ensure tensors are on GPU and are float32\n        A = A.cuda().float() if not A.is_cuda else A.float()\n        B = B.cuda().float() if not B.is_cuda else B.float()\n        \n        return matmul_op.matmul_cuda(A, B)",
+  "duration_seconds": 405.9792973995209,
+  "metrics": {
+    "combined_score": 0.3135036496350365
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 10,
+    "num_workers": 1,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
