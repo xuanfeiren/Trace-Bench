@@ -148,7 +148,7 @@ def evaluate(program_path):
         # Debug output: Print kernel, score, and feedback
         print_color("\\n" + "="*70, 'blue')
         print_color("CUDA KERNEL:", 'cyan')
-        print_color(cuda_code[:500] + ("..." if len(cuda_code) > 500 else ""), 'white')
+        print_color(cuda_code), 'white')
         print_color(f"\\nScore: {{score}}", 'green' if score > 0 else 'red')
         print_color(f"Feedback: {{feedback[:300]}}{{('...' if len(feedback) > 300 else '')}}", 'yellow')
         print_color("="*70 + "\\n", 'blue')
@@ -186,14 +186,16 @@ def evaluate(program_path):
     return evaluator_path
 
 
-def create_openevolve_config(model_name: str, max_iterations: int, num_workers: int = 4) -> Config:
+def create_openevolve_config(model_name: str, max_iterations: int, task_description: str, num_workers: int = 4) -> Config:
     """
-    Create OpenEvolve configuration.
-    
+    Create OpenEvolve configuration for CUDA kernel optimization.
+
     Args:
         model_name: LLM model name
         max_iterations: Maximum evolution iterations
-        
+        task_description: Task description from dataset (task['inputs'][0])
+        num_workers: Number of parallel workers for evaluation
+
     Returns:
         Config object for OpenEvolve
     """
@@ -247,10 +249,9 @@ def create_openevolve_config(model_name: str, max_iterations: int, num_workers: 
         # Note: random_seed is not set here to prevent propagation to models
     )
     
-    # Minimal system message - task description comes from dataset
+    # Use task description directly as system message (same context as other methods)
     config.prompt = PromptConfig()
-    config.prompt.system_message = """Generate CUDA kernel code based on the task description.
-The artifacts will show evaluation feedback from previous attempts - use it to fix errors and improve performance."""
+    config.prompt.system_message = task_description
 
     # Database configuration - optimized for single objective (speedup)
     config.database = DatabaseConfig()
@@ -371,7 +372,7 @@ def main():
 
         # Create config
         print("Creating OpenEvolve configuration...")
-        config = create_openevolve_config(args.model, args.max_iterations, args.num_workers)
+        config = create_openevolve_config(args.model, args.max_iterations, task_description, args.num_workers)
 
         # Set output directory
         output_dir = os.path.join(temp_dir, "openevolve_output")
