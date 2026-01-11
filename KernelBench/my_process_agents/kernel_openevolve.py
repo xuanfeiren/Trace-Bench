@@ -86,6 +86,7 @@ sys.path.insert(0, '{project_root}')
 
 from guide.evaluate import evaluate
 from openevolve.evaluation_result import EvaluationResult
+from opto.optimizers.utils import print_color
 
 # Reference PyTorch implementation (passed from kernel_openevolve.py)
 REF_ARCH_SRC = {ref_arch_src_repr}
@@ -122,6 +123,12 @@ def evaluate(program_path):
 
         # Handle empty code
         if not cuda_code or cuda_code == "":
+            print_color("\\n" + "="*70, 'blue')
+            print_color("CUDA KERNEL (Empty):", 'cyan')
+            print_color("(No code generated)", 'red')
+            print_color("\\nScore: 0.0", 'red')
+            print_color("Feedback: Generated empty CUDA code", 'yellow')
+            print_color("="*70 + "\\n", 'blue')
             return EvaluationResult(
                 metrics={{"combined_score": 0.0}},
                 artifacts={{
@@ -138,6 +145,14 @@ def evaluate(program_path):
             num_perf_trials=NUM_PERF_TRIALS
         )
 
+        # Debug output: Print kernel, score, and feedback
+        print_color("\\n" + "="*70, 'blue')
+        print_color("CUDA KERNEL:", 'cyan')
+        print_color(cuda_code[:500] + ("..." if len(cuda_code) > 500 else ""), 'white')
+        print_color(f"\\nScore: {{score}}", 'green' if score > 0 else 'red')
+        print_color(f"Feedback: {{feedback[:300]}}{{('...' if len(feedback) > 300 else '')}}", 'yellow')
+        print_color("="*70 + "\\n", 'blue')
+
         # Pass through evaluation feedback completely unmodified
         return EvaluationResult(
             metrics={{
@@ -151,10 +166,15 @@ def evaluate(program_path):
     except Exception as e:
         # Handle evaluation errors
         import traceback
+        error_msg = f"Evaluation error: {{str(e)}}\\n\\nTraceback:\\n{{traceback.format_exc()}}"
+        print_color("\\n" + "="*70, 'blue')
+        print_color("EVALUATION ERROR:", 'red')
+        print_color(error_msg[:500], 'red')
+        print_color("="*70 + "\\n", 'blue')
         return EvaluationResult(
             metrics={{"combined_score": 0.0}},
             artifacts={{
-                "stderr": f"Evaluation error: {{str(e)}}\\n\\nTraceback:\\n{{traceback.format_exc()}}"
+                "stderr": error_msg
             }}
         )
 '''
