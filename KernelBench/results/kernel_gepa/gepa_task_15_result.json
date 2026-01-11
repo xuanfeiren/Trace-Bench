@@ -1,0 +1,22 @@
+{
+  "task_idx": 15,
+  "best_speedup": 0.9232505643340858,
+  "num_metric_calls": 24,
+  "best_at_metric_call": 12,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for efficient tall-skinny matrix multiplication\nmatmul_kernel_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor tall_skinny_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get the shapes of the input tensors\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    torch::Tensor C = torch::empty({M, N}, options);\n    \n    // Get pointers to the data\n    float* a_ptr = A.data_ptr<float>();\n    float* b_ptr = B.data_ptr<float>();\n    float* c_ptr = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    static cublasHandle_t handle = NULL;\n    if (handle == NULL) {\n        cublasCreate(&handle);\n        cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);\n    }\n    \n    // Constants for cuBLAS GEMM\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Use cublasGemmEx for better performance\n    cublasGemmEx(handle,\n                CUBLAS_OP_N, CUBLAS_OP_N,\n                N, M, K,\n                &alpha,\n                b_ptr, CUDA_R_32F, N,\n                a_ptr, CUDA_R_32F, K,\n                &beta,\n                c_ptr, CUDA_R_32F, N,\n                CUBLAS_COMPUTE_32F_FAST_16F,\n                CUBLAS_GEMM_DEFAULT_TENSOR_OP);\n    \n    // Don't destroy the handle as we reuse it\n    // cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor tall_skinny_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_module = load_inline(\n    name=\"tall_skinny_matmul\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_kernel_source,\n    functions=[\"tall_skinny_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\"-O3\", \"--use_fast_math\", \"--gpu-architecture=compute_75\"],\n    extra_ldflags=[\"-lcublas\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B)\n    where one of the matrices is tall and skinny (M >> N or N >> M)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_module = matmul_module\n        \n    def forward(self, A, B):\n        \"\"\"\n        Performs the optimized matrix multiplication.\n\n        Args:\n            A (torch.Tensor): Input matrix of shape (M, K) where M >> K.\n            B (torch.Tensor): Input matrix of shape (K, N) where K << N.\n\n        Returns:\n            torch.Tensor: Output matrix of shape (M, N)\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        # Check if the tensors are contiguous, if not make them contiguous\n        if not A.is_contiguous():\n            A = A.contiguous()\n        if not B.is_contiguous():\n            B = B.contiguous()\n            \n        # Call the custom CUDA kernel\n        return self.matmul_module.tall_skinny_matmul_cuda(A, B)",
+  "num_candidates": 4,
+  "duration_seconds": 672.5544514656067,
+  "val_aggregate_scores": [
+    0.0,
+    0.8585005279831046,
+    0.9232505643340858,
+    0.9153498871331829
+  ],
+  "settings": {
+    "reflection_lm": "anthropic/claude-3.7-sonnet",
+    "max_metric_calls": 10,
+    "reflection_minibatch_size": 1,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
