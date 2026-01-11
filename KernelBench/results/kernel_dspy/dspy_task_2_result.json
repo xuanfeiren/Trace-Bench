@@ -1,10 +1,10 @@
 {
   "task_idx": 2,
-  "success": true,
-  "attempts": 7,
-  "best_score": 14.146341463414634,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the CUDA kernel for diagonal matrix multiplication\ndiag_matmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\ntemplate <typename scalar_t>\n__global__ void diag_matmul_kernel(\n    const scalar_t* __restrict__ diag,\n    const scalar_t* __restrict__ mat,\n    scalar_t* __restrict__ out,\n    int n,\n    int m) {\n    \n    int row = blockIdx.y * blockDim.y + threadIdx.y;\n    int col = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    if (row < n && col < m) {\n        out[row * m + col] = diag[row] * mat[row * m + col];\n    }\n}\n\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor mat) {\n    const auto n = diag.size(0);\n    const auto m = mat.size(1);\n    \n    auto output = torch::empty_like(mat);\n    \n    const dim3 threads(32, 32);\n    const dim3 blocks((m + threads.x - 1) / threads.x, \n                      (n + threads.y - 1) / threads.y);\n\n    AT_DISPATCH_FLOATING_TYPES(mat.scalar_type(), \"diag_matmul_kernel\", ([&] {\n        diag_matmul_kernel<scalar_t><<<blocks, threads>>>(\n            diag.data_ptr<scalar_t>(),\n            mat.data_ptr<scalar_t>(),\n            output.data_ptr<scalar_t>(),\n            n,\n            m\n        );\n    }));\n    \n    return output;\n}\n\"\"\"\n\ndiag_matmul_cpp_source = \"\"\"\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor mat);\n\"\"\"\n\n# Compile the CUDA kernel\ndiag_matmul = load_inline(\n    name=\"diag_matmul\",\n    cpp_sources=diag_matmul_cpp_source,\n    cuda_sources=diag_matmul_cuda_source,\n    functions=[\"diag_matmul_cuda\"],\n    verbose=True\n)\n\nclass ModelNew(nn.Module):\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.diag_matmul = diag_matmul\n    \n    def forward(self, A, B):\n        # Move tensors to CUDA if they're not already\n        A = A.cuda() if not A.is_cuda else A\n        B = B.cuda() if not B.is_cuda else B\n        \n        return self.diag_matmul.diag_matmul_cuda(A, B)",
-  "duration_seconds": 175.7844603061676,
+  "success": false,
+  "attempts": 10,
+  "best_score": 0.0,
+  "best_cuda_code": null,
+  "duration_seconds": 210.986732006073,
   "history": [
     {
       "attempt": 1,
@@ -38,8 +38,23 @@
     },
     {
       "attempt": 7,
-      "score": 14.146341463414634,
-      "feedback": "SUCCESS - Score (Speedup): 14.1463x\n\nCustom Kernel Runtime: 0.2050 \u03bcs\nReference Runtime: 2.9000 \u03bcs\nSpeedup: 14.1463x\nRuntime Stats: {'mean': 0.205, 'std': 0.0013, 'min': 0.203, 'max': 0.207, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:1'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Cust"
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
     }
   ],
   "settings": {
