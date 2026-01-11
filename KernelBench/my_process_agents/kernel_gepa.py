@@ -38,11 +38,15 @@ class MaxIterationsStopper:
     def __call__(self, gepa_state: GEPAState) -> bool:
         """Return True if max iterations reached.
 
-        Note: Iteration 0 is the base program evaluation.
+        Note: Iteration 0 is the base program evaluation (not counted).
         Iterations 1, 2, 3, ... are the proposals.
-        So for max_iterations=3, we want iterations 1, 2, 3 (stop before iteration 4).
+
+        GEPA checks this BEFORE incrementing state.i and running the iteration.
+        So for max_iterations=1:
+        - state.i=0: check 0>=1? No, run iteration 1
+        - state.i=1: check 1>=1? Yes, STOP
         """
-        return gepa_state.i > self.max_iterations
+        return gepa_state.i >= self.max_iterations
 
 import litellm
 litellm.drop_params = True
