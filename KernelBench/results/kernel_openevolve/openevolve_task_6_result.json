@@ -1,0 +1,20 @@
+{
+  "task_idx": 6,
+  "best_speedup": 1.0081632653061225,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 7,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A.T * B)\n    using PyTorch's optimized operations\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (K, M).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Using PyTorch's built-in matmul which is already highly optimized\n        # for different hardware and tensor types\n        return torch.matmul(A.T, B)",
+  "duration_seconds": 224.11292719841003,
+  "metrics": {
+    "combined_score": 1.0081632653061225
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 10,
+    "num_workers": 1,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
