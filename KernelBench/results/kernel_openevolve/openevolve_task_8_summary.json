@@ -1,0 +1,11 @@
+{
+  "task_idx": 8,
+  "best_speedup": 0.0,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 0,
+  "duration_seconds": 203.0640423297882,
+  "model": "claude-3.7-sonnet",
+  "method": "openevolve",
+  "num_correct_trials": 1,
+  "num_perf_trials": 5
+}
