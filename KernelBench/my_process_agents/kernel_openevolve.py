@@ -301,7 +301,7 @@ def main():
     parser = argparse.ArgumentParser(description='Optimize CUDA kernel using OpenEvolve')
     parser.add_argument('--task_idx', type=int, default=0,
                        help='Task index from KernelBench dataset (0-15)')
-    parser.add_argument('--model', type=str, default='claude-3.5-sonnet',
+    parser.add_argument('--model', type=str, default='claude-3.7-sonnet',
                        help='LLM model name (e.g., claude-3.5-sonnet, gpt-4o)')
     parser.add_argument('--max_iterations', type=int, default=10,
                        help='Maximum number of evolution iterations (default: 10)')
