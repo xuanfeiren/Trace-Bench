@@ -1,0 +1,20 @@
+{
+  "task_idx": 14,
+  "best_speedup": 1.001757469244288,
+  "num_metric_calls": 10,
+  "best_at_metric_call": 7,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication (C = A * B)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication of A and B.\n\n        Args:\n            A: Input tensor with shape (M, K).\n            B: Input tensor with shape (K, N).\n\n        Returns:\n            C: Output tensor with shape (M, N).\n        \"\"\"\n        # Move tensors to GPU if not already there\n        A = A.cuda() if not A.is_cuda else A\n        B = B.cuda() if not B.is_cuda else B\n        \n        # Use PyTorch's built-in matmul which is highly optimized for GPU\n        return torch.matmul(A, B)",
+  "duration_seconds": 293.04085302352905,
+  "metrics": {
+    "combined_score": 1.001757469244288
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 10,
+    "num_workers": 1,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
