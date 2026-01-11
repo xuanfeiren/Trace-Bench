@@ -17,6 +17,7 @@ import time
 import argparse
 import json
 import re
+import shutil
 
 import gepa  # GEPA optimization library
 from gepa.core.state import GEPAState
@@ -279,6 +280,12 @@ def main():
         stop_callback = None
         max_metric_calls = args.max_metric_calls
         budget_desc = f"Max metric calls: {max_metric_calls}"
+
+    # Clear run_dir to prevent resuming from previous runs
+    # GEPA will resume if the directory exists, so we remove it to start fresh
+    if args.save_results and os.path.exists(args.log_dir):
+        print(f"Removing existing log directory: {args.log_dir}")
+        shutil.rmtree(args.log_dir)
 
     # Run GEPA optimization
     print(f"\nStarting GEPA optimization:")
