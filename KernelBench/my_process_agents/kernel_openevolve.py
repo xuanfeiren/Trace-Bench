@@ -295,36 +295,86 @@ def create_openevolve_config(model_name: str, max_iterations: int, task_descript
     return config
 
 
-def extract_metric_calls(output_dir: str) -> int:
+def extract_evolution_history(output_dir: str) -> tuple[int, list]:
     """
-    Extract number of metric calls from OpenEvolve output.
+    Extract evolution history from OpenEvolve output by reading all program files.
     
     Args:
         output_dir: OpenEvolve output directory
         
     Returns:
-        Number of metric calls (programs evaluated)
+        Tuple of (num_metric_calls, history_list)
+        history_list contains: [{'attempt': i, 'score': s, 'best_score': bs}, ...]
     """
-    # Try to load database and count programs
+    history = []
+    num_metric_calls = 0
+    
+    # Try to load programs from the programs directory
     try:
-        db_path = os.path.join(output_dir, "database.json")
-        if os.path.exists(db_path):
-            with open(db_path, 'r') as f:
-                db_data = json.load(f)
-                return len(db_data.get('programs', []))
+        # OpenEvolve saves programs in checkpoint_XX/programs/ directories
+        # Find the last checkpoint
+        checkpoints_dir = os.path.join(output_dir, "checkpoints")
+        if os.path.exists(checkpoints_dir):
+            checkpoints = [d for d in os.listdir(checkpoints_dir) if d.startswith('checkpoint_')]
+            if checkpoints:
+                # Get the last checkpoint (highest iteration number)
+                last_checkpoint_num = max([int(d.split('_')[1]) for d in checkpoints if len(d.split('_')) > 1 and d.split('_')[1].isdigit()])
+                last_checkpoint_dir = os.path.join(checkpoints_dir, f"checkpoint_{last_checkpoint_num}")
+                
+                # Load all programs from this checkpoint
+                programs_dir = os.path.join(last_checkpoint_dir, "programs")
+                if os.path.exists(programs_dir):
+                    all_programs = []
+                    for program_file in os.listdir(programs_dir):
+                        if program_file.endswith('.json'):
+                            program_path = os.path.join(programs_dir, program_file)
+                            try:
+                                with open(program_path, 'r') as f:
+                                    prog_data = json.load(f)
+                                    all_programs.append(prog_data)
+                            except Exception as e:
+                                print(f"Warning: Could not load program {program_file}: {e}")
+                    
+                    # Sort by iteration_found to get chronological order
+                    programs_sorted = sorted(all_programs, key=lambda p: p.get('iteration_found', 0))
+                    num_metric_calls = len(programs_sorted)
+                    
+                    # Build history with best score tracking
+                    best_score_so_far = 0.0
+                    for i, prog in enumerate(programs_sorted, 1):
+                        score = prog.get('metrics', {}).get('combined_score', 0.0)
+                        is_new_best = score > best_score_so_far
+                        if is_new_best:
+                            best_score_so_far = score
+                        
+                        history.append({
+                            'attempt': i,
+                            'score': score,
+                            'best_score': best_score_so_far,
+                            'is_new_best': is_new_best,
+                            'iteration_found': prog.get('iteration_found', 0)
+                        })
+                    
+                    print(f"Extracted {len(history)} programs from OpenEvolve checkpoint (last iteration: {last_checkpoint_num})")
+                    return num_metric_calls, history
+                else:
+                    print(f"Warning: Programs directory not found in {last_checkpoint_dir}")
+    except Exception as e:
+        print(f"Warning: Could not extract full history from programs directory: {e}")
+    
+    # Fallback: count checkpoint directories (approximation)
+    try:
+        checkpoints_dir = os.path.join(output_dir, "checkpoints")
+        if os.path.exists(checkpoints_dir):
+            checkpoints = [d for d in os.listdir(checkpoints_dir) if d.startswith('checkpoint_')]
+            if checkpoints:
+                last_checkpoint = max([int(d.split('_')[1]) for d in checkpoints if len(d.split('_')) > 1 and d.split('_')[1].isdigit()])
+                num_metric_calls = last_checkpoint
+                print(f"Using fallback: estimated {num_metric_calls} metric calls from checkpoint count")
     except:
         pass
     
-    # Fallback: count checkpoint directories (approximation)
-    checkpoints_dir = os.path.join(output_dir, "checkpoints")
-    if os.path.exists(checkpoints_dir):
-        checkpoints = [d for d in os.listdir(checkpoints_dir) if d.startswith('checkpoint_')]
-        if checkpoints:
-            # Get last checkpoint number
-            last_checkpoint = max([int(d.split('_')[1]) for d in checkpoints if d.split('_')[1].isdigit()])
-            return last_checkpoint
-    
-    return 0
+    return num_metric_calls, history
 
 
 def main():
@@ -415,8 +465,8 @@ def main():
         best_score = result.best_score if result.best_program else 0.0
         best_cuda_code = result.best_code if result.best_program else "// No successful code generated"
 
-        # Count metric calls (number of programs evaluated)
-        num_metric_calls = extract_metric_calls(output_dir)
+        # Extract evolution history with best score tracking
+        num_metric_calls, history = extract_evolution_history(output_dir)
         if num_metric_calls == 0:
             num_metric_calls = args.max_iterations  # Fallback approximation
 
@@ -425,7 +475,13 @@ def main():
         if result.best_program:
             success_at = result.best_program.iteration_found
             if success_at is None:
-                success_at = num_metric_calls  # Fallback
+                # Try to find from history
+                for entry in history:
+                    if entry['score'] == best_score and entry['is_new_best']:
+                        success_at = entry['attempt']
+                        break
+                if success_at is None:
+                    success_at = num_metric_calls  # Fallback
 
         # Always save summary to kernel_openevolve folder
         os.makedirs('results/kernel_openevolve', exist_ok=True)
@@ -459,6 +515,7 @@ def main():
                 'best_at_metric_call': success_at,
                 'best_cuda_code': best_cuda_code,
                 'duration_seconds': duration,
+                'history': history,  # Include step-by-step history with best scores
                 'metrics': result.metrics,
                 'settings': {
                     'model': args.model,
