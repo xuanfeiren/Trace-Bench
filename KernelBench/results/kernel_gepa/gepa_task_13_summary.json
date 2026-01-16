@@ -1,11 +1,94 @@
 {
   "task_idx": 13,
-  "best_speedup": 0.3644067796610169,
-  "num_metric_calls": 27,
-  "best_at_metric_call": 26,
-  "duration_seconds": 1182.431880235672,
+  "best_speedup": 1.2274678111587982,
+  "num_metric_calls": 25,
+  "best_at_metric_call": 16,
+  "duration_seconds": 895.431973695755,
   "model": "anthropic/claude-3.7-sonnet",
   "method": "gepa",
   "num_correct_trials": 1,
-  "num_perf_trials": 5
+  "num_perf_trials": 5,
+  "num_iterations_total": 10,
+  "history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.06817460317460318,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.06817460317460318
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.3064056939501779,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3064056939501779
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 1.137748344370861,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.1345646437994723
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 1.137748344370861,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 1.1436170212765957,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 1.2067510548523206,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.2067510548523206
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 1.2067510548523206,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 1.2067510548523206,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 1.2067510548523206,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 1.2274678111587982,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ]
 }
