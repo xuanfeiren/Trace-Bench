@@ -497,12 +497,13 @@ def main():
             'method': 'openevolve',
             'num_correct_trials': args.num_correct_trials,
             'num_perf_trials': args.num_perf_trials,
+            'history': history,  # Include per-step scores for all runs
         }
 
         with open(summary_path, 'w') as f:
             json.dump(summary_data, f, indent=2)
 
-        print(f"\nSaved summary to {summary_path}")
+        print(f"\nSaved summary with per-step history to {summary_path}")
 
         # Save full result if requested
         if args.save_results:
