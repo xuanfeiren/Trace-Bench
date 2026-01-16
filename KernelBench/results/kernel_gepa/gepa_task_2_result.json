@@ -1,22 +1,104 @@
 {
   "task_idx": 2,
-  "best_speedup": 14.299516908212562,
-  "num_metric_calls": 26,
-  "best_at_metric_call": 9,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for diagonal matrix multiplication with improved performance\ndiag_matmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\ntemplate <typename scalar_t>\n__global__ void diag_matmul_kernel(\n    const scalar_t* __restrict__ diag, \n    const scalar_t* __restrict__ mat, \n    scalar_t* __restrict__ out, \n    int n, int m) {\n    \n    // Calculate global thread position\n    const int row = blockIdx.y;\n    const int tid = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    // Each thread processes elements from a single row\n    if (row < n) {\n        const scalar_t diag_val = diag[row];\n        const int row_offset = row * m;\n        \n        // Process multiple elements per thread in a coalesced manner\n        for (int col = tid; col < m; col += blockDim.x * gridDim.x) {\n            out[row_offset + col] = diag_val * mat[row_offset + col];\n        }\n    }\n}\n\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor mat) {\n    // Get dimensions\n    int n = diag.size(0);\n    int m = mat.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(mat.dtype())\n        .device(mat.device());\n    auto out = torch::empty({n, m}, options);\n    \n    // Calculate kernel launch parameters - use 2D grid for better memory access patterns\n    const int threads_per_block = 256;\n    const int x_blocks = min(32, (m + threads_per_block - 1) / threads_per_block);\n    dim3 grid(x_blocks, n);\n    \n    // Launch kernel with appropriate data type\n    AT_DISPATCH_FLOATING_TYPES(mat.scalar_type(), \"diag_matmul_cuda\", ([&] {\n        diag_matmul_kernel<scalar_t><<<grid, threads_per_block>>>(\n            diag.data_ptr<scalar_t>(),\n            mat.data_ptr<scalar_t>(),\n            out.data_ptr<scalar_t>(),\n            n, m\n        );\n    }));\n    \n    return out;\n}\n\"\"\"\n\ndiag_matmul_cpp_source = \"\"\"\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor mat);\n\"\"\"\n\n# Compile the custom CUDA kernel\ndiag_matmul_module = load_inline(\n    name=\"diag_matmul\",\n    cpp_sources=diag_matmul_cpp_source,\n    cuda_sources=diag_matmul_cuda_source,\n    functions=[\"diag_matmul_cuda\"],\n    verbose=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a matrix multiplication of a diagonal matrix with another matrix.\n    The custom CUDA kernel avoids creating the full diagonal matrix and performs the operation directly.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.diag_matmul = diag_matmul_module\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs the optimized diagonal matrix multiplication.\n\n        Args:\n            A (torch.Tensor): A 1D tensor representing the diagonal of the diagonal matrix. Shape: (N,).\n            B (torch.Tensor): A 2D tensor representing the second matrix. Shape: (N, M).\n\n        Returns:\n            torch.Tensor: The result of the matrix multiplication. Shape: (N, M).\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        return self.diag_matmul.diag_matmul_cuda(A, B)",
-  "num_candidates": 6,
-  "duration_seconds": 901.8676578998566,
+  "best_speedup": 14.341463414634147,
+  "num_metric_calls": 24,
+  "num_iterations_total": 10,
+  "num_candidates_discovered": 4,
+  "best_at_metric_call": 19,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for diagonal matrix multiplication\ndiag_matmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\ntemplate <typename scalar_t>\n__global__ void diag_matmul_kernel(\n    const scalar_t* __restrict__ diag,\n    const scalar_t* __restrict__ mat,\n    scalar_t* __restrict__ out,\n    int n,\n    int m) {\n    \n    // Use 2D grid for better utilization\n    int row = blockIdx.y;\n    int tid = threadIdx.x + blockIdx.x * blockDim.x;\n    \n    // Threads in the same row work on consecutive elements\n    if (row < n && tid < m) {\n        scalar_t diag_val = diag[row];\n        out[row * m + tid] = diag_val * mat[row * m + tid];\n    }\n}\n\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor mat) {\n    auto n = mat.size(0);\n    auto m = mat.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(mat.dtype())\n        .device(mat.device());\n    auto out = torch::empty({n, m}, options);\n    \n    // Configure kernel execution with 2D grid\n    const int block_size = 256;\n    const int grid_x = (m + block_size - 1) / block_size;\n    const int grid_y = n;\n    \n    dim3 blocks(grid_x, grid_y);\n    dim3 threads(block_size);\n    \n    // Launch kernel based on data type\n    AT_DISPATCH_FLOATING_TYPES(mat.scalar_type(), \"diag_matmul_kernel\", ([&] {\n        diag_matmul_kernel<scalar_t><<<blocks, threads>>>(\n            diag.data_ptr<scalar_t>(),\n            mat.data_ptr<scalar_t>(),\n            out.data_ptr<scalar_t>(),\n            n,\n            m\n        );\n    }));\n    \n    return out;\n}\n\"\"\"\n\ndiag_matmul_cpp_source = \"\"\"\ntorch::Tensor diag_matmul_cuda(torch::Tensor diag, torch::Tensor mat);\n\"\"\"\n\n# Compile the inline CUDA code for diagonal matrix multiplication\ndiag_matmul = load_inline(\n    name=\"diag_matmul\",\n    cpp_sources=diag_matmul_cpp_source,\n    cuda_sources=diag_matmul_source,\n    functions=[\"diag_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_ldflags=[\"\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a matrix multiplication of a diagonal matrix with another matrix.\n    C = diag(A) * B\n    \n    This implementation avoids creating the full diagonal matrix, which would be inefficient\n    for large N, by directly multiplying each row of B by the corresponding element of A.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.diag_matmul = diag_matmul\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs the optimized matrix multiplication.\n\n        Args:\n            A (torch.Tensor): A 1D tensor representing the diagonal of the diagonal matrix. Shape: (N,).\n            B (torch.Tensor): A 2D tensor representing the second matrix. Shape: (N, M).\n\n        Returns:\n            torch.Tensor: The result of the matrix multiplication. Shape: (N, M).\n        \"\"\"\n        # Move tensors to CUDA if they aren't already\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        return self.diag_matmul.diag_matmul_cuda(A, B)\n\n# Keep the original input generation functions\nM = 4096\nN = 4096\n\ndef get_inputs():\n    A = torch.rand(N).cuda()\n    B = torch.rand(N, M).cuda()\n    return [A, B]\n\ndef get_init_inputs():\n    return []  # No special initialization inputs needed",
+  "duration_seconds": 714.1040346622467,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 5,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 13.577981651376147,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 13.577981651376147
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 14.271844660194175,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 14.134615384615385
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 14.271844660194175,
+      "num_metric_calls_so_far": 13,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 14.271844660194175,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 14.271844660194175,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 14.271844660194175,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 14.2512077294686
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 14.271844660194175,
+      "num_metric_calls_so_far": 22,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 14.341463414634147,
+      "num_metric_calls_so_far": 24,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ],
   "val_aggregate_scores": [
     0.0,
-    9.331210191082803,
-    10.984848484848484,
-    14.299516908212562,
-    13.990384615384617,
-    14.009661835748792
+    13.577981651376147,
+    14.134615384615385,
+    14.2512077294686
   ],
   "settings": {
     "reflection_lm": "anthropic/claude-3.7-sonnet",
-    "max_metric_calls": 10,
+    "max_iterations": 9,
     "reflection_minibatch_size": 1,
     "num_correct_trials": 1,
     "num_perf_trials": 5
