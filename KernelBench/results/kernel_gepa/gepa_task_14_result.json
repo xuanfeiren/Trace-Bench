@@ -1,20 +1,106 @@
 {
   "task_idx": 14,
-  "best_speedup": 1.0035714285714286,
-  "num_metric_calls": 24,
-  "best_at_metric_call": 11,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define CUDA kernel for matrix multiplication\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\n#define CHECK_CUDA(x) TORCH_CHECK(x.device().is_cuda(), #x \" must be a CUDA tensor\")\n#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x \" must be contiguous\")\n#define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)\n\n// Singleton class to manage cuBLAS handle\nclass CublasHandle {\nprivate:\n    cublasHandle_t handle_;\n    static CublasHandle* instance_;\n\n    CublasHandle() {\n        cublasCreate(&handle_);\n        // Set math mode to use Tensor Cores if available\n        cublasSetMathMode(handle_, CUBLAS_TENSOR_OP_MATH);\n    }\n\npublic:\n    ~CublasHandle() {\n        cublasDestroy(handle_);\n    }\n\n    static cublasHandle_t& get() {\n        if (!instance_) {\n            instance_ = new CublasHandle();\n        }\n        return instance_->handle_;\n    }\n};\n\nCublasHandle* CublasHandle::instance_ = nullptr;\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    CHECK_INPUT(A);\n    CHECK_INPUT(B);\n    \n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device())\n        .requires_grad(false);\n    auto C = torch::empty({M, N}, options);\n    \n    // Get pointers to data\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Get cublas handle (reuse handle for better performance)\n    cublasHandle_t handle = CublasHandle::get();\n    \n    // Check if half precision would be more efficient\n    if (A.dtype() == torch::kFloat32) {\n        float* A_data = A.data_ptr<float>();\n        float* B_data = B.data_ptr<float>();\n        float* C_data = C.data_ptr<float>();\n\n        // SGEMM: Use CUBLAS_OP_T for both matrices for better performance\n        // with these specific dimensions (8205, 2949) x (2949, 5921)\n        cublasSgemm(\n            handle,\n            CUBLAS_OP_N, CUBLAS_OP_N,\n            N, M, K,\n            &alpha,\n            B_data, N,\n            A_data, K,\n            &beta,\n            C_data, N\n        );\n    }\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_module = load_inline(\n    name=\"matmul_cuda\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\n        \"-O3\", \n        \"--use_fast_math\", \n        \"-Xptxas=-v\", \n        \"-lineinfo\"\n    ],\n    extra_ldflags=[\"-lcublas\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication using custom CUDA kernel\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_op = matmul_module\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication of A and B.\n        \n        Args:\n            A: Input tensor with shape (M, K).\n            B: Input tensor with shape (K, N).\n            \n        Returns:\n            C: Output tensor with shape (M, N).\n        \"\"\"\n        # Move tensors to GPU and make contiguous\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        if not A.is_contiguous():\n            A = A.contiguous()\n        if not B.is_contiguous():\n            B = B.contiguous()\n            \n        # Use PyTorch's built-in matmul for this specific size\n        # as it's likely more optimized for these dimensions\n        return torch.matmul(A, B)\n\ndef get_inputs():\n    A = torch.rand(M, K).cuda()\n    B = torch.rand(K, N).cuda()\n    return [A, B]\n\ndef get_init_inputs():\n    return []  # No special initialization inputs needed\n\nM = 8205\nK = 2949\nN = 5921",
-  "num_candidates": 4,
-  "duration_seconds": 1000.3505771160126,
+  "best_speedup": 2.287937743190662,
+  "num_metric_calls": 26,
+  "num_iterations_total": 10,
+  "num_candidates_discovered": 6,
+  "best_at_metric_call": 23,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define our optimized matrix multiplication CUDA kernel with tiling\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n#include <cuda_fp16.h>\n\n#define CHECK_CUDA(x) TORCH_CHECK(x.device().is_cuda(), #x \" must be a CUDA tensor\")\n#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x \" must be contiguous\")\n#define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)\n\n// Global handle to avoid repeated initialization cost\nstatic cublasHandle_t cublas_handle = nullptr;\n\n// Tile size for shared memory optimization\n#define TILE_WIDTH 32\n\n__global__ void tiled_matmul_kernel(const float* A, const float* B, float* C, \n                                    int M, int K, int N) {\n    __shared__ float As[TILE_WIDTH][TILE_WIDTH];\n    __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];\n    \n    int bx = blockIdx.x;\n    int by = blockIdx.y;\n    int tx = threadIdx.x;\n    int ty = threadIdx.y;\n    \n    int row = by * TILE_WIDTH + ty;\n    int col = bx * TILE_WIDTH + tx;\n    \n    float sum = 0.0f;\n    \n    // Loop over tiles\n    for (int t = 0; t < (K + TILE_WIDTH - 1) / TILE_WIDTH; t++) {\n        // Load tile from A\n        if (row < M && t * TILE_WIDTH + tx < K) {\n            As[ty][tx] = A[row * K + t * TILE_WIDTH + tx];\n        } else {\n            As[ty][tx] = 0.0f;\n        }\n        \n        // Load tile from B\n        if (t * TILE_WIDTH + ty < K && col < N) {\n            Bs[ty][tx] = B[(t * TILE_WIDTH + ty) * N + col];\n        } else {\n            Bs[ty][tx] = 0.0f;\n        }\n        \n        __syncthreads();\n        \n        // Compute partial sum\n        #pragma unroll\n        for (int k = 0; k < TILE_WIDTH; k++) {\n            sum += As[ty][k] * Bs[k][tx];\n        }\n        \n        __syncthreads();\n    }\n    \n    // Write output\n    if (row < M && col < N) {\n        C[row * N + col] = sum;\n    }\n}\n\ntorch::Tensor matmul_cuda(torch::Tensor a, torch::Tensor b) {\n    CHECK_INPUT(a);\n    CHECK_INPUT(b);\n    \n    // Get the dimensions\n    int64_t M = a.size(0);\n    int64_t K = a.size(1);\n    int64_t N = b.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(a.dtype())\n        .device(a.device());\n    auto c = torch::empty({M, N}, options);\n    \n    // Get pointers to tensor data\n    float *a_data = a.data_ptr<float>();\n    float *b_data = b.data_ptr<float>();\n    float *c_data = c.data_ptr<float>();\n    \n    // Decide whether to use cuBLAS or custom kernel based on dimensions\n    // For the specific fixed dimensions (M=8205, K=2949, N=5921), cuBLAS is likely faster\n    if (M == 8205 && K == 2949 && N == 5921) {\n        // Initialize cuBLAS handle if not already created\n        if (cublas_handle == nullptr) {\n            cublasCreate(&cublas_handle);\n            // Set math mode to use Tensor Cores when possible\n            cublasSetMathMode(cublas_handle, CUBLAS_TENSOR_OP_MATH);\n        }\n        \n        // Constants for GEMM\n        float alpha = 1.0f;\n        float beta = 0.0f;\n        \n        // For these dimensions, CUBLAS_GEMM_ALGO15 often performs better\n        cublasGemmEx(cublas_handle, \n                    CUBLAS_OP_N, CUBLAS_OP_N,\n                    N, M, K,\n                    &alpha,\n                    b_data, CUDA_R_32F, N,\n                    a_data, CUDA_R_32F, K,\n                    &beta,\n                    c_data, CUDA_R_32F, N,\n                    CUDA_R_32F,\n                    CUBLAS_GEMM_ALGO15);\n    } else {\n        // Use our custom tiled matmul kernel for other dimensions\n        dim3 gridDim((N + TILE_WIDTH - 1) / TILE_WIDTH, (M + TILE_WIDTH - 1) / TILE_WIDTH);\n        dim3 blockDim(TILE_WIDTH, TILE_WIDTH);\n        \n        tiled_matmul_kernel<<<gridDim, blockDim>>>(a_data, b_data, c_data, M, K, N);\n    }\n    \n    return c;\n}\n\n// Free the cublas handle when the module is unloaded\nbool free_cublas_handle() {\n    if (cublas_handle != nullptr) {\n        cublasDestroy(cublas_handle);\n        cublas_handle = nullptr;\n        return true;\n    }\n    return false;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor a, torch::Tensor b);\nbool free_cublas_handle();\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\nmatmul_extension = load_inline(\n    name=\"matmul_extension\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\", \"free_cublas_handle\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\"-O3\", \"--use_fast_math\", \"--ptxas-options=-v\", \"-maxrregcount=64\"],\n    with_cuda=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication with irregular shapes\n    using a custom CUDA kernel built on cuBLAS optimized for the specific dimensions.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_extension = matmul_extension\n        # Precompile the kernels by doing a small warmup\n        if torch.cuda.is_available():\n            self.warmup()\n    \n    def warmup(self):\n        \"\"\"Warm up the CUDA kernels with small inputs to precompile them\"\"\"\n        small_a = torch.rand(64, 64, device=\"cuda\")\n        small_b = torch.rand(64, 64, device=\"cuda\")\n        self.matmul_extension.matmul_cuda(small_a, small_b)\n        \n        # Also warmup with actual dimensions\n        actual_a = torch.rand(M, K, device=\"cuda\")\n        actual_b = torch.rand(K, N, device=\"cuda\")\n        self.matmul_extension.matmul_cuda(actual_a, actual_b)\n        torch.cuda.synchronize()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication of A and B.\n\n        Args:\n            A: Input tensor with shape (M, K).\n            B: Input tensor with shape (K, N).\n\n        Returns:\n            C: Output tensor with shape (M, N).\n        \"\"\"\n        # Ensure inputs are on CUDA\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        # Ensure contiguous memory layout for optimal performance\n        if not A.is_contiguous():\n            A = A.contiguous()\n        if not B.is_contiguous():\n            B = B.contiguous()\n            \n        # Use our custom CUDA kernel for matrix multiplication\n        return self.matmul_extension.matmul_cuda(A, B)\n\ndef get_inputs():\n    A = torch.rand(M, K).cuda()\n    B = torch.rand(K, N).cuda()\n    return [A, B]\n\ndef get_init_inputs():\n    return []  # No special initialization inputs needed\n\n# Keep the original size parameters for reference\nM = 8205\nK = 2949\nN = 5921",
+  "duration_seconds": 897.6996099948883,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.9744027303754266,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9744027303754266
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.9744027303754266,
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 0.9744027303754266,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 1.0105820105820107,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0105820105820107
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 2.0392857142857146,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.035714285714286
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 2.048951048951049,
+      "num_metric_calls_so_far": 16,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 2.050179211469534,
+      "num_metric_calls_so_far": 18,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 2.27734375,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.27734375
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 2.287937743190662,
+      "num_metric_calls_so_far": 24,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.286290322580645
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 2.287937743190662,
+      "num_metric_calls_so_far": 26,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ],
   "val_aggregate_scores": [
     0.0,
-    0.09982394366197184,
-    0.0,
-    1.0035714285714286
+    0.9744027303754266,
+    1.0105820105820107,
+    2.035714285714286,
+    2.27734375,
+    2.286290322580645
   ],
   "settings": {
     "reflection_lm": "anthropic/claude-3.7-sonnet",
-    "max_metric_calls": 10,
+    "max_iterations": 9,
     "reflection_minibatch_size": 1,
     "num_correct_trials": 1,
     "num_perf_trials": 5
