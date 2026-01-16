@@ -1,19 +1,102 @@
 {
   "task_idx": 4,
-  "best_speedup": 0.9208860759493671,
-  "num_metric_calls": 23,
-  "best_at_metric_call": 14,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define custom CUDA kernel for upper triangular matrix multiplication\ntriu_matmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor triu_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get the dimensions\n    int N = A.size(0);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    auto C = torch::zeros({N, N}, options);\n    \n    // Get pointers to data\n    float *d_A = A.data_ptr<float>();\n    float *d_B = B.data_ptr<float>();\n    float *d_C = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    // Set up alpha and beta for gemm\n    float alpha = 1.0f;\n    float beta = 0.0f;\n    \n    // Perform matrix multiplication using cuBLAS (much faster than our custom kernel)\n    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, \n                N, N, N, \n                &alpha,\n                d_B, N,    // Note: cuBLAS uses column-major order, so we swap A and B\n                d_A, N, \n                &beta,\n                d_C, N);\n    \n    // Destroy the handle\n    cublasDestroy(handle);\n    \n    // Apply upper triangular mask directly on the result\n    return torch::triu(C);\n}\n\"\"\"\n\ntriu_matmul_cpp_source = \"\"\"\ntorch::Tensor triu_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\ntriu_matmul = load_inline(\n    name=\"triu_matmul\",\n    cpp_sources=triu_matmul_cpp_source,\n    cuda_sources=triu_matmul_source,\n    functions=[\"triu_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-lcublas\"],\n    extra_ldflags=[\"-lcublas\"],\n    with_cuda=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication for upper triangular matrices.\n    Uses cuBLAS for the matrix multiplication part which is much more optimized than\n    our custom implementation.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.triu_matmul = triu_matmul\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs optimized matrix multiplication for upper triangular matrices.\n\n        Args:\n            A (torch.Tensor): Upper triangular matrix of shape (N, N).\n            B (torch.Tensor): Upper triangular matrix of shape (N, N).\n\n        Returns:\n            torch.Tensor: The product of A and B, also an upper triangular matrix of shape (N, N).\n        \"\"\"\n        return self.triu_matmul.triu_matmul_cuda(A, B)",
-  "num_candidates": 3,
-  "duration_seconds": 901.5729117393494,
+  "best_speedup": 0.5784313725490197,
+  "num_metric_calls": 22,
+  "num_iterations_total": 10,
+  "num_candidates_discovered": 2,
+  "best_at_metric_call": 5,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for upper triangular matrix multiplication\nupper_triangular_matmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\n// Kernel for upper triangular matrix multiplication\n__global__ void upper_triangular_matmul_kernel(const float* A, const float* B, float* C, int N) {\n    // Calculate the row and column of output matrix\n    int row = blockIdx.y * blockDim.y + threadIdx.y;\n    int col = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    // Only compute for upper triangular part (row <= col)\n    if (row < N && col < N && row <= col) {\n        float sum = 0.0f;\n        \n        // For upper triangular matrices, we only need to consider k >= row and k <= col\n        for (int k = row; k <= col; k++) {\n            // Check if indices are in upper triangular region\n            if (row <= k && k <= col) {\n                // For upper triangular matrices:\n                // A[row, k] is at position (row * N + k) if row <= k else 0\n                // B[k, col] is at position (k * N + col) if k <= col else 0\n                sum += A[row * N + k] * B[k * N + col];\n            }\n        }\n        C[row * N + col] = sum;\n    }\n}\n\ntorch::Tensor upper_triangular_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    int N = A.size(0);\n    auto C = torch::zeros_like(A);\n\n    const dim3 threadsPerBlock(16, 16);\n    const dim3 numBlocks((N + threadsPerBlock.x - 1) / threadsPerBlock.x,\n                         (N + threadsPerBlock.y - 1) / threadsPerBlock.y);\n\n    upper_triangular_matmul_kernel<<<numBlocks, threadsPerBlock>>>(\n        A.data_ptr<float>(), \n        B.data_ptr<float>(), \n        C.data_ptr<float>(), \n        N\n    );\n\n    // Zero out the lower triangular part to ensure we return an upper triangular matrix\n    return torch::triu(C);\n}\n\"\"\"\n\nupper_triangular_matmul_cpp_source = \"\"\"\ntorch::Tensor upper_triangular_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nupper_triangular_matmul = load_inline(\n    name=\"upper_triangular_matmul\",\n    cpp_sources=upper_triangular_matmul_cpp_source,\n    cuda_sources=upper_triangular_matmul_source,\n    functions=[\"upper_triangular_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"\"],\n    extra_ldflags=[\"\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication for upper triangular matrices using a custom CUDA kernel.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.upper_triangular_matmul = upper_triangular_matmul\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs optimized matrix multiplication for upper triangular matrices.\n        \n        Args:\n            A (torch.Tensor): Upper triangular matrix of shape (N, N).\n            B (torch.Tensor): Upper triangular matrix of shape (N, N).\n            \n        Returns:\n            torch.Tensor: The product of A and B, also an upper triangular matrix of shape (N, N).\n        \"\"\"\n        # Make sure inputs are on CUDA and have float type\n        A = A.cuda() if not A.is_cuda else A\n        B = B.cuda() if not B.is_cuda else B\n        \n        # Convert to float32 if needed\n        if A.dtype != torch.float32:\n            A = A.to(torch.float32)\n        if B.dtype != torch.float32:\n            B = B.to(torch.float32)\n            \n        return self.upper_triangular_matmul.upper_triangular_matmul_cuda(A, B)\n\ndef get_inputs():\n    \"\"\"\n    Generates upper triangular matrices for testing.\n    \n    Returns:\n        list: A list containing two upper triangular matrices of shape (N, N).\n    \"\"\"\n    N = 4096\n    A = torch.triu(torch.rand(N, N)).cuda()\n    B = torch.triu(torch.rand(N, N)).cuda()\n    return [A, B]\n\ndef get_init_inputs():\n    \"\"\"\n    No specific initialization inputs are needed for this model.\n    \n    Returns:\n        list: An empty list.\n    \"\"\"\n    return []",
+  "duration_seconds": 946.1229422092438,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.5736434108527132,
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.5736434108527132
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 0.5748031496062992,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 0.5748031496062992,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 0.5748031496062992,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 0.5748031496062992,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 0.5748031496062992,
+      "num_metric_calls_so_far": 16,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 0.5748031496062992,
+      "num_metric_calls_so_far": 18,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 0.5779092702169625,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 0.5784313725490197,
+      "num_metric_calls_so_far": 22,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ],
   "val_aggregate_scores": [
     0.0,
-    0.6160337552742615,
-    0.9208860759493671
+    0.5736434108527132
   ],
   "settings": {
     "reflection_lm": "anthropic/claude-3.7-sonnet",
-    "max_metric_calls": 10,
+    "max_iterations": 9,
     "reflection_minibatch_size": 1,
     "num_correct_trials": 1,
     "num_perf_trials": 5
