@@ -1,19 +1,103 @@
 {
   "task_idx": 6,
-  "best_speedup": 1.0,
+  "best_speedup": 1.0080645161290323,
   "num_metric_calls": 23,
-  "best_at_metric_call": 8,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for matrix multiplication\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\n// Global cuBLAS handle to avoid creation/destruction overhead\nstatic cublasHandle_t handle = NULL;\n\ntorch::Tensor matmul_transpose_cuda(torch::Tensor A, torch::Tensor B) {\n    // A has shape (K, M) and B has shape (K, N)\n    // We want to compute A.T * B which is (M, K) * (K, N) -> (M, N)\n    \n    int M = A.size(1);\n    int K = A.size(0);\n    int N = B.size(1);\n    \n    // Create output tensor of shape (M, N)\n    auto options = torch::TensorOptions().dtype(A.dtype()).device(A.device());\n    torch::Tensor C = torch::empty({M, N}, options);\n    \n    // Get pointers to data\n    float* a_ptr = A.data_ptr<float>();\n    float* b_ptr = B.data_ptr<float>();\n    float* c_ptr = C.data_ptr<float>();\n    \n    // Create cuBLAS handle only once\n    if (handle == NULL) {\n        cublasCreate(&handle);\n    }\n    \n    // Constants for cublasSgemm\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Use cublasGemmEx for better performance across different precision types\n    cublasGemmEx(handle, \n                CUBLAS_OP_N, CUBLAS_OP_T,\n                N, M, K,\n                &alpha,\n                b_ptr, CUDA_R_32F, N,\n                a_ptr, CUDA_R_32F, M,\n                &beta,\n                c_ptr, CUDA_R_32F, N,\n                CUDA_R_32F, \n                CUBLAS_GEMM_DEFAULT_TENSOR_OP);\n    \n    // We don't destroy the handle here to save overhead\n    // It will be managed by the Python GC\n    return C;\n}\n\n// Clean up function called when module is unloaded\nvoid cleanup() {\n    if (handle != NULL) {\n        cublasDestroy(handle);\n        handle = NULL;\n    }\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_transpose_cuda(torch::Tensor A, torch::Tensor B);\nvoid cleanup();\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_module = load_inline(\n    name=\"matmul_transpose_optimized\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_transpose_cuda\", \"cleanup\"],\n    verbose=True,\n    extra_cuda_cflags=[\"-arch=sm_80\", \"-O3\"],  # Optimize for Ampere+ architecture\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A.T * B)\n    using a custom CUDA kernel with cuBLAS\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_module = matmul_module\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication using custom CUDA kernel.\n\n        Args:\n            A: Input tensor of shape (K, M).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Direct call without type checking for maximum performance\n        # We assume inputs are already on GPU with the correct data type\n        return self.matmul_module.matmul_transpose_cuda(A, B)\n    \n    def __del__(self):\n        # Ensure cuBLAS handle is cleaned up\n        try:\n            self.matmul_module.cleanup()\n        except:\n            pass",
-  "num_candidates": 3,
-  "duration_seconds": 799.5090222358704,
+  "num_iterations_total": 10,
+  "num_candidates_discovered": 3,
+  "best_at_metric_call": 18,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for matrix multiplication with transpose\nmatmul_t_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\n// Global cuBLAS handle to avoid creation/destruction overhead\nstatic cublasHandle_t cublas_handle = nullptr;\n\nvoid ensure_cublas_handle() {\n    if (cublas_handle == nullptr) {\n        cublasCreate(&cublas_handle);\n    }\n}\n\ntorch::Tensor matmul_transpose_cuda(torch::Tensor A, torch::Tensor B) {\n    // A: (K, M), B: (K, N)\n    // We want to compute A.T * B which is (M, K) * (K, N) = (M, N)\n    \n    const int M = A.size(1);\n    const int K = A.size(0);\n    const int N = B.size(1);\n    \n    auto options = torch::TensorOptions().dtype(A.dtype()).device(A.device());\n    auto C = torch::empty({M, N}, options);\n    \n    // Get data pointers\n    const float* A_data = A.data_ptr<float>();\n    const float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n    \n    // Ensure cuBLAS handle is initialized\n    ensure_cublas_handle();\n    \n    // Set up alpha and beta for GEMM operation\n    float alpha = 1.0f;\n    float beta = 0.0f;\n    \n    // Use cublasSgemm to perform the matrix multiplication\n    // For A.T * B, we can directly use cuBLAS as follows:\n    cublasSgemm(cublas_handle, \n                CUBLAS_OP_N, CUBLAS_OP_T, \n                N, M, K, \n                &alpha, \n                B_data, N,  // Leading dimension of B is N\n                A_data, M,  // Leading dimension of A is M\n                &beta, \n                C_data, N); // Leading dimension of C is N\n    \n    return C;\n}\n\n// Free the CUBLAS handle during module cleanup\nvoid cleanup_cublas() {\n    if (cublas_handle != nullptr) {\n        cublasDestroy(cublas_handle);\n        cublas_handle = nullptr;\n    }\n}\n\"\"\"\n\nmatmul_t_cpp_source = \"\"\"\ntorch::Tensor matmul_transpose_cuda(torch::Tensor A, torch::Tensor B);\nvoid cleanup_cublas();\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_transpose = load_inline(\n    name=\"matmul_transpose\",\n    cpp_sources=matmul_t_cpp_source,\n    cuda_sources=matmul_t_source,\n    functions=[\"matmul_transpose_cuda\", \"cleanup_cublas\"],\n    verbose=True,\n    extra_cuda_cflags=[\"-lcublas\"],\n    with_cuda=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A.T * B)\n    using a custom CUDA kernel with cuBLAS\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_transpose = matmul_transpose\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (K, M).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        return self.matmul_transpose.matmul_transpose_cuda(A, B)\n    \n    def __del__(self):\n        # Clean up the CUBLAS handle when the model is destroyed\n        try:\n            self.matmul_transpose.cleanup_cublas()\n        except:\n            pass",
+  "duration_seconds": 911.4773831367493,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.946768060836502,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.946768060836502
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.9471698113207546,
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 0.9471698113207546,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 0.9471698113207546,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 0.9471698113207546,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 0.9471698113207546,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 0.9471698113207546,
+      "num_metric_calls_so_far": 16,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 1.0039525691699607,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0039525691699607
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 1.0080645161290323,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 1.0080645161290323,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ],
   "val_aggregate_scores": [
     0.0,
-    0.9463601532567051,
-    1.0
+    0.946768060836502,
+    1.0039525691699607
   ],
   "settings": {
     "reflection_lm": "anthropic/claude-3.7-sonnet",
-    "max_metric_calls": 10,
+    "max_iterations": 9,
     "reflection_minibatch_size": 1,
     "num_correct_trials": 1,
     "num_perf_trials": 5
