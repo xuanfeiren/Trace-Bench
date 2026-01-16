@@ -1,20 +1,104 @@
 {
   "task_idx": 15,
-  "best_speedup": 0.9232505643340858,
+  "best_speedup": 0.9336384439359268,
   "num_metric_calls": 24,
-  "best_at_metric_call": 12,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for efficient tall-skinny matrix multiplication\nmatmul_kernel_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor tall_skinny_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get the shapes of the input tensors\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    torch::Tensor C = torch::empty({M, N}, options);\n    \n    // Get pointers to the data\n    float* a_ptr = A.data_ptr<float>();\n    float* b_ptr = B.data_ptr<float>();\n    float* c_ptr = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    static cublasHandle_t handle = NULL;\n    if (handle == NULL) {\n        cublasCreate(&handle);\n        cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);\n    }\n    \n    // Constants for cuBLAS GEMM\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Use cublasGemmEx for better performance\n    cublasGemmEx(handle,\n                CUBLAS_OP_N, CUBLAS_OP_N,\n                N, M, K,\n                &alpha,\n                b_ptr, CUDA_R_32F, N,\n                a_ptr, CUDA_R_32F, K,\n                &beta,\n                c_ptr, CUDA_R_32F, N,\n                CUBLAS_COMPUTE_32F_FAST_16F,\n                CUBLAS_GEMM_DEFAULT_TENSOR_OP);\n    \n    // Don't destroy the handle as we reuse it\n    // cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor tall_skinny_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_module = load_inline(\n    name=\"tall_skinny_matmul\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_kernel_source,\n    functions=[\"tall_skinny_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\"-O3\", \"--use_fast_math\", \"--gpu-architecture=compute_75\"],\n    extra_ldflags=[\"-lcublas\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B)\n    where one of the matrices is tall and skinny (M >> N or N >> M)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_module = matmul_module\n        \n    def forward(self, A, B):\n        \"\"\"\n        Performs the optimized matrix multiplication.\n\n        Args:\n            A (torch.Tensor): Input matrix of shape (M, K) where M >> K.\n            B (torch.Tensor): Input matrix of shape (K, N) where K << N.\n\n        Returns:\n            torch.Tensor: Output matrix of shape (M, N)\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        # Check if the tensors are contiguous, if not make them contiguous\n        if not A.is_contiguous():\n            A = A.contiguous()\n        if not B.is_contiguous():\n            B = B.contiguous()\n            \n        # Call the custom CUDA kernel\n        return self.matmul_module.tall_skinny_matmul_cuda(A, B)",
-  "num_candidates": 4,
-  "duration_seconds": 672.5544514656067,
+  "num_iterations_total": 10,
+  "num_candidates_discovered": 4,
+  "best_at_metric_call": 23,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define a custom CUDA kernel for optimized matrix multiplication with tall-skinny matrices\nmatmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor tall_skinny_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get matrix dimensions\n    const int M = A.size(0);\n    const int N = B.size(1);\n    const int K = A.size(1);\n    \n    // Allocate output tensor\n    auto options = torch::TensorOptions().device(torch::kCUDA).dtype(A.dtype());\n    auto C = torch::empty({M, N}, options);\n    \n    // Get pointers to the data\n    float* A_data = A.data_ptr<float>();\n    float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n    \n    // Constants for cuBLAS\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Create cuBLAS handle\n    static cublasHandle_t handle = NULL;\n    if (!handle) {\n        cublasCreate(&handle);\n        cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);\n    }\n    \n    // Use cublasSgemmStridedBatched for better memory coalescing and parallelism\n    // For tall-skinny matrices, this approach can be more efficient\n    int batch_size = 1;\n    long long int strideA = M * K;\n    long long int strideB = K * N;\n    long long int strideC = M * N;\n    \n    // Use cublasGemmEx for potentially better performance with mixed precision\n    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, \n                N, M, K,\n                &alpha,\n                B_data, N,\n                A_data, K,\n                &beta,\n                C_data, N);\n    \n    // No need to destroy the handle as we're reusing it\n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor tall_skinny_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul = load_inline(\n    name=\"tall_skinny_matmul\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_source,\n    functions=[\"tall_skinny_matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\"-O3\", \"--use_fast_math\", \"-Xptxas=-v\"],\n    extra_ldflags=[\"-lcublas\"]\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B)\n    where one of the matrices is tall and skinny (M >> N or N >> M)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul = matmul\n    \n    def forward(self, A, B):\n        \"\"\"\n        Performs the matrix multiplication using our custom CUDA kernel.\n\n        Args:\n            A (torch.Tensor): Input matrix of shape (M, K)\n            B (torch.Tensor): Input matrix of shape (K, N)\n\n        Returns:\n            torch.Tensor: Output matrix of shape (M, N)\n        \"\"\"\n        # Directly use the tensors without moving them\n        # This is more efficient than checking and moving\n        return self.matmul.tall_skinny_matmul_cuda(A, B)",
+  "duration_seconds": 980.6306791305542,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8562367864693445
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8551797040169132
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 0.8675847457627118,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 0.9336384439359268,
+      "num_metric_calls_so_far": 24,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9336384439359268
+    }
+  ],
   "val_aggregate_scores": [
     0.0,
-    0.8585005279831046,
-    0.9232505643340858,
-    0.9153498871331829
+    0.8562367864693445,
+    0.8551797040169132,
+    0.9336384439359268
   ],
   "settings": {
     "reflection_lm": "anthropic/claude-3.7-sonnet",
-    "max_metric_calls": 10,
+    "max_iterations": 9,
     "reflection_minibatch_size": 1,
     "num_correct_trials": 1,
     "num_perf_trials": 5
