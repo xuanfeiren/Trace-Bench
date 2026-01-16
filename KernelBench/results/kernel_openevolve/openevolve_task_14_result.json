@@ -1,12 +1,91 @@
 {
   "task_idx": 14,
-  "best_speedup": 1.001757469244288,
-  "num_metric_calls": 10,
-  "best_at_metric_call": 7,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication (C = A * B)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication of A and B.\n\n        Args:\n            A: Input tensor with shape (M, K).\n            B: Input tensor with shape (K, N).\n\n        Returns:\n            C: Output tensor with shape (M, N).\n        \"\"\"\n        # Move tensors to GPU if not already there\n        A = A.cuda() if not A.is_cuda else A\n        B = B.cuda() if not B.is_cuda else B\n        \n        # Use PyTorch's built-in matmul which is highly optimized for GPU\n        return torch.matmul(A, B)",
-  "duration_seconds": 293.04085302352905,
+  "best_speedup": 1.9551724137931035,
+  "num_metric_calls": 11,
+  "best_at_metric_call": 9,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for matrix multiplication using cuBLAS\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions().dtype(A.dtype()).device(A.device());\n    auto C = torch::empty({M, N}, options);\n    \n    // Get pointers to tensor data\n    const float* A_data = A.data_ptr<float>();\n    const float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    // Set math mode to allow TensorCores usage if available\n    cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);\n    \n    // Constants for cuBLAS SGEMM\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Use cublasGemmEx which allows more optimization options\n    cublasGemmEx(handle,\n                CUBLAS_OP_N, CUBLAS_OP_N,\n                N, M, K,\n                &alpha,\n                B_data, CUDA_R_32F, N,\n                A_data, CUDA_R_32F, K,\n                &beta,\n                C_data, CUDA_R_32F, N,\n                CUDA_R_32F,\n                CUBLAS_GEMM_DEFAULT_TENSOR_OP);\n    \n    // Destroy cuBLAS handle\n    cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\ncustom_matmul = load_inline(\n    name=\"custom_matmul\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\"-O3\", \"--use_fast_math\"],\n    extra_ldflags=[\"-lcublas\"]\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B) with irregular shapes\n    using a custom CUDA kernel with cuBLAS and tensor cores\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication of A and B using custom CUDA kernel.\n\n        Args:\n            A: Input tensor with shape (M, K).\n            B: Input tensor with shape (K, N).\n\n        Returns:\n            C: Output tensor with shape (M, N).\n        \"\"\"\n        # Make sure inputs are on GPU\n        A = A.cuda() if not A.is_cuda else A\n        B = B.cuda() if not B.is_cuda else B\n        \n        # Ensure tensors are float32\n        A = A.float()\n        B = B.float()\n        \n        # Call our custom CUDA kernel\n        return custom_matmul.matmul_cuda(A, B)",
+  "duration_seconds": 389.13450288772583,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 0
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2
+    },
+    {
+      "attempt": 4,
+      "score": 0.14063260340632602,
+      "best_score": 0.14063260340632602,
+      "is_new_best": true,
+      "iteration_found": 3
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.14063260340632602,
+      "is_new_best": false,
+      "iteration_found": 4
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.14063260340632602,
+      "is_new_best": false,
+      "iteration_found": 5
+    },
+    {
+      "attempt": 7,
+      "score": 0.07188295165394402,
+      "best_score": 0.14063260340632602,
+      "is_new_best": false,
+      "iteration_found": 6
+    },
+    {
+      "attempt": 8,
+      "score": 0.9741824440619622,
+      "best_score": 0.9741824440619622,
+      "is_new_best": true,
+      "iteration_found": 7
+    },
+    {
+      "attempt": 9,
+      "score": 0.9845094664371773,
+      "best_score": 0.9845094664371773,
+      "is_new_best": true,
+      "iteration_found": 8
+    },
+    {
+      "attempt": 10,
+      "score": 1.9551724137931035,
+      "best_score": 1.9551724137931035,
+      "is_new_best": true,
+      "iteration_found": 9
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 1.9551724137931035,
+      "is_new_best": false,
+      "iteration_found": 10
+    }
+  ],
   "metrics": {
-    "combined_score": 1.001757469244288
+    "combined_score": 1.9551724137931035
   },
   "settings": {
     "model": "claude-3.7-sonnet",
