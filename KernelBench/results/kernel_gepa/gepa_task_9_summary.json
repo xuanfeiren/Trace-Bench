@@ -1,11 +1,94 @@
 {
   "task_idx": 9,
-  "best_speedup": 3.0695443645083933,
+  "best_speedup": 3.061465721040189,
   "num_metric_calls": 25,
   "best_at_metric_call": 22,
-  "duration_seconds": 835.2778933048248,
+  "duration_seconds": 776.7339010238647,
   "model": "anthropic/claude-3.7-sonnet",
   "method": "gepa",
   "num_correct_trials": 1,
-  "num_perf_trials": 5
+  "num_perf_trials": 5,
+  "num_iterations_total": 10,
+  "history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.9450549450549451,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9450549450549451
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 2.5907258064516125,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.5907258064516125
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 2.9988465974625145,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.9988465974625145
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 3.0034129692832767,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 3.0034129692832767,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 3.0034129692832767,
+      "num_metric_calls_so_far": 16,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 3.0068337129840548,
+      "num_metric_calls_so_far": 18,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 3.0068337129840548,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 3.0562060889929743,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 3.0542452830188678
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 3.061465721040189,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ]
 }

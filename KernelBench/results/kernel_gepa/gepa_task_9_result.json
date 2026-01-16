@@ -1,21 +1,105 @@
 {
   "task_idx": 9,
-  "best_speedup": 3.0695443645083933,
+  "best_speedup": 3.061465721040189,
   "num_metric_calls": 25,
+  "num_iterations_total": 10,
+  "num_candidates_discovered": 5,
   "best_at_metric_call": 22,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for matrix multiplication\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n#include <cuda_fp16.h>\n\n// Static cuBLAS handle for better performance\nstatic cublasHandle_t handle = nullptr;\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Initialize cuBLAS handle if not already done\n    if (handle == nullptr) {\n        cublasCreate(&handle);\n        // Set math mode to use Tensor Cores if available\n        cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);\n    }\n    \n    // Make sure inputs are contiguous and in the right format for cuBLAS\n    A = A.contiguous();\n    B = B.contiguous();\n\n    // Get dimensions\n    int m = A.size(0);\n    int k = A.size(1);\n    int n = B.size(1);\n\n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    auto C = torch::empty({m, n}, options);\n\n    // Get pointers to data\n    float* a_ptr = A.data_ptr<float>();\n    float* b_ptr = B.data_ptr<float>();\n    float* c_ptr = C.data_ptr<float>();\n\n    // Constants for cuBLAS\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n\n    // Use cublasGemmEx with FP16 computation path but FP32 I/O\n    // This leverages Tensor Cores while maintaining precision\n    cublasGemmEx(\n        handle,\n        CUBLAS_OP_N,\n        CUBLAS_OP_N,\n        n, m, k,\n        &alpha,\n        b_ptr, CUDA_R_32F, n,\n        a_ptr, CUDA_R_32F, k,\n        &beta,\n        c_ptr, CUDA_R_32F, n,\n        CUBLAS_COMPUTE_32F_FAST_16F,\n        CUBLAS_GEMM_DEFAULT_TENSOR_OP\n    );\n\n    // We don't destroy the handle as we reuse it\n    return C;\n}\n\n// Function to clean up resources when module is unloaded\nvoid cleanup_cublas() {\n    if (handle != nullptr) {\n        cublasDestroy(handle);\n        handle = nullptr;\n    }\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\nvoid cleanup_cublas();\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\nmatmul_extension = load_inline(\n    name=\"matmul_extension\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\", \"cleanup_cublas\"],\n    verbose=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\n        \"-O3\", \n        \"--use_fast_math\",\n        \"-arch=sm_80\",  # Adjust based on your GPU architecture\n        \"--ptxas-options=-v\"  # Verbose ptx assembly to help debug\n    ],\n    extra_ldflags=[\"-lcublas\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single square matrix multiplication (C = A * B)\n    using a custom CUDA kernel that leverages cuBLAS with Tensor Core acceleration.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_extension = matmul_extension\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs the matrix multiplication using optimized CUDA kernel.\n\n        Args:\n            A (torch.Tensor): Input matrix A of shape (N, N).\n            B (torch.Tensor): Input matrix B of shape (N, N).\n\n        Returns:\n            torch::Tensor: Output matrix C of shape (N, N).\n        \"\"\"\n        # Make sure inputs are on CUDA\n        A = A.cuda()\n        B = B.cuda()\n        return self.matmul_extension.matmul_cuda(A, B)\n    \n    def __del__(self):\n        # Clean up cuBLAS resources when model is deleted\n        if hasattr(self, 'matmul_extension'):\n            self.matmul_extension.cleanup_cublas()",
-  "num_candidates": 5,
-  "duration_seconds": 835.2778933048248,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for matrix multiplication\nmatmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n#include <c10/cuda/CUDAStream.h>\n\n// Global handle for cuBLAS to avoid creation/destruction overhead\nstatic cublasHandle_t global_handle = nullptr;\n\n// Initialize the global handle\nvoid ensure_cublas_init() {\n    if (global_handle == nullptr) {\n        cublasCreate(&global_handle);\n        // Enable tensor cores for maximum performance\n        cublasSetMathMode(global_handle, CUBLAS_TENSOR_OP_MATH);\n    }\n}\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Ensure inputs are contiguous and on GPU\n    A = A.contiguous();\n    B = B.contiguous();\n    \n    int N = A.size(0);\n    \n    // Create output tensor on the same device and with same dtype as input\n    auto C = torch::empty({N, N}, \n                         torch::TensorOptions()\n                         .dtype(A.dtype())\n                         .device(A.device()));\n    \n    // Get pointers to the tensor data\n    auto A_data = A.data_ptr<float>();\n    auto B_data = B.data_ptr<float>();\n    auto C_data = C.data_ptr<float>();\n    \n    // Initialize cuBLAS handle if needed\n    ensure_cublas_init();\n    \n    // Constants for GEMM operation\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Use the current CUDA stream from PyTorch\n    cudaStream_t stream = c10::cuda::getCurrentCUDAStream();\n    cublasSetStream(global_handle, stream);\n    \n    // Use cublasGemmEx which allows using Tensor Cores\n    // Optimal parameters for square matrices:\n    // 1. B and A are swapped due to row-major vs column-major layout\n    // 2. Using FP16 compute path for faster performance while maintaining FP32 inputs/outputs\n    cublasGemmEx(global_handle,\n                CUBLAS_OP_N, CUBLAS_OP_N,\n                N, N, N,\n                &alpha,\n                B_data, CUDA_R_32F, N,\n                A_data, CUDA_R_32F, N,\n                &beta,\n                C_data, CUDA_R_32F, N,\n                CUBLAS_COMPUTE_32F_FAST_16F,\n                CUBLAS_GEMM_ALGO0_TENSOR_OP);\n    \n    // No need to synchronize explicitly as PyTorch will handle this\n    \n    return C;\n}\n\n// Clean up handle on module unload\nvoid cleanup_cublas() {\n    if (global_handle != nullptr) {\n        cublasDestroy(global_handle);\n        global_handle = nullptr;\n    }\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\nvoid cleanup_cublas();\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\nmatmul_op = load_inline(\n    name=\"matmul_op\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_source,\n    functions=[\"matmul_cuda\", \"cleanup_cublas\"],\n    verbose=True,\n    with_cuda=True,\n    extra_cflags=[\"-O3\"],\n    extra_cuda_cflags=[\n        \"-O3\", \n        \"--use_fast_math\", \n        \"-arch=sm_80\",\n        \"--ptxas-options=-v\"\n    ],\n    extra_ldflags=[\"-lcublas\"],\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single square matrix multiplication (C = A * B)\n    using a custom CUDA kernel with cuBLAS and Tensor Cores\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_op = matmul_op\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs the matrix multiplication using the custom CUDA kernel.\n\n        Args:\n            A (torch.Tensor): Input matrix A of shape (N, N).\n            B (torch.Tensor): Input matrix B of shape (N, N).\n\n        Returns:\n            torch.Tensor: Output matrix C of shape (N, N).\n        \"\"\"\n        # Ensure inputs are on CUDA\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        return self.matmul_op.matmul_cuda(A, B)\n    \n    def __del__(self):\n        # Clean up the cuBLAS handle when model is deleted\n        if hasattr(self, 'matmul_op'):\n            self.matmul_op.cleanup_cublas()",
+  "duration_seconds": 776.7339010238647,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.9450549450549451,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9450549450549451
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 2.5907258064516125,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.5907258064516125
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 2.9988465974625145,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 2.9988465974625145
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 3.0034129692832767,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 3.0034129692832767,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 3.0034129692832767,
+      "num_metric_calls_so_far": 16,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 3.0068337129840548,
+      "num_metric_calls_so_far": 18,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 3.0068337129840548,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 3.0562060889929743,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 3.0542452830188678
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 3.061465721040189,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    }
+  ],
   "val_aggregate_scores": [
     0.0,
-    0.9479553903345724,
-    3.0668257756563246,
-    3.0249110320284696,
-    3.0695443645083933
+    0.9450549450549451,
+    2.5907258064516125,
+    2.9988465974625145,
+    3.0542452830188678
   ],
   "settings": {
     "reflection_lm": "anthropic/claude-3.7-sonnet",
-    "max_metric_calls": 10,
+    "max_iterations": 9,
     "reflection_minibatch_size": 1,
     "num_correct_trials": 1,
     "num_perf_trials": 5
