@@ -1,0 +1,116 @@
+{
+  "task_idx": 10,
+  "success": false,
+  "attempts": 20,
+  "best_score": 0.9300699300699301,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the optimized custom CUDA kernel for matrix multiplication\nmatmul_cuda_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\n#define CHECK_CUDA(x) TORCH_CHECK(x.device().is_cuda(), #x \" must be a CUDA tensor\")\n#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x \" must be contiguous\")\n#define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    CHECK_INPUT(A);\n    CHECK_INPUT(B);\n    \n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto C = torch::zeros({M, N}, A.options());\n    \n    // Get pointers to tensor data\n    const float* A_data = A.data_ptr<float>();\n    const float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n    \n    // Initialize cuBLAS\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    // Perform matrix multiplication: C = A * B\n    // cuBLAS uses column-major format, but PyTorch uses row-major\n    // So we compute B^T * A^T = (A * B)^T\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // Use cublasSgemm for single precision matrix multiplication\n    // C = alpha*(B^T * A^T) + beta*C\n    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, \n                N, M, K, \n                &alpha,\n                B_data, N,  // B is transposed (column-major: N x K)\n                A_data, K,  // A is transposed (column-major: K x M)\n                &beta,\n                C_data, N); // C is transposed (column-major: N x M)\n                \n    // Clean up\n    cublasDestroy(handle);\n    \n    return C;\n}\n\n// Alternative implementation for when cuBLAS is not optimal\n// This kernel uses a more efficient tiled approach with better memory access patterns\n__global__ void optimized_matrix_multiply_kernel(\n    const float* __restrict__ A, \n    const float* __restrict__ B, \n    float* __restrict__ C, \n    const int M, const int K, const int N) {\n    \n    // Use a larger tile size for better performance on modern GPUs\n    constexpr int TILE_SIZE = 64;\n    \n    // Shared memory tiles\n    __shared__ float As[TILE_SIZE][TILE_SIZE];\n    __shared__ float Bs[TILE_SIZE][TILE_SIZE];\n    \n    // Calculate global row and column indices\n    const int row = blockIdx.y * TILE_SIZE + threadIdx.y;\n    const int col = blockIdx.x * TILE_SIZE + threadIdx.x;\n    \n    // Thread indices\n    const int ty = threadIdx.y;\n    const int tx = threadIdx.x;\n    \n    // Accumulate result in registers for better performance\n    float sum = 0.0f;\n    \n    // Loop over tiles\n    for (int t = 0; t < (K + TILE_SIZE - 1) / TILE_SIZE; ++t) {\n        // Preload data into shared memory with boundary checks outside inner loops\n        if (row < M && t * TILE_SIZE + tx < K) {\n            As[ty][tx] = A[row * K + t * TILE_SIZE + tx];\n        } else {\n            As[ty][tx] = 0.0f;\n        }\n        \n        if (col < N && t * TILE_SIZE + ty < K) {\n            Bs[ty][tx] = B[(t * TILE_SIZE + ty) * N + col];\n        } else {\n            Bs[ty][tx] = 0.0f;\n        }\n        \n        __syncthreads();\n        \n        // Compute dot product for this tile - unrolled for performance\n        #pragma unroll\n        for (int k = 0; k < TILE_SIZE; k += 8) {\n            sum += As[ty][k] * Bs[k][tx];\n            sum += As[ty][k+1] * Bs[k+1][tx];\n            sum += As[ty][k+2] * Bs[k+2][tx];\n            sum += As[ty][k+3] * Bs[k+3][tx];\n            sum += As[ty][k+4] * Bs[k+4][tx];\n            sum += As[ty][k+5] * Bs[k+5][tx];\n            sum += As[ty][k+6] * Bs[k+6][tx];\n            sum += As[ty][k+7] * Bs[k+7][tx];\n        }\n        \n        __syncthreads();\n    }\n    \n    // Write result to global memory\n    if (row < M && col < N) {\n        C[row * N + col] = sum;\n    }\n}\n\n// Alternative implementation if cuBLAS is not available or not optimal\ntorch::Tensor matmul_cuda_fallback(torch::Tensor A, torch::Tensor B) {\n    CHECK_INPUT(A);\n    CHECK_INPUT(B);\n    \n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto C = torch::zeros({M, N}, A.options());\n    \n    // Configure kernel parameters for best performance\n    constexpr int TILE_SIZE = 64;\n    dim3 threads(TILE_SIZE, TILE_SIZE);\n    dim3 grid((N + TILE_SIZE - 1) / TILE_SIZE, (M + TILE_SIZE - 1) / TILE_SIZE);\n    \n    // Launch the kernel\n    optimized_matrix_multiply_kernel<<<grid, threads>>>(\n        A.data_ptr<float>(), \n        B.data_ptr<float>(), \n        C.data_ptr<float>(), \n        M, K, N\n    );\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\ntorch::Tensor matmul_cuda_fallback(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\nmatmul_extension = load_inline(\n    name=\"matmul_cuda\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_cuda_source,\n    functions=[\"matmul_cuda\", \"matmul_cuda_fallback\"],\n    verbose=True,\n    extra_cuda_cflags=[\"-lcublas\"],  # Link against cuBLAS library\n    with_cuda=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication using a custom CUDA kernel\n    that leverages cuBLAS for optimal performance\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_cuda = matmul_extension\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication using highly optimized cuBLAS.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Ensure tensors are on CUDA and contiguous before passing to kernel\n        A = A.contiguous().cuda()\n        B = B.contiguous().cuda()\n        \n        return self.matmul_cuda.matmul_cuda(A, B)",
+  "duration_seconds": 943.6821925640106,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 9,
+      "score": 0.12000000000000001,
+      "feedback": "SUCCESS - Score (Speedup): 0.1200x\n\nCustom Kernel Runtime: 22.5000 \u03bcs\nReference Runtime: 2.7000 \u03bcs\nSpeedup: 0.1200x\nRuntime Stats: {'mean': 22.5, 'std': 0.00592, 'min': 22.5, 'max': 22.5, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom "
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_cuda'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 11,
+      "score": 0.12036199095022625,
+      "feedback": "SUCCESS - Score (Speedup): 0.1204x\n\nCustom Kernel Runtime: 22.1000 \u03bcs\nReference Runtime: 2.6600 \u03bcs\nSpeedup: 0.1204x\nRuntime Stats: {'mean': 22.1, 'std': 0.0046, 'min': 22.1, 'max': 22.1, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom k"
+    },
+    {
+      "attempt": 12,
+      "score": 0.9300699300699301,
+      "feedback": "SUCCESS - Score (Speedup): 0.9301x\n\nCustom Kernel Runtime: 2.8600 \u03bcs\nReference Runtime: 2.6600 \u03bcs\nSpeedup: 0.9301x\nRuntime Stats: {'mean': 2.86, 'std': 0.00383, 'min': 2.85, 'max': 2.86, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom k"
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_cuda_optimized'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_cuda_optimized'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized': [1/3] /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile --dependency-output cuda.cuda.o.d -DTORCH_EXTENSION_NAME=matmul_cuda_optimized -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch"
+    },
+    {
+      "attempt": 16,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized': [1/3] /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile --dependency-output cuda.cuda.o.d -DTORCH_EXTENSION_NAME=matmul_cuda_optimized -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch"
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized': [1/3] c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=matmul_cuda_optimized -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include/"
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized': [1/3] c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=matmul_cuda_optimized -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include/"
+    },
+    {
+      "attempt": 19,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized': [1/3] /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile --dependency-output cuda.cuda.o.d -DTORCH_EXTENSION_NAME=matmul_cuda_optimized -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch"
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda_optimized'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_cuda_optimized'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 20,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
