@@ -1,0 +1,379 @@
+{
+  "task_idx": 6,
+  "best_speedup": 0.9509433962264151,
+  "num_metric_calls": 51,
+  "best_at_metric_call": 33,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for transposed matrix multiplication\nmatmul_t_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n\ntorch::Tensor transposed_matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // A is (K, M), B is (K, N), we want to compute A.T * B which is (M, N)\n    const int M = A.size(1);\n    const int K = A.size(0);\n    const int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions()\n        .dtype(A.dtype())\n        .device(A.device());\n    auto C = torch::empty({M, N}, options);\n    \n    // Get pointers to tensor data\n    float* a_ptr = A.data_ptr<float>();\n    float* b_ptr = B.data_ptr<float>();\n    float* c_ptr = C.data_ptr<float>();\n    \n    // Initialize cuBLAS\n    cublasHandle_t handle;\n    cublasCreate(&handle);\n    \n    // Set up scaling factors\n    float alpha = 1.0f;\n    float beta = 0.0f;\n    \n    // Perform matrix multiplication using cuBLAS\n    cublasSgemm(\n        handle,\n        CUBLAS_OP_N,  // B is not transposed\n        CUBLAS_OP_T,  // A is transposed\n        N, M, K,      // dimensions (N x M output)\n        &alpha,\n        b_ptr, N,     // B with leading dimension N\n        a_ptr, M,     // A with leading dimension M\n        &beta,\n        c_ptr, N      // C with leading dimension N\n    );\n    \n    // Clean up\n    cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_t_cpp_source = \"\"\"\ntorch::Tensor transposed_matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\ntransposed_matmul = load_inline(\n    name=\"transposed_matmul\",\n    cpp_sources=matmul_t_cpp_source,\n    cuda_sources=matmul_t_source,\n    functions=[\"transposed_matmul_cuda\"],\n    with_cuda=True\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A.T * B)\n    using a custom CUDA kernel that leverages cuBLAS\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (K, M).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Use our custom CUDA kernel for A.T * B\n        return transposed_matmul.transposed_matmul_cuda(A, B)",
+  "duration_seconds": 333.07266902923584,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 0
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 3
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 4
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 5
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 6
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 7
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 8
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 9
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 10
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 11
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 12
+    },
+    {
+      "attempt": 14,
+      "score": 0.946768060836502,
+      "best_score": 0.946768060836502,
+      "is_new_best": true,
+      "iteration_found": 13
+    },
+    {
+      "attempt": 15,
+      "score": 0.9436090225563909,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 14
+    },
+    {
+      "attempt": 16,
+      "score": 0.9304029304029304,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 15
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 16
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 17
+    },
+    {
+      "attempt": 19,
+      "score": 0.918819188191882,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 18
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 19
+    },
+    {
+      "attempt": 21,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 20
+    },
+    {
+      "attempt": 22,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 21
+    },
+    {
+      "attempt": 23,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 22
+    },
+    {
+      "attempt": 24,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 23
+    },
+    {
+      "attempt": 25,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 24
+    },
+    {
+      "attempt": 26,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 25
+    },
+    {
+      "attempt": 27,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 26
+    },
+    {
+      "attempt": 28,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 27
+    },
+    {
+      "attempt": 29,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 28
+    },
+    {
+      "attempt": 30,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 29
+    },
+    {
+      "attempt": 31,
+      "score": 0.9429657794676807,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 30
+    },
+    {
+      "attempt": 32,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 31
+    },
+    {
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 0.946768060836502,
+      "is_new_best": false,
+      "iteration_found": 32
+    },
+    {
+      "attempt": 34,
+      "score": 0.9509433962264151,
+      "best_score": 0.9509433962264151,
+      "is_new_best": true,
+      "iteration_found": 33
+    },
+    {
+      "attempt": 35,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 34
+    },
+    {
+      "attempt": 36,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 35
+    },
+    {
+      "attempt": 37,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 36
+    },
+    {
+      "attempt": 38,
+      "score": 0.946768060836502,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 37
+    },
+    {
+      "attempt": 39,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 38
+    },
+    {
+      "attempt": 40,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 39
+    },
+    {
+      "attempt": 41,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 40
+    },
+    {
+      "attempt": 42,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 41
+    },
+    {
+      "attempt": 43,
+      "score": 0.9438202247191012,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 42
+    },
+    {
+      "attempt": 44,
+      "score": 0.9442379182156134,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 43
+    },
+    {
+      "attempt": 45,
+      "score": 0.9465648854961831,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 44
+    },
+    {
+      "attempt": 46,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 45
+    },
+    {
+      "attempt": 47,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 46
+    },
+    {
+      "attempt": 48,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 47
+    },
+    {
+      "attempt": 49,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 48
+    },
+    {
+      "attempt": 50,
+      "score": 0.946768060836502,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 49
+    },
+    {
+      "attempt": 51,
+      "score": 0.0,
+      "best_score": 0.9509433962264151,
+      "is_new_best": false,
+      "iteration_found": 50
+    }
+  ],
+  "metrics": {
+    "combined_score": 0.9509433962264151
+  },
+  "settings": {
+    "model": "claude-3.7-sonnet",
+    "max_iterations": 50,
+    "num_workers": 5,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
