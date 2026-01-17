@@ -1,364 +1,371 @@
 {
   "task_idx": 10,
-  "best_speedup": 1.015209125475285,
-  "num_metric_calls": 50,
-  "best_at_metric_call": 27,
-  "best_cuda_code": "import torch\nimport torch.nn as nn\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Simple model that performs a single matrix multiplication (C = A * B)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        return torch.matmul(A, B)",
-  "duration_seconds": 358.2524800300598,
+  "best_speedup": 1.0076045627376427,
+  "num_metric_calls": 51,
+  "best_at_metric_call": 41,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B)\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Make sure tensors are on GPU\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        # Ensure contiguous memory layout for better performance\n        A = A.contiguous()\n        B = B.contiguous()\n            \n        # Use PyTorch's built-in matmul which uses optimized cuBLAS under the hood\n        return torch.matmul(A, B)",
+  "duration_seconds": 349.47647166252136,
   "history": [
     {
       "attempt": 1,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 1
+      "iteration_found": 0
     },
     {
       "attempt": 2,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 2
+      "iteration_found": 1
     },
     {
       "attempt": 3,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 3
+      "iteration_found": 2
     },
     {
       "attempt": 4,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 4
+      "iteration_found": 3
     },
     {
       "attempt": 5,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 5
+      "iteration_found": 4
     },
     {
       "attempt": 6,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 6
+      "iteration_found": 5
     },
     {
       "attempt": 7,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 7
+      "iteration_found": 6
     },
     {
       "attempt": 8,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 8
+      "iteration_found": 7
     },
     {
       "attempt": 9,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 9
+      "iteration_found": 8
     },
     {
       "attempt": 10,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 10
+      "iteration_found": 9
     },
     {
       "attempt": 11,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 11
+      "iteration_found": 10
     },
     {
       "attempt": 12,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 12
+      "iteration_found": 11
     },
     {
       "attempt": 13,
       "score": 0.0,
       "best_score": 0.0,
       "is_new_best": false,
-      "iteration_found": 13
+      "iteration_found": 12
     },
     {
       "attempt": 14,
-      "score": 0.9315068493150686,
-      "best_score": 0.9315068493150686,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 13
+    },
+    {
+      "attempt": 15,
+      "score": 0.9430604982206405,
+      "best_score": 0.9430604982206405,
       "is_new_best": true,
       "iteration_found": 14
     },
     {
-      "attempt": 15,
-      "score": 0.9477351916376306,
-      "best_score": 0.9477351916376306,
+      "attempt": 16,
+      "score": 0.9508771929824561,
+      "best_score": 0.9508771929824561,
       "is_new_best": true,
       "iteration_found": 15
     },
     {
-      "attempt": 16,
-      "score": 0.9466192170818506,
-      "best_score": 0.9477351916376306,
+      "attempt": 17,
+      "score": 0.0,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 16
     },
     {
-      "attempt": 17,
+      "attempt": 18,
       "score": 0.0,
-      "best_score": 0.9477351916376306,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 17
     },
     {
-      "attempt": 18,
-      "score": 0.9475524475524476,
-      "best_score": 0.9477351916376306,
+      "attempt": 19,
+      "score": 0.9488054607508531,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 18
     },
     {
-      "attempt": 19,
-      "score": 0.9468085106382979,
-      "best_score": 0.9477351916376306,
+      "attempt": 20,
+      "score": 0.9430604982206405,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 19
     },
     {
-      "attempt": 20,
-      "score": 0.9477351916376306,
-      "best_score": 0.9477351916376306,
+      "attempt": 21,
+      "score": 0.0,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 20
     },
     {
-      "attempt": 21,
-      "score": 0.9377162629757785,
-      "best_score": 0.9477351916376306,
+      "attempt": 22,
+      "score": 0.0,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 21
     },
     {
-      "attempt": 22,
-      "score": 0.9471830985915494,
-      "best_score": 0.9477351916376306,
+      "attempt": 23,
+      "score": 0.946236559139785,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 22
     },
     {
-      "attempt": 23,
-      "score": 0.9397163120567376,
-      "best_score": 0.9477351916376306,
+      "attempt": 24,
+      "score": 0.946236559139785,
+      "best_score": 0.9508771929824561,
       "is_new_best": false,
       "iteration_found": 23
     },
     {
-      "attempt": 24,
-      "score": 0.9440559440559442,
-      "best_score": 0.9477351916376306,
-      "is_new_best": false,
+      "attempt": 25,
+      "score": 0.9515570934256055,
+      "best_score": 0.9515570934256055,
+      "is_new_best": true,
       "iteration_found": 24
     },
     {
-      "attempt": 25,
-      "score": 0.9328621908127208,
-      "best_score": 0.9477351916376306,
+      "attempt": 26,
+      "score": 0.9498207885304659,
+      "best_score": 0.9515570934256055,
       "is_new_best": false,
       "iteration_found": 25
     },
     {
-      "attempt": 26,
-      "score": 0.9477351916376306,
-      "best_score": 0.9477351916376306,
+      "attempt": 27,
+      "score": 0.9507042253521127,
+      "best_score": 0.9515570934256055,
       "is_new_best": false,
       "iteration_found": 26
     },
     {
-      "attempt": 27,
-      "score": 1.015209125475285,
-      "best_score": 1.015209125475285,
-      "is_new_best": true,
+      "attempt": 28,
+      "score": 0.9480968858131488,
+      "best_score": 0.9515570934256055,
+      "is_new_best": false,
       "iteration_found": 27
     },
     {
-      "attempt": 28,
-      "score": 0.9399293286219081,
-      "best_score": 1.015209125475285,
+      "attempt": 29,
+      "score": 0.9464285714285715,
+      "best_score": 0.9515570934256055,
       "is_new_best": false,
       "iteration_found": 28
     },
     {
-      "attempt": 29,
-      "score": 0.0,
-      "best_score": 1.015209125475285,
+      "attempt": 30,
+      "score": 0.9430604982206405,
+      "best_score": 0.9515570934256055,
       "is_new_best": false,
       "iteration_found": 29
     },
     {
-      "attempt": 30,
-      "score": 1.0075187969924813,
-      "best_score": 1.015209125475285,
-      "is_new_best": false,
+      "attempt": 31,
+      "score": 1.0073260073260073,
+      "best_score": 1.0073260073260073,
+      "is_new_best": true,
       "iteration_found": 30
     },
     {
-      "attempt": 31,
-      "score": 0.0,
-      "best_score": 1.015209125475285,
+      "attempt": 32,
+      "score": 1.0073260073260073,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 31
     },
     {
-      "attempt": 32,
-      "score": 0.9442508710801393,
-      "best_score": 1.015209125475285,
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 32
     },
     {
-      "attempt": 33,
-      "score": 0.9300699300699301,
-      "best_score": 1.015209125475285,
+      "attempt": 34,
+      "score": 0.9464285714285715,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 33
     },
     {
-      "attempt": 34,
-      "score": 0.9405594405594406,
-      "best_score": 1.015209125475285,
+      "attempt": 35,
+      "score": 0.9510489510489512,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 34
     },
     {
-      "attempt": 35,
-      "score": 0.9466192170818506,
-      "best_score": 1.015209125475285,
+      "attempt": 36,
+      "score": 0.9464285714285715,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 35
     },
     {
-      "attempt": 36,
-      "score": 0.9508771929824561,
-      "best_score": 1.015209125475285,
+      "attempt": 37,
+      "score": 0.9515570934256055,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 36
     },
     {
-      "attempt": 37,
-      "score": 1.0037174721189592,
-      "best_score": 1.015209125475285,
+      "attempt": 38,
+      "score": 1.0037878787878787,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 37
     },
     {
-      "attempt": 38,
-      "score": 0.19,
-      "best_score": 1.015209125475285,
+      "attempt": 39,
+      "score": 0.9515570934256055,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 38
     },
     {
-      "attempt": 39,
-      "score": 0.9512195121951219,
-      "best_score": 1.015209125475285,
+      "attempt": 40,
+      "score": 0.9440559440559442,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 39
     },
     {
-      "attempt": 40,
-      "score": 0.9473684210526316,
-      "best_score": 1.015209125475285,
+      "attempt": 41,
+      "score": 0.9475524475524476,
+      "best_score": 1.0073260073260073,
       "is_new_best": false,
       "iteration_found": 40
     },
     {
-      "attempt": 41,
-      "score": 0.9430604982206405,
-      "best_score": 1.015209125475285,
-      "is_new_best": false,
+      "attempt": 42,
+      "score": 1.0076045627376427,
+      "best_score": 1.0076045627376427,
+      "is_new_best": true,
       "iteration_found": 41
     },
     {
-      "attempt": 42,
-      "score": 1.0036900369003692,
-      "best_score": 1.015209125475285,
+      "attempt": 43,
+      "score": 1.0037878787878787,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 42
     },
     {
-      "attempt": 43,
-      "score": 1.007462686567164,
-      "best_score": 1.015209125475285,
+      "attempt": 44,
+      "score": 0.9498207885304659,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 43
     },
     {
-      "attempt": 44,
-      "score": 1.0074349442379182,
-      "best_score": 1.015209125475285,
+      "attempt": 45,
+      "score": 0.9464285714285715,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 44
     },
     {
-      "attempt": 45,
+      "attempt": 46,
       "score": 1.0076045627376427,
-      "best_score": 1.015209125475285,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 45
     },
     {
-      "attempt": 46,
-      "score": 0.0,
-      "best_score": 1.015209125475285,
+      "attempt": 47,
+      "score": 0.9498207885304659,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 46
     },
     {
-      "attempt": 47,
-      "score": 0.9508771929824561,
-      "best_score": 1.015209125475285,
+      "attempt": 48,
+      "score": 1.0073260073260073,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 47
     },
     {
-      "attempt": 48,
-      "score": 1.0037878787878787,
-      "best_score": 1.015209125475285,
+      "attempt": 49,
+      "score": 0.9475524475524476,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 48
     },
     {
-      "attempt": 49,
-      "score": 1.007462686567164,
-      "best_score": 1.015209125475285,
+      "attempt": 50,
+      "score": 1.0037878787878787,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 49
     },
     {
-      "attempt": 50,
-      "score": 0.9477351916376306,
-      "best_score": 1.015209125475285,
+      "attempt": 51,
+      "score": 1.007462686567164,
+      "best_score": 1.0076045627376427,
       "is_new_best": false,
       "iteration_found": 50
     }
   ],
   "metrics": {
-    "combined_score": 1.015209125475285
+    "combined_score": 1.0076045627376427
   },
   "settings": {
     "model": "claude-3.7-sonnet",
