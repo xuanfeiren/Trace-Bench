@@ -383,9 +383,9 @@ def main():
                        help='Task index from KernelBench dataset (0-15)')
     parser.add_argument('--model', type=str, default='claude-3.7-sonnet',
                        help='LLM model name (e.g., claude-3.5-sonnet, gpt-4o)')
-    parser.add_argument('--max_iterations', type=int, default=10,
+    parser.add_argument('--max_iterations', type=int, default=50,
                        help='Maximum number of evolution iterations (default: 10)')
-    parser.add_argument('--num_workers', type=int, default=1,
+    parser.add_argument('--num_workers', type=int, default=5,
                        help='Number of parallel workers for evaluation (1=sequential, 4+=parallel)')
     parser.add_argument('--num_correct_trials', type=int, default=1,
                        help='Number of correctness trials (default: 1)')
@@ -484,8 +484,8 @@ def main():
                     success_at = num_metric_calls  # Fallback
 
         # Always save summary to kernel_openevolve folder
-        os.makedirs('results/kernel_openevolve', exist_ok=True)
-        summary_path = f"results/kernel_openevolve/openevolve_task_{args.task_idx}_summary.json"
+        os.makedirs('results/kernel_openevolve_1', exist_ok=True)
+        summary_path = f"results/kernel_openevolve_1/task_{args.task_idx}_summary.json"
 
         summary_data = {
             'task_idx': args.task_idx,
@@ -507,7 +507,7 @@ def main():
 
         # Save full result if requested
         if args.save_results:
-            full_result_path = f"results/kernel_openevolve/openevolve_task_{args.task_idx}_result.json"
+            full_result_path = f"results/kernel_openevolve_1/task_{args.task_idx}_result.json"
 
             result_data = {
                 'task_idx': args.task_idx,
