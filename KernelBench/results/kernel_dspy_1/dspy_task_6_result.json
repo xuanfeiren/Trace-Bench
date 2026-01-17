@@ -1,0 +1,116 @@
+{
+  "task_idx": 6,
+  "success": false,
+  "attempts": 20,
+  "best_score": 0.9431818181818182,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the CUDA kernel for matrix multiplication\nmatmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n#include <c10/cuda/CUDAStream.h>\n\n// Error checking helper\n#define CUBLAS_CHECK(call) do { \\\n    cublasStatus_t status = call; \\\n    if (status != CUBLAS_STATUS_SUCCESS) { \\\n        std::stringstream ss; \\\n        ss << \"CUBLAS error: \" << status; \\\n        throw std::runtime_error(ss.str()); \\\n    } \\\n} while(0)\n\n// Helper function to convert cuBLAS status to string for better error reporting\nconst char* cublasGetStatusString(cublasStatus_t status) {\n    switch (status) {\n        case CUBLAS_STATUS_SUCCESS: return \"CUBLAS_STATUS_SUCCESS\";\n        case CUBLAS_STATUS_NOT_INITIALIZED: return \"CUBLAS_STATUS_NOT_INITIALIZED\";\n        case CUBLAS_STATUS_ALLOC_FAILED: return \"CUBLAS_STATUS_ALLOC_FAILED\";\n        case CUBLAS_STATUS_INVALID_VALUE: return \"CUBLAS_STATUS_INVALID_VALUE\";\n        case CUBLAS_STATUS_ARCH_MISMATCH: return \"CUBLAS_STATUS_ARCH_MISMATCH\";\n        case CUBLAS_STATUS_MAPPING_ERROR: return \"CUBLAS_STATUS_MAPPING_ERROR\";\n        case CUBLAS_STATUS_EXECUTION_FAILED: return \"CUBLAS_STATUS_EXECUTION_FAILED\";\n        case CUBLAS_STATUS_INTERNAL_ERROR: return \"CUBLAS_STATUS_INTERNAL_ERROR\";\n        case CUBLAS_STATUS_NOT_SUPPORTED: return \"CUBLAS_STATUS_NOT_SUPPORTED\";\n        case CUBLAS_STATUS_LICENSE_ERROR: return \"CUBLAS_STATUS_LICENSE_ERROR\";\n        default: return \"CUBLAS_STATUS_UNKNOWN\";\n    }\n}\n\ntorch::Tensor matmul_transpose_cuda(torch::Tensor A, torch::Tensor B) {\n    // Ensure both tensors are on CUDA\n    TORCH_CHECK(A.device().is_cuda(), \"A must be a CUDA tensor\");\n    TORCH_CHECK(B.device().is_cuda(), \"B must be a CUDA tensor\");\n    \n    // Make tensors contiguous if they aren't already\n    if (!A.is_contiguous())\n        A = A.contiguous();\n    if (!B.is_contiguous())\n        B = B.contiguous();\n    \n    // Get dimensions\n    int K = A.size(0);\n    int M = A.size(1);\n    int N = B.size(1);\n    \n    // Check compatibility\n    TORCH_CHECK(B.size(0) == K, \"Incompatible matrix dimensions: A is (%d, %d), B is (%d, %d)\", K, M, B.size(0), N);\n    \n    // Create output tensor\n    auto C = torch::empty({M, N}, \n                         torch::TensorOptions()\n                         .dtype(A.dtype())\n                         .device(A.device()));\n    \n    // Get device index and stream\n    int device_idx = A.device().index();\n    cudaStream_t stream = c10::cuda::getCurrentCUDAStream(device_idx);\n    \n    // Create and set up cuBLAS handle\n    cublasHandle_t handle;\n    CUBLAS_CHECK(cublasCreate(&handle));\n    CUBLAS_CHECK(cublasSetStream(handle, stream));\n    \n    try {\n        // Perform the matrix multiplication: C = A.T * B\n        if (A.scalar_type() == torch::ScalarType::Float) {\n            float alpha = 1.0f;\n            float beta = 0.0f;\n            \n            // For C = A.T * B, using cuBLAS notation (column-major):\n            // This maps to C = gemm(B, A.T) = gemm(B, A, transA=true, transB=false)\n            cublasStatus_t status = cublasSgemm(\n                handle,\n                CUBLAS_OP_N,    // B is not transposed\n                CUBLAS_OP_T,    // A is transposed\n                N,              // Number of rows of matrix B and C\n                M,              // Number of columns of matrix A.T and C\n                K,              // Number of columns of matrix B and rows of matrix A\n                &alpha,\n                B.data_ptr<float>(), N,  // Leading dimension of B is N\n                A.data_ptr<float>(), M,  // Leading dimension of A is M\n                &beta,\n                C.data_ptr<float>(), N   // Leading dimension of C is N\n            );\n            \n            if (status != CUBLAS_STATUS_SUCCESS) {\n                std::stringstream ss;\n                ss << \"CUBLAS error: \" << cublasGetStatusString(status) \n                   << \" (code \" << status << \") in cublasSgemm\"\n                   << \" with shapes A(\" << K << \",\" << M << \"), B(\" << K << \",\" << N << \")\";\n                throw std::runtime_error(ss.str());\n            }\n        } \n        else if (A.scalar_type() == torch::ScalarType::Double) {\n            double alpha = 1.0;\n            double beta = 0.0;\n            \n            CUBLAS_CHECK(cublasDgemm(\n                handle,\n                CUBLAS_OP_N,    // B is not transposed\n                CUBLAS_OP_T,    // A is transposed\n                N, M, K,        // Dimensions\n                &alpha,\n                B.data_ptr<double>(), N,  // Leading dimension of B is N\n                A.data_ptr<double>(), M,  // Leading dimension of A is M\n                &beta,\n                C.data_ptr<double>(), N   // Leading dimension of C is N\n            ));\n        }\n        else if (A.scalar_type() == torch::ScalarType::Half) {\n            __half alpha = __float2half(1.0f);\n            __half beta = __float2half(0.0f);\n            \n            CUBLAS_CHECK(cublasHgemm(\n                handle,\n                CUBLAS_OP_N,    // B is not transposed\n                CUBLAS_OP_T,    // A is transposed\n                N, M, K,        // Dimensions\n                &alpha,\n                reinterpret_cast<const __half*>(B.data_ptr<at::Half>()), N,\n                reinterpret_cast<const __half*>(A.data_ptr<at::Half>()), M,\n                &beta,\n                reinterpret_cast<__half*>(C.data_ptr<at::Half>()), N\n            ));\n        }\n        else {\n            CUBLAS_CHECK(cublasDestroy(handle));\n            AT_ERROR(\"Unsupported data type. Only float, double, and half are supported.\");\n        }\n    } catch (const std::exception& e) {\n        // Clean up handle before re-throwing\n        cublasDestroy(handle);\n        throw;\n    }\n    \n    // Clean up\n    CUBLAS_CHECK(cublasDestroy(handle));\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_transpose_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\nmatmul_op = load_inline(\n    name=\"optimized_matmul\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_source,\n    functions=[\"matmul_transpose_cuda\"],\n    with_cuda=True,\n    extra_cuda_cflags=[\"-O3\"],\n    extra_ldflags=[\"-lcublas\"]\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A.T * B)\n    using cuBLAS through a custom CUDA implementation.\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (K, M).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Move tensors to CUDA if not already\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n        \n        return matmul_op.matmul_transpose_cuda(A, B)",
+  "duration_seconds": 1193.4035730361938,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.08758865248226952,
+      "feedback": "SUCCESS - Score (Speedup): 0.0876x\n\nCustom Kernel Runtime: 28.2000 \u03bcs\nReference Runtime: 2.4700 \u03bcs\nSpeedup: 0.0876x\nRuntime Stats: {'mean': 28.2, 'std': 0.00897, 'min': 28.2, 'max': 28.2, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom "
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 3,
+      "score": 0.09726562500000001,
+      "feedback": "SUCCESS - Score (Speedup): 0.0973x\n\nCustom Kernel Runtime: 25.6000 \u03bcs\nReference Runtime: 2.4900 \u03bcs\nSpeedup: 0.0973x\nRuntime Stats: {'mean': 25.6, 'std': 0.391, 'min': 24.9, 'max': 25.9, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_transpose'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose': [1/3] /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile --dependency-output cuda.cuda.o.d -DTORCH_EXTENSION_NAME=matmul_transpose -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Ben"
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_transpose': [1/3] c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=matmul_transpose -DTORCH_API_INCLUDE_EXTENSION_H -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include -isystem /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/KernelBench/.venv/lib/python3.13/site-packages/torch/include/torch/csrc"
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 151.265747. Average output differences: 22.438847. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computation logic, nume"
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE - SHAPE MISMATCH: The kernel output has incorrect dimensions. Expected shape: torch.Size([2048, 4096]), but got: torch.Size([4096, 2048]). Failed on trial 0 with seed 734796314. This indicates your kernel is not computing the correct output size. Check your kernel's output dimension calculations and tensor allocation. SPEEDUP"
+    },
+    {
+      "attempt": 16,
+      "score": 0.9429657794676807,
+      "feedback": "SUCCESS - Score (Speedup): 0.9430x\n\nCustom Kernel Runtime: 2.6300 \u03bcs\nReference Runtime: 2.4800 \u03bcs\nSpeedup: 0.9430x\nRuntime Stats: {'mean': 2.63, 'std': 0.00916, 'min': 2.61, 'max': 2.63, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom k"
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 0.237549. Average output differences: 0.186183. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computation logic, numeric"
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: builtins.RuntimeError\nError Details: CUBLAS error: 7\n\nDetailed Feedback:\nRUNTIME ERROR IN KERNEL EXECUTION: The kernel crashed during correctness testing on trial 0. Test seed: 734796314. Error type: builtins.RuntimeError. Error message: CUBLAS error: 7. The kernel fails when executing on actual inputs. Common causes: memory access violations, invalid operations, race conditions, incorrect thread inde"
+    },
+    {
+      "attempt": 19,
+      "score": 0.9431818181818182,
+      "feedback": "SUCCESS - Score (Speedup): 0.9432x\n\nCustom Kernel Runtime: 2.6400 \u03bcs\nReference Runtime: 2.4900 \u03bcs\nSpeedup: 0.9432x\nRuntime Stats: {'mean': 2.64, 'std': 0.00253, 'min': 2.64, 'max': 2.64, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom k"
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 145.376099. Average output differences: 22.478926. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computation logic, nume"
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 20,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
