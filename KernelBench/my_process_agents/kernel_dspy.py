@@ -228,7 +228,7 @@ def main():
                        help='LLM model name (e.g., claude-3.7-sonnet, gpt-4o)')
     
     # Optimization parameters
-    parser.add_argument('--max_attempts', type=int, default=10,
+    parser.add_argument('--max_attempts', type=int, default=20,
                        help='Maximum number of refinement attempts (default: 50)')
     parser.add_argument('--num_correct_trials', type=int, default=1,
                        help='Number of correctness trials (default: 1)')
@@ -297,7 +297,7 @@ def main():
     
     # Save result if requested
     if args.save_results:
-        save_dir = os.path.join(project_root, "results", "kernel_dspy")
+        save_dir = os.path.join(project_root, "results", "kernel_dspy_1")
         os.makedirs(save_dir, exist_ok=True)
         save_path = os.path.join(save_dir, f"dspy_task_{args.task_idx}_result.json")
         
