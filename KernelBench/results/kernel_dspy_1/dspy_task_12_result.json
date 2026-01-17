@@ -1,0 +1,116 @@
+{
+  "task_idx": 12,
+  "success": false,
+  "attempts": 20,
+  "best_score": 0.9245283018867924,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel using cuBLAS optimized for large matrix multiply\nmatmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n#include <cublas_v2.h>\n#include <c10/cuda/CUDAStream.h>\n\n#define CHECK_CUDA(x) TORCH_CHECK(x.is_cuda(), #x \" must be a CUDA tensor\")\n#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x \" must be contiguous\")\n#define CHECK_CUBLAS(func)                                                       \\\\\n    do {                                                                         \\\\\n        cublasStatus_t status = (func);                                          \\\\\n        if (status != CUBLAS_STATUS_SUCCESS) {                                   \\\\\n            printf(\"CUBLAS ERROR: Function %s failed with error code: %d\\\\n\",     \\\\\n                   #func, status);                                               \\\\\n            return torch::Tensor();                                              \\\\\n        }                                                                        \\\\\n    } while(0)\n\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B) {\n    // Input validation\n    CHECK_CUDA(A);\n    CHECK_CUDA(B);\n    CHECK_CONTIGUOUS(A);\n    CHECK_CONTIGUOUS(B);\n    \n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Check that inner dimensions match\n    if (A.size(1) != B.size(0)) {\n        AT_ERROR(\"Inner dimensions of A and B must match for matrix multiplication\");\n    }\n    \n    // Create output tensor\n    auto C = torch::empty({M, N}, A.options());\n    \n    // Get raw pointers\n    const float* A_data = A.data_ptr<float>();\n    const float* B_data = B.data_ptr<float>();\n    float* C_data = C.data_ptr<float>();\n    \n    // Create cuBLAS handle\n    cublasHandle_t handle;\n    CHECK_CUBLAS(cublasCreate(&handle));\n    \n    // Set cuBLAS stream to current CUDA stream\n    cudaStream_t stream = c10::cuda::getCurrentCUDAStream();\n    CHECK_CUBLAS(cublasSetStream(handle, stream));\n    \n    // Use regular precision (not tensor cores) for consistent results\n    CHECK_CUBLAS(cublasSetMathMode(handle, CUBLAS_DEFAULT_MATH));\n    \n    // Set up alpha and beta\n    const float alpha = 1.0f;\n    const float beta = 0.0f;\n    \n    // cuBLAS is column-major, so we need to compute C = B^T * A^T to get A * B\n    // This is because (A * B)^T = B^T * A^T\n    // Note: For SGEMM in cuBLAS: C = \u03b1 * op(A) * op(B) + \u03b2 * C\n    \n    // Since PyTorch tensors are row-major and cuBLAS expects column-major,\n    // we compute C = B^T * A^T as C^T = A * B\n    CHECK_CUBLAS(cublasSgemm(\n        handle,\n        CUBLAS_OP_N, CUBLAS_OP_N,  // No transposition needed here\n        N, M, K,                   // Dimensions for column-major output C = N\u00d7M\n        &alpha,\n        B_data, N,                 // B is K\u00d7N, but since it's column-major, lead dim is N\n        A_data, K,                 // A is M\u00d7K, but since it's column-major, lead dim is K\n        &beta,\n        C_data, N                  // C is M\u00d7N, but since it's column-major, lead dim is N\n    ));\n    \n    // Clean up\n    cublasDestroy(handle);\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code\noptimized_matmul = load_inline(\n    name=\"optimized_matmul\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_source,\n    functions=[\"matmul_cuda\"],\n    verbose=True,\n    extra_cuda_cflags=[\"-lcublas\"],  # Link against cuBLAS\n    extra_ldflags=[\"-lcublas\"]       # Link against cuBLAS\n)\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs matrix multiplication (C = A * B)\n    using a cuBLAS-based CUDA kernel optimized for large K dimensions\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n    \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs matrix multiplication of A and B using optimized cuBLAS.\n        \n        Args:\n            A: Input tensor of shape (M, K)\n            B: Input tensor of shape (K, N)\n            \n        Returns:\n            Output tensor of shape (M, N)\n        \"\"\"\n        # Move tensors to CUDA if they're not already there\n        if not A.is_cuda:\n            A = A.cuda()\n        if not B.is_cuda:\n            B = B.cuda()\n            \n        # Ensure inputs are contiguous\n        A = A.contiguous()\n        B = B.contiguous()\n        \n        return optimized_matmul.matmul_cuda(A, B)",
+  "duration_seconds": 805.6102135181427,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 625917568.000000. Average output differences: 477966144.000000. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computatio"
+    },
+    {
+      "attempt": 16,
+      "score": 0.09476190476190476,
+      "feedback": "SUCCESS - Score (Speedup): 0.0948x\n\nCustom Kernel Runtime: 21.0000 \u03bcs\nReference Runtime: 1.9900 \u03bcs\nSpeedup: 0.0948x\nRuntime Stats: {'mean': 21.0, 'std': 0.0128, 'min': 21.0, 'max': 21.0, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom k"
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.ImportError\nError Message: /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/external/KernelBench/cache/priority_search_trial/1/0/optimized_matmul/optimized_matmul.so: undefined symbol: _ZNK2at10TensorBase8data_ptrI6__halfEEPT_v\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.ImportError. Error message: /var/lib/condor/execute/slot1/dir_344830/scratch/Trace-Bench/external/Kern"
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 96.718750. Average output differences: 95.840782. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computation logic, numer"
+    },
+    {
+      "attempt": 19,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: Unknown\nError Details: Unknown error\n\nDetailed Feedback:\nCORRECTNESS FAILURE: Only 0 out of 1 trial(s) passed. 1 trial(s) failed. Issue: Output mismatch. Maximum output differences across failed trials: 977.437500. Average output differences: 179.709641. Tolerance threshold for torch.float32: \u00b10.0001. Your kernel is producing incorrect numerical results. Common causes: incorrect computation logic, num"
+    },
+    {
+      "attempt": 20,
+      "score": 0.9245283018867924,
+      "feedback": "SUCCESS - Score (Speedup): 0.9245x\n\nCustom Kernel Runtime: 2.1200 \u03bcs\nReference Runtime: 1.9600 \u03bcs\nSpeedup: 0.9245x\nRuntime Stats: {'mean': 2.12, 'std': 0.00639, 'min': 2.11, 'max': 2.13, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom k"
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 20,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
