@@ -1,0 +1,116 @@
+{
+  "task_idx": 13,
+  "success": false,
+  "attempts": 20,
+  "best_score": 0.4190243902439024,
+  "best_cuda_code": "import torch\nimport torch.nn as nn\nfrom torch.utils.cpp_extension import load_inline\n\n# Define the custom CUDA kernel for optimized matrix multiplication with small K dimension\nmatmul_source = \"\"\"\n#include <torch/extension.h>\n#include <cuda_runtime.h>\n\n// Optimized kernel for matrix multiplication with large M,N and small K dimensions\n// Each thread computes one output element without shared memory\n// Uses direct register blocking and vector loads where possible\n__global__ void matmul_small_k_kernel(\n    const float* __restrict__ A,\n    const float* __restrict__ B,\n    float* __restrict__ C,\n    const int M, const int N, const int K) {\n    \n    // Calculate global position\n    int row = blockIdx.y * blockDim.y + threadIdx.y;\n    int col = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    if (row < M && col < N) {\n        float sum = 0.0f;\n        \n        // Load A row directly from global memory\n        const float* A_row = A + row * K;\n        \n        // Process all K elements\n        #pragma unroll 8\n        for (int k = 0; k < K; ++k) {\n            // Load from B column (K*col + k)\n            sum += A_row[k] * B[k * N + col];\n        }\n        \n        // Write result\n        C[row * N + col] = sum;\n    }\n}\n\n// Thread coarsening - each thread computes 2x2 output elements to increase arithmetic intensity\n__global__ void matmul_small_k_coarse_kernel(\n    const float* __restrict__ A,\n    const float* __restrict__ B, \n    float* __restrict__ C,\n    const int M, const int N, const int K) {\n    \n    // Calculate base global position\n    int row_base = blockIdx.y * (blockDim.y * 2) + threadIdx.y * 2;\n    int col_base = blockIdx.x * (blockDim.x * 2) + threadIdx.x * 2;\n    \n    // Accumulate 2x2 block results\n    float sums[4] = {0.0f, 0.0f, 0.0f, 0.0f};\n    \n    // Only compute if at least partially in bounds\n    if (row_base < M && col_base < N) {\n        // Process K dimension\n        for (int k = 0; k < K; ++k) {\n            // Load A values (2 rows)\n            float a0 = (row_base < M) ? A[row_base * K + k] : 0.0f;\n            float a1 = (row_base + 1 < M) ? A[(row_base + 1) * K + k] : 0.0f;\n            \n            // Load B values (2 columns)\n            float b0 = (col_base < N) ? B[k * N + col_base] : 0.0f;\n            float b1 = (col_base + 1 < N) ? B[k * N + col_base + 1] : 0.0f;\n            \n            // Update 2x2 block\n            sums[0] += a0 * b0;  // row, col\n            sums[1] += a0 * b1;  // row, col+1\n            sums[2] += a1 * b0;  // row+1, col\n            sums[3] += a1 * b1;  // row+1, col+1\n        }\n        \n        // Write results if in bounds\n        if (row_base < M && col_base < N)\n            C[row_base * N + col_base] = sums[0];\n        \n        if (row_base < M && col_base + 1 < N)\n            C[row_base * N + col_base + 1] = sums[1];\n        \n        if (row_base + 1 < M && col_base < N)\n            C[(row_base + 1) * N + col_base] = sums[2];\n        \n        if (row_base + 1 < M && col_base + 1 < N)\n            C[(row_base + 1) * N + col_base + 1] = sums[3];\n    }\n}\n\n// Kernel that processes multiple elements per thread in the K dimension\n__global__ void matmul_small_k_vector_kernel(\n    const float* __restrict__ A,\n    const float* __restrict__ B,\n    float* __restrict__ C,\n    const int M, const int N, const int K) {\n    \n    // Calculate global position\n    int row = blockIdx.y * blockDim.y + threadIdx.y;\n    int col = blockIdx.x * blockDim.x + threadIdx.x;\n    \n    if (row < M && col < N) {\n        float sum = 0.0f;\n        \n        // Vector registers for better memory bandwidth utilization when K >= 4\n        float4 a_vals, b_vals;\n        \n        const float* A_row = A + row * K;\n        \n        // Process 4 elements at a time\n        int k = 0;\n        for (; k <= K-4; k += 4) {\n            // Load 4 consecutive elements\n            a_vals = *reinterpret_cast<const float4*>(&A_row[k]);\n            \n            // Load 4 elements from B with stride N\n            float b0 = B[k * N + col];\n            float b1 = B[(k+1) * N + col];\n            float b2 = B[(k+2) * N + col];\n            float b3 = B[(k+3) * N + col];\n            \n            // Dot product of 4 elements\n            sum += a_vals.x * b0;\n            sum += a_vals.y * b1;\n            sum += a_vals.z * b2;\n            sum += a_vals.w * b3;\n        }\n        \n        // Handle remaining elements\n        for (; k < K; ++k) {\n            sum += A_row[k] * B[k * N + col];\n        }\n        \n        // Write result\n        C[row * N + col] = sum;\n    }\n}\n\ntorch::Tensor matmul_small_k_cuda(torch::Tensor A, torch::Tensor B) {\n    // Get dimensions\n    int M = A.size(0);\n    int K = A.size(1);\n    int N = B.size(1);\n    \n    // Create output tensor\n    auto options = torch::TensorOptions().dtype(A.dtype()).device(A.device());\n    auto C = torch::zeros({M, N}, options);\n    \n    // Block and grid dimensions\n    constexpr int BLOCK_SIZE_X = 16;\n    constexpr int BLOCK_SIZE_Y = 16;\n    dim3 threads(BLOCK_SIZE_X, BLOCK_SIZE_Y);\n    \n    // Use thread coarsening when matrices are very large\n    if (M >= 1024 && N >= 1024) {\n        dim3 blocks((N + BLOCK_SIZE_X*2 - 1) / (BLOCK_SIZE_X*2), \n                   (M + BLOCK_SIZE_Y*2 - 1) / (BLOCK_SIZE_Y*2));\n        matmul_small_k_coarse_kernel<<<blocks, threads>>>(\n            A.data_ptr<float>(), B.data_ptr<float>(), C.data_ptr<float>(), M, N, K);\n    }\n    // Use vector loading for large matrices when K is sufficient\n    else if (K >= 4) {\n        dim3 blocks((N + BLOCK_SIZE_X - 1) / BLOCK_SIZE_X, \n                   (M + BLOCK_SIZE_Y - 1) / BLOCK_SIZE_Y);\n        matmul_small_k_vector_kernel<<<blocks, threads>>>(\n            A.data_ptr<float>(), B.data_ptr<float>(), C.data_ptr<float>(), M, N, K);\n    }\n    // Use simple kernel for small K\n    else {\n        dim3 blocks((N + BLOCK_SIZE_X - 1) / BLOCK_SIZE_X, \n                   (M + BLOCK_SIZE_Y - 1) / BLOCK_SIZE_Y);\n        matmul_small_k_kernel<<<blocks, threads>>>(\n            A.data_ptr<float>(), B.data_ptr<float>(), C.data_ptr<float>(), M, N, K);\n    }\n    \n    return C;\n}\n\"\"\"\n\nmatmul_cpp_source = \"\"\"\ntorch::Tensor matmul_small_k_cuda(torch::Tensor A, torch::Tensor B);\n\"\"\"\n\n# Compile the inline CUDA code for matrix multiplication\nmatmul_optimized = load_inline(\n    name=\"matmul_small_k\",\n    cpp_sources=matmul_cpp_source,\n    cuda_sources=matmul_source,\n    functions=[\"matmul_small_k_cuda\"],\n    verbose=True,\n)\n\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Optimized model that performs a single matrix multiplication (C = A * B) with a small K dimension\n    \"\"\"\n    def __init__(self):\n        super(ModelNew, self).__init__()\n        self.matmul_op = matmul_optimized\n        \n    def forward(self, A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Performs optimized matrix multiplication.\n\n        Args:\n            A: Input tensor of shape (M, K).\n            B: Input tensor of shape (K, N).\n\n        Returns:\n            Output tensor of shape (M, N).\n        \"\"\"\n        # Ensure tensors are on GPU and contiguous\n        A = A.cuda().contiguous() if not A.is_cuda else A.contiguous()\n        B = B.cuda().contiguous() if not B.is_cuda else B.contiguous()\n        \n        # Use our optimized CUDA kernel\n        return self.matmul_op.matmul_small_k_cuda(A, B)",
+  "duration_seconds": 1145.6389422416687,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: ModelNotFound\nError Message: The custom code did not define a 'ModelNew' class\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel code did not define a 'ModelNew' class. Your code must include a class named 'ModelNew' that inherits from nn.Module. Please check that your code includes the class definition and is not just a comment or empty code."
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: torch.AcceleratorError\nError Details: CUDA error: an illegal memory access was encountered\nSearch for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompi"
+    },
+    {
+      "attempt": 4,
+      "score": 0.28729096989966557,
+      "feedback": "SUCCESS - Score (Speedup): 0.2873x\n\nCustom Kernel Runtime: 29.9000 \u03bcs\nReference Runtime: 8.5900 \u03bcs\nSpeedup: 0.2873x\nRuntime Stats: {'mean': 29.9, 'std': 0.587, 'min': 29.4, 'max': 31.0, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 5,
+      "score": 0.35061224489795917,
+      "feedback": "SUCCESS - Score (Speedup): 0.3506x\n\nCustom Kernel Runtime: 24.5000 \u03bcs\nReference Runtime: 8.5900 \u03bcs\nSpeedup: 0.3506x\nRuntime Stats: {'mean': 24.5, 'std': 0.711, 'min': 23.7, 'max': 25.8, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:1'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 6,
+      "score": 0.13951219512195123,
+      "feedback": "SUCCESS - Score (Speedup): 0.1395x\n\nCustom Kernel Runtime: 61.5000 \u03bcs\nReference Runtime: 8.5800 \u03bcs\nSpeedup: 0.1395x\nRuntime Stats: {'mean': 61.5, 'std': 1.03, 'min': 61.0, 'max': 63.6, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ker"
+    },
+    {
+      "attempt": 7,
+      "score": 0.4190243902439024,
+      "feedback": "SUCCESS - Score (Speedup): 0.4190x\n\nCustom Kernel Runtime: 20.5000 \u03bcs\nReference Runtime: 8.5900 \u03bcs\nSpeedup: 0.4190x\nRuntime Stats: {'mean': 20.5, 'std': 0.586, 'min': 20.2, 'max': 21.7, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:0'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_small_k'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_small_k'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_small_k'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_small_k'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'matmul_cuda'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'matmul_cuda'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: builtins.AttributeError\nError Details: module 'custom_matmul' has no attribute 'matmul_cuda'\n\nDetailed Feedback:\nRUNTIME ERROR IN KERNEL EXECUTION: The kernel crashed during correctness testing on trial 0. Test seed: 734796314. Error type: builtins.AttributeError. Error message: module 'custom_matmul' has no attribute 'matmul_cuda'. The kernel fails when executing on actual inputs. Common causes: memo"
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: builtins.AttributeError\nError Details: module 'custom_matmul' has no attribute 'matmul_cuda'\n\nDetailed Feedback:\nRUNTIME ERROR IN KERNEL EXECUTION: The kernel crashed during correctness testing on trial 0. Test seed: 734796314. Error type: builtins.AttributeError. Error message: module 'custom_matmul' has no attribute 'matmul_cuda'. The kernel fails when executing on actual inputs. Common causes: memo"
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'custom_matmul'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'custom_matmul'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'custom_matmul'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'custom_matmul'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "feedback": "CORRECTNESS FAILURE - Score: 0.0\n\nThe kernel compiled but failed correctness tests.\nError Type: builtins.AttributeError\nError Details: module 'custom_matmul' has no attribute 'matmul_cuda_impl'\n\nDetailed Feedback:\nRUNTIME ERROR IN KERNEL EXECUTION: The kernel crashed during correctness testing on trial 0. Test seed: 734796314. Error type: builtins.AttributeError. Error message: module 'custom_matmul' has no attribute 'matmul_cuda_impl'. The kernel fails when executing on actual inputs. Common ca"
+    },
+    {
+      "attempt": 16,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'custom_matmul'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'custom_matmul'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    },
+    {
+      "attempt": 17,
+      "score": 0.2575301204819277,
+      "feedback": "SUCCESS - Score (Speedup): 0.2575x\n\nCustom Kernel Runtime: 33.2000 \u03bcs\nReference Runtime: 8.5500 \u03bcs\nSpeedup: 0.2575x\nRuntime Stats: {'mean': 33.2, 'std': 0.402, 'min': 32.5, 'max': 33.7, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:3'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 18,
+      "score": 0.020823244552058112,
+      "feedback": "SUCCESS - Score (Speedup): 0.0208x\n\nCustom Kernel Runtime: 413.0000 \u03bcs\nReference Runtime: 8.6000 \u03bcs\nSpeedup: 0.0208x\nRuntime Stats: {'mean': 413.0, 'std': 2.33, 'min': 411.0, 'max': 417.0, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:2'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom"
+    },
+    {
+      "attempt": 19,
+      "score": 0.2843853820598007,
+      "feedback": "SUCCESS - Score (Speedup): 0.2844x\n\nCustom Kernel Runtime: 30.1000 \u03bcs\nReference Runtime: 8.5600 \u03bcs\nSpeedup: 0.2844x\nRuntime Stats: {'mean': 30.1, 'std': 0.481, 'min': 29.7, 'max': 31.0, 'num_trials': 5, 'hardware': 'NVIDIA L40S', 'device': 'cuda:0'}\n\nDetailed Feedback:\nSUCCESS: All 1 correctness trial(s) passed! The kernel produces outputs that match the reference implementation within tolerance (\u00b10.0001) for the torch.float32 precision. The kernel is functionally correct. PERFORMANCE: Custom ke"
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "feedback": "COMPILATION FAILURE - Score: 0.0\n\nError Type: builtins.RuntimeError\nError Message: Error building extension 'custom_matmul_small_k'\n\nDetailed Feedback:\nCOMPILATION FAILED: The custom CUDA kernel failed to compile. Error type: builtins.RuntimeError. Error message: Error building extension 'custom_matmul_small_k'. Please check your kernel code for syntax errors, incorrect CUDA API usage, incompatible data types, or missing includes."
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.7-sonnet",
+    "max_attempts": 20,
+    "num_correct_trials": 1,
+    "num_perf_trials": 5
+  }
+}
