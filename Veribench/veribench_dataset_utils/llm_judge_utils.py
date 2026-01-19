@@ -34,6 +34,7 @@ existing VeriBench implementation.
 """
 
 import sys
+import os
 import re
 import json
 import logging
@@ -50,6 +51,7 @@ sys.path.insert(0, str(parent_dir))
 
 # Import secrets from my_processing_agents (if file exists)
 secrets_local_path = parent_dir / "my_processing_agents" / "secrets_local.py"
+secrets_local = None
 if secrets_local_path.exists():
     sys.path.insert(0, str(parent_dir / "my_processing_agents"))
     import secrets_local
@@ -59,9 +61,17 @@ veribench_root = parent_dir / "self-opt-data-gen" / "veribench_bundle"
 prompts_dir = veribench_root / "veribench_prompts" / "eval_prompts" / "file_equiv_prompts"
 
 # Initialize OpenAI client with custom endpoint
+# Use secrets_local if available, otherwise fall back to os.environ
+if secrets_local is not None:
+    base_url = secrets_local.os.environ.get('TRACE_CUSTOMLLM_URL', os.environ.get('TRACE_CUSTOMLLM_URL'))
+    api_key = secrets_local.os.environ.get('TRACE_CUSTOMLLM_API_KEY', os.environ.get('TRACE_CUSTOMLLM_API_KEY'))
+else:
+    base_url = os.environ.get('TRACE_CUSTOMLLM_URL')
+    api_key = os.environ.get('TRACE_CUSTOMLLM_API_KEY')
+
 client = OpenAI(
-    base_url=secrets_local.os.environ['TRACE_CUSTOMLLM_URL'],
-    api_key=secrets_local.os.environ['TRACE_CUSTOMLLM_API_KEY']
+    base_url=base_url,
+    api_key=api_key
 )
 
 
@@ -140,8 +150,15 @@ def simple_llm_judge(generated_code: str, golden_code: str, max_score: int = 30)
     #   response: str = call_llm_from_conv(conv, temperature=0.1, max_n_tokens=4000)
     # Note: We use OpenAI client directly instead of call_llm_from_conv wrapper
     # ========================================================================
+    # Get model name from secrets_local if available, otherwise from os.environ
+    model_name = None
+    if secrets_local is not None:
+        model_name = getattr(secrets_local, 'MODEL', None)
+    if model_name is None:
+        model_name = os.environ.get('MODEL', os.environ.get('TRACE_CUSTOMLLM_MODEL'))
+    
     response = client.chat.completions.create(
-        model=secrets_local.MODEL,
+        model=model_name,
         messages=conv,
         max_tokens=4000,      # From: max_n_tokens=4000
         temperature=0.1,      # From: temperature=0.1
