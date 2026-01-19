@@ -26,7 +26,7 @@ from opto.trainer.loggers import DefaultLogger, WandbLogger
 from opto.optimizers import OptoPrimeV2
 
 from my_processing_agents.solution_opt import extract_python_code, load_single_task
-from guide.guide import VeribenchGuide, VeribenchGuidewithUnitTests 
+from guide.guide import VeribenchGuide , VeribenchGuidewithUnitTests , VeribenchGuidewithLLMJudge
 import litellm
 litellm.drop_params = True
 litellm.suppress_debug_info = True
@@ -72,23 +72,23 @@ class LeanCodeAgent:
         return self.get_lean_code(task, self.lean_code)
 
 
-# def create_single_task_dataset(task_idx: int):
-#     """
-#     Create a dataset with a single task for PrioritySearch training.
+def create_single_task_dataset(task_idx: int):
+    """
+    Create a dataset with a single task for PrioritySearch training.
     
-#     Args:
-#         task_idx: Index of the task to load
+    Args:
+        task_idx: Index of the task to load
         
-#     Returns:
-#         Dictionary with 'inputs' (extracted Python code) and 'infos' (task ids)
-#     """
-#     task = load_single_task(task_idx)
-#     python_code = extract_python_code(task['user_query'])
-#     return {
-#         'inputs': [python_code],
-#         'infos': [task_idx]
-#     }
-from veribench_dataset_utils.create_datasets import create_single_task_dataset
+    Returns:
+        Dictionary with 'inputs' (extracted Python code) and 'infos' (task ids)
+    """
+    task = load_single_task(task_idx)
+    python_code = extract_python_code(task['user_query'])
+    return {
+        'inputs': [python_code],
+        'infos': [task_idx]
+    }
+# from veribench_dataset_utils.create_datasets import create_single_task_dataset
 
 
 def main():
@@ -100,13 +100,15 @@ def main():
     parser.add_argument('--num_proposals', type=int, default=1, help='Number of proposals for each candidate')
     parser.add_argument('--log_frequency', type=int, default=1, help='How often to log results')
     parser.add_argument('--test_frequency', type=int, default=None, help='How often to run evaluation')
-
+    parser.add_argument('--with_llm_judge', action='store_true', default=False,
+                       help='Whether to run with LLM judge')
     parser.add_argument('--algorithm', type=str, default='PS',choices=['PS','PS_Summarizer','PS_epsNet_Summarizer','PS_epsNet'], help='Algorithm to use')
 
     parser.add_argument('--epsilon', type=float, default=0.1, help='Epsilon value for EpsilonNetPS')
 
     parser.add_argument('--with_unit_tests', action='store_true', default=False,
                        help='Whether to run with unit tests')
+
     # Logger parameters
     parser.add_argument('--use_wandb', action='store_true', default=False,
                        help='Whether to use Weights & Biases for logging')
@@ -127,7 +129,7 @@ def main():
     print(f"Loading task {task_idx} from Veribench dataset...")
     task = load_single_task(task_idx)
     user_query = task['user_query']
-    python_program = extract_python_code(user_query)
+    # python_program = extract_python_code(user_query)
     print(f"Task loaded successfully. Task ID: {task['task_id']}")
     
     # Step 2: Initialize the agent with a dummy Lean code string
@@ -162,7 +164,9 @@ If a theorem keeps giving error, you can use := sorry to skip it.
 """
 
     # Step 5: Initialize guide and logger
-    if args.with_unit_tests:
+    if args.with_LLM_judge:
+        guide = VeribenchGuidewithLLMJudge()
+    elif args.with_unit_tests:
         guide = VeribenchGuidewithUnitTests()
     else:
         guide = VeribenchGuide()
@@ -200,8 +204,10 @@ If a theorem keeps giving error, you can use := sorry to skip it.
 
     # Algorithm selection
     if args.algorithm == 'PS':
-        from opto.features.priority_search.priority_search import PS_veribench 
+        from opto.features.priority_search.priority_search_ablation import PS_veribench 
         algorithm = PS_veribench(
+            epsilon=0,
+            use_summarizer=False,
             agent=agent,
             optimizer=optimizer,
             logger=logger,
@@ -254,6 +260,7 @@ If a theorem keeps giving error, you can use := sorry to skip it.
         num_threads=num_threads,
         num_eval_samples=1,
         validate_exploration_candidates=False,
+        use_best_candidate_to_explore=False,
         num_candidates=args.num_candidates,
         num_proposals=num_proposals,
         score_function='mean',

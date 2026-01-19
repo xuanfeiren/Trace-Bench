@@ -1,5 +1,5 @@
-# Optimize a single Lean solution using DSPy GEPA
-# The Lean code is optimized as a text string based on compilation feedback
+# Optimize a single Lean solution using DSPy GEPA with LLM Judge
+# The Lean code is optimized as a text string based on compilation feedback + LLM judge
 
 import sys
 import os
@@ -22,7 +22,7 @@ import dspy
 from dspy.teleprompt import GEPA
 
 from my_processing_agents.solution_opt import extract_python_code, load_single_task
-from guide.guide import VeribenchGuide
+from guide.guide import VeribenchGuidewithLLMJudge as VeribenchGuide
 
 from gepa.utils.stop_condition import StopperProtocol
 
@@ -38,16 +38,28 @@ from my_processing_agents import secrets_local  # Load environment variables
 from my_processing_agents.system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES
 
 # Custom instructions for DSPy signature
-GENERATOR_INSTRUCTIONS = f"""Generate complete, compilable Lean 4 code that translates the given Python program.
+GENERATOR_INSTRUCTIONS = f"""Your task is to produce valid Lean 4 code that correctly translates a Python program.
+
+The feedback contains:
+- Compilation result (30% of score)
+- Unit test result (30% of score)
+- LLM judge semantic equivalence score (40% of score)
+
+Goal: Maximize the score to 1.0.
+- Generate a complete Lean 4 translation from the Python program.
+
+Key rules:
+- Preserve the algorithm logic from the Python program
+- Use correct Lean 4 syntax and type annotations
+- Output only valid Lean 4 code
+
+Original System and User Prompts which may be helpful:
 
 {SYSTEM_PROMPT_WITH_EXAMPLES}
 
-Requirements:
-- Generate COMPLETE Lean 4 code (not partial or commented code)
-- Use correct Lean 4 syntax and type annotations
-- Preserve the algorithm logic from Python
-- Include all necessary imports, functions, and test cases
-- Use ':= sorry' for complex proofs if needed
+The translated Lean 4 code should be a faithful representation of the Python code.
+It should be correct and compiles.
+If a theorem keeps giving error, you can use := sorry to skip it.
 """
 
 # Global guide for metric
@@ -141,7 +153,7 @@ class LeanTranslator(dspy.Module):
 
 def gepa_metric(gold, pred, trace=None, pred_name=None, pred_trace=None):
     """
-    DSPy metric that evaluates Lean code compilation.
+    DSPy metric that evaluates Lean code with LLM judge.
 
     Args:
         gold: Example with python_program input
@@ -159,12 +171,14 @@ def gepa_metric(gold, pred, trace=None, pred_name=None, pred_trace=None):
     # Extract inputs and outputs
     python_program = gold.python_program
     lean_code = pred.lean_code
+    task_idx = gold.task_id if hasattr(gold, 'task_id') else None
 
-    # Evaluate the Lean code using VeribenchGuide
+    # Evaluate the Lean code using VeribenchGuide with LLM judge
     try:
         score, feedback = _GLOBAL_GUIDE.get_feedback(
             task=python_program,
-            response=lean_code
+            response=lean_code,
+            info=task_idx
         )
     except Exception as e:
         score = 0.0
@@ -306,7 +320,7 @@ def process_iteration_trace(iteration_trace, gepa_result, initial_seed_score):
 def main():
     global _GLOBAL_GUIDE
 
-    parser = argparse.ArgumentParser(description='Optimize Lean solution using DSPy GEPA')
+    parser = argparse.ArgumentParser(description='Optimize Lean solution using DSPy GEPA with LLM Judge')
     parser.add_argument('--task_idx', type=int, default=2,
                        help='Task index from Veribench dataset')
     parser.add_argument('--model', type=str, default='claude-3.5-sonnet',
@@ -327,18 +341,18 @@ def main():
     # Logging parameters
     parser.add_argument('--use_wandb', action='store_true', default=False,
                        help='Use Weights & Biases for logging')
-    parser.add_argument('--project', type=str, default='veribench-gepa',
+    parser.add_argument('--project', type=str, default='veribench-gepa-llmjudge',
                        help='WandB project name')
     parser.add_argument('--run_name', type=str, default=None,
-                       help='WandB run name (default: gepa_task_{task_idx})')
-    parser.add_argument('--log_dir', type=str, default='results/gepa_1',
+                       help='WandB run name (default: gepa_llmjudge_task_{task_idx})')
+    parser.add_argument('--log_dir', type=str, default='results_llm_judge/gepa',
                        help='Directory for GEPA logs and snapshots')
     parser.add_argument('--log_frequency', type=int, default=1,
                        help='Save snapshots every N iterations')
     parser.add_argument('--save_results', action='store_true', default=True,
                        help='Save results to JSON file (default: True)')
-    parser.add_argument('--save_name', type=str, default='gepa_1',
-                       help='Name of the result directory (default: gepa_1)')
+    parser.add_argument('--save_name', type=str, default='gepa',
+                       help='Name of the result directory (default: gepa)')
 
     args = parser.parse_args()
 
@@ -391,8 +405,8 @@ def main():
     print(python_program[:500] + ("..." if len(python_program) > 500 else ""))
     print("=" * 70)
 
-    # Initialize Guide
-    print("\nInitializing VeribenchGuide...")
+    # Initialize Guide with LLM Judge
+    print("\nInitializing VeribenchGuide with LLM Judge...")
     _GLOBAL_GUIDE = VeribenchGuide()
 
     # Create dataset
@@ -445,11 +459,10 @@ def main():
         wandb_init_kwargs={'project': args.project, 'name': run_name} if args.use_wandb else None,
         log_dir=log_dir,  # Unique timestamped directory, no resume
         log_frequency=args.log_frequency,
-        # Perfect score configuration
-        perfect_score=1.0,  # Define what perfect means (1.0 = successful Lean compilation)
-        skip_perfect_score=True,  # Skip perfect examples during reflection for efficiency
-        # Pass custom stoppers via gepa_kwargs
-        # PerfectScoreStopper will halt optimization when score=1.0 is achieved
+        # Early stopping when perfect score is reached
+        perfect_score=1.0,
+        skip_perfect_score=True,
+        # Pass custom stoppers (like max_iterations) via gepa_kwargs
         gepa_kwargs=gepa_kwargs,
     )
 
@@ -464,6 +477,7 @@ def main():
     # Extract results from GEPA (stored in optimized_program.detailed_results when track_stats=True)
     gepa_result = optimized_program.detailed_results
 
+    best_score = gepa_result.val_aggregate_scores[gepa_result.best_idx]
     # Get initial seed score (first candidate, index 0)
     initial_seed_score = gepa_result.val_aggregate_scores[0] if gepa_result.val_aggregate_scores else 0.0
 
@@ -514,10 +528,7 @@ def main():
         best_instruction = GENERATOR_INSTRUCTIONS
 
     # Always save summary
-    os.makedirs('results', exist_ok=True)
-
-    # Initialize best_score - will be updated from iteration history if available
-    best_score = gepa_result.val_aggregate_scores[gepa_result.best_idx] if gepa_result.val_aggregate_scores else 0.0
+    os.makedirs('results_llm_judge', exist_ok=True)
 
     # Get success metric call if successful
     success_at = None
@@ -528,8 +539,8 @@ def main():
 
     name = args.save_name
     # Minimal summary saved always (even with early stopping)
-    os.makedirs(f"results/{name}", exist_ok=True)
-    summary_path = f"results/{name}/gepa_task_{args.task_idx}_summary.json"
+    os.makedirs(f"results_llm_judge/{name}", exist_ok=True)
+    summary_path = f"results_llm_judge/{name}/gepa_task_{args.task_idx}_summary.json"
 
     # Determine if early stopping occurred
     early_stopped = best_score >= 1.0
@@ -553,7 +564,7 @@ def main():
 
     # Full result with iteration history
     if args.save_results:
-        save_path = f"results/{name}/task_{args.task_idx}_result.json"
+        save_path = f"results_llm_judge/{name}/task_{args.task_idx}_result.json"
 
         # Build basic iteration history from discoveries (backwards compatible)
         history = []

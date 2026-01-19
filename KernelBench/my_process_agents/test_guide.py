@@ -12,7 +12,7 @@ def test_guide():
     ex1 = examples[0]
     ref_arch_src = ex1['ref_arch_src']
     # custom_cuda = open("my_process_agents/level1_prob1_cuda_custom_cuda_gpt5_example.txt").read()
-    custom_cuda = open("my_process_agents/error_response_1766337130.394024.txt").read()
+    custom_cuda = open("my_process_agents/error_response.txt").read()
     score, feedback = guide.get_feedback(
         task=ex1['input'],
         response=custom_cuda,

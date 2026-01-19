@@ -13,7 +13,12 @@ Usage:
 
 import sys
 import json
+import logging
 from pathlib import Path
+
+# Suppress HTTP request logs from OpenAI/httpx
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("openai").setLevel(logging.WARNING)
 
 # Add parent directory (veribench_dataset_utils) to path
 parent_dir = Path(__file__).resolve().parent.parent

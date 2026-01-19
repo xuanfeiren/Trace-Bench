@@ -36,8 +36,13 @@ existing VeriBench implementation.
 import sys
 import re
 import json
+import logging
 from pathlib import Path
 from openai import OpenAI
+
+# Suppress HTTP request logs from OpenAI/httpx
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("openai").setLevel(logging.WARNING)
 
 # Add parent directory to path
 parent_dir = Path(__file__).resolve().parent.parent

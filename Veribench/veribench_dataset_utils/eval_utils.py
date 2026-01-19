@@ -4,11 +4,30 @@ This file contains utility functions for evaluating the performance of the model
 
 import sys
 import tempfile
+import logging
 from pathlib import Path
 import requests
-# from opto.trainer.guide import Guide
+
+# Suppress HTTP request logs from OpenAI/httpx
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("openai").setLevel(logging.WARNING)
+
+# Setup paths for imports
+_current_file = Path(__file__).resolve()
+_veribench_dataset_utils = _current_file.parent
+_project_root = _veribench_dataset_utils.parent
+
+# Add project root to path for imports
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+if str(_project_root / "my_processing_agents") not in sys.path:
+    sys.path.insert(0, str(_project_root / "my_processing_agents"))
+
+# Now import
 from my_processing_agents.lean_interpretor import lean_interpreter
-# from opto.optimizers.utils import print_color
+
+# Try to import print_color, fall back to print if not available
+from opto.optimizers.utils import print_color
 
 # Setup VeriBench paths for unit test integration (done at module level)
 _veribench_root = Path(__file__).resolve().parent.parent / "self-opt-data-gen" / "veribench_bundle"
@@ -287,3 +306,132 @@ def _extract_implementation_robust(lean_code: str) -> str:
         i += 1
     
     return '\n'.join(extracted) 
+
+
+from llm_judge_utils import judge_generated_code
+
+def evaluate(task_id: int, lean_code: str) -> tuple:
+    """
+    Evaluate the generated Lean code using 3-step pipeline.
+    
+    Steps:
+    1. Compile the generated code
+    2. Run unit tests from golden reference
+    3. Use LLM judge to score semantic equivalence
+    
+    Args:
+        task_id: Task ID (0-139)
+        lean_code: Generated Lean code
+        
+    Returns:
+        tuple: (final_score, feedback)
+            - final_score: float (0.3*compile + 0.3*unit_tests + 0.4*llm_judge)
+            - feedback: str (descriptive feedback about the evaluation)
+    """
+    # step 1: compile
+    compilation_score, compilation_feedback = compile(lean_code)
+    if compilation_score == 1.0:
+        # print_color("Lean code compiled successfully.", "green")
+        pass
+    else:
+        # print_color("Lean code compilation failed.", "red")
+        # print_color(compilation_feedback, "red")
+        feedback = f"The original code failed to compile. Feedback from the compilation: {compilation_feedback}"
+        return compilation_score, feedback
+    
+    # step 2: unit tests
+    lean_code_with_unit_tests = combine_code_with_tests(task_id, lean_code)
+    # print_color("Lean code with unit tests: ", "green")
+    # print_color(lean_code_with_unit_tests, "yellow")
+    unit_tests_score, unit_tests_feedback = compile(lean_code_with_unit_tests)
+    if unit_tests_score == 1.0:
+        pass
+    else:
+        # print_color("Unit tests failed.", "red")
+        # print_color(unit_tests_feedback, "red")
+        unit_tests_feedback = f"The Lean code compiled successfully, but it failed the unit tests from the golden reference. This means the implementation logic is incorrect or incomplete. Please fix the code to match the expected behavior.\n\nUnit test compilation errors:\n{unit_tests_feedback}"
+        # pass compilation but not unit tests, the score should be 0.3
+        return 0.3, unit_tests_feedback
+    
+    # step 3: LLM judge
+    # Note: Pass the ORIGINAL lean_code, not the combined code with unit tests
+    # The LLM judge should compare the generated implementation vs golden reference
+    results = judge_generated_code(task_id, lean_code, max_score=30)
+    # extract the normalized score and rationale
+    LLM_judge_score = results['normalized_score']
+    LLM_judge_rationale = results['rationale']
+
+    feedback = f"The original code passed compilation and unit tests. We use a LLM judge to score the semantic equivalence between the golden reference and the generated Lean 4 code. Rationale from the LLM judge: {LLM_judge_rationale}"
+
+    final_score = 0.3 * compilation_score + 0.3 * unit_tests_score + 0.4 * LLM_judge_score
+
+    return final_score, feedback
+
+def main():
+    """
+    Main function to evaluate the generated Lean code.
+    """
+    task_id = 2
+    generated_code = """/-!
+# CountingSort Implementation
+
+This module implements counting sort algorithm for lists of natural numbers.
+-/
+
+namespace CountingSort
+
+/--
+Counting sort implementation that sorts a list of natural numbers.
+It counts occurrences of each element and uses this to place elements in sorted order.
+-/
+def countingSort (arr : List Nat) : List Nat := Id.run do
+  match arr with
+  | [] => []
+  | _ => 
+    let maxVal := arr.foldl max 0
+    -- Create count array initialized to 0s
+    let mut count := mkArray (maxVal + 1) 0
+    -- Count occurrences
+    for x in arr do
+      count := count.modify x (· + 1)
+    -- Build result by expanding counts
+    let mut result := []
+    for i in [:maxVal + 1] do
+      let cnt := count[i]!
+      result := result ++ List.replicate cnt i
+    return result
+
+/-- Returns true if list is sorted in ascending order -/
+def isSorted : List Nat → Bool
+| [] => true  
+| [_] => true
+| x :: y :: xs => x ≤ y && isSorted (y :: xs)
+
+/-- Returns number of occurrences of element in list -/
+def countOccurrences (xs : List Nat) (x : Nat) : Nat :=
+  xs.filter (· = x) |>.length
+
+/-- Returns true if two lists are permutations of each other -/
+def isPerm (xs ys : List Nat) : Bool :=
+  xs.length = ys.length && 
+  (xs.foldl (fun acc x => acc && countOccurrences ys x = countOccurrences xs x) true)
+
+/-- Pre-condition: list contains natural numbers (always true by type system) -/
+def Pre (arr : List Nat) : Prop := True 
+
+/-- Post-condition: output list is sorted and is a permutation of input -/
+def Post (arr result : List Nat) : Prop :=
+  isSorted result ∧ isPerm arr result 
+
+/-- Correctness theorem -/
+theorem correctness (arr : List Nat) (h : Pre arr) :
+  Post arr (countingSort arr) := sorry
+
+end CountingSort
+"""
+    final_score, feedback = evaluate(task_id, generated_code)
+    print(f"Final score: {final_score}")
+    print(f"Feedback: {feedback}")
+
+if __name__ == "__main__":
+    main()

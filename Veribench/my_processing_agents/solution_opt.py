@@ -41,7 +41,7 @@ litellm.suppress_debug_info = True
 # os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
 from my_processing_agents import secrets_local  # Load environment variables from gitignored file
 # from optimize_veribench_agent import VeribenchGuide
-from guide.guide import WebGuide as VeribenchGuide
+# from guide.guide import WebGuide as VeribenchGuide
 
 def load_single_task(task_idx: int = 0) -> Dict[str, Any]:
     """

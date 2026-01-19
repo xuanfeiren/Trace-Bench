@@ -2,19 +2,34 @@ import sys
 import tempfile
 from pathlib import Path
 import requests
-from opto.trainer.guide import Guide
-from my_processing_agents.lean_interpretor import lean_interpreter
-from opto.optimizers.utils import print_color
+
+# Setup paths BEFORE importing project modules
+_guide_dir = Path(__file__).resolve().parent
+_project_root = _guide_dir.parent
+_veribench_dataset_utils = _project_root / "veribench_dataset_utils"
+
+# Add project root to path for my_processing_agents import
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
 # Setup VeriBench paths for unit test integration (done at module level)
-_veribench_root = Path(__file__).resolve().parent.parent / "self-opt-data-gen" / "veribench_bundle"
+_veribench_root = _project_root / "self-opt-data-gen" / "veribench_bundle"
 _py_src = _veribench_root / "veribench_dataset" / "py_src"
 _experiments_path = _veribench_root / "experiments" / "12_unit_test_accuracy"
+
+# Add veribench_dataset_utils to path for eval_utils import
+if str(_veribench_dataset_utils) not in sys.path:
+    sys.path.insert(0, str(_veribench_dataset_utils))
 
 if str(_py_src) not in sys.path:
     sys.path.insert(0, str(_py_src))
 if str(_experiments_path) not in sys.path:
     sys.path.insert(0, str(_experiments_path))
+
+# Now import project modules that depend on the paths
+from opto.trainer.guide import Guide
+from my_processing_agents.lean_interpretor import lean_interpreter
+from opto.optimizers.utils import print_color
 
 # VeriBench utilities will be imported lazily in functions to avoid dependency issues
 
@@ -109,21 +124,21 @@ def compile(response):
     except Exception as e:
         print_color(f"Error: {e}", "red")
         raise e
-        error_str = str(e)
-        # Check for system errors that should be raised, not returned as feedback
-        system_errors = [
-            "event loop is already running",
-            "event loop",
-            "asyncio",
-            "RuntimeError",
-        ]
-        if any(err.lower() in error_str.lower() for err in system_errors):
-            print_color(f"System error (not a Lean compilation error): {error_str}. This is likely due to asyncio conflicts.", "red")
-            raise RuntimeError(
-                f"System error (not a Lean compilation error): {error_str}. "
-                "This is likely due to asyncio conflicts."
-            ) from e
-        return 0.0, f"Error occurred: {error_str}. Please fix the error and try again."
+        # error_str = str(e)
+        # # Check for system errors that should be raised, not returned as feedback
+        # system_errors = [
+        #     "event loop is already running",
+        #     "event loop",
+        #     "asyncio",
+        #     "RuntimeError",
+        # ]
+        # if any(err.lower() in error_str.lower() for err in system_errors):
+        #     print_color(f"System error (not a Lean compilation error): {error_str}. This is likely due to asyncio conflicts.", "red")
+        #     raise RuntimeError(
+        #         f"System error (not a Lean compilation error): {error_str}. "
+        #         "This is likely due to asyncio conflicts."
+        #     ) from e
+        # return 0.0, f"Error occurred: {error_str}. Please fix the error and try again."
 
 class VeribenchGuide(Guide):
     """
@@ -133,8 +148,6 @@ class VeribenchGuide(Guide):
 
     def __init__(self):
         super().__init__()
-
-    
 
     def get_feedback(self, task, response, info=None, **kwargs):
         """
@@ -378,121 +391,134 @@ class VeribenchGuidewithUnitTests(VeribenchGuide):
         score, _ = self.get_feedback(task, response, info, **kwargs)
         return score
 
-
-
-class WebGuide(Guide):
+from eval_utils import evaluate
+class VeribenchGuidewithLLMJudge(VeribenchGuide):
     """
-    Guide that uses a web server to evaluate Veribench responses.
-    Calls the Lean Feedback Server via HTTP to get compilation feedback.
-    
-    This avoids asyncio conflicts by delegating Lean compilation to a separate process.
-    
-    Usage:
-        # First start the server:
-        # uv run python webserver/lean_feedback_server.py --port 8000
-        
-        guide = WebGuide(server_url="http://localhost:8000")
-        score, feedback = guide.get_feedback(task, response)
+    Guide that uses LLM Judge to evaluate Veribench responses.
     """
-
-    def __init__(self, server_url: str = "http://localhost:8000", timeout: int = 20):
-        """
-        Initialize WebGuide.
-        
-        Args:
-            server_url: URL of the Lean Feedback Server
-            timeout: Request timeout in seconds (default 70, Lean Server has 60s internal timeout)
-        """
+    def __init__(self):
         super().__init__()
-        self.server_url = server_url.rstrip("/")
-        self.timeout = timeout
     
-    def _check_server(self) -> bool:
-        """Check if the server is running."""
-        try:
-            response = requests.get(f"{self.server_url}/health", timeout=5)
-            return response.status_code == 200
-        except requests.exceptions.RequestException:
-            return False
-
     def get_feedback(self, task, response, info=None, **kwargs):
-        """
-        Get feedback from the agent's Lean code response via web server.
+        """Get feedback from the agent's Lean code response."""
+        task_id = info
+        score, feedback = evaluate(task_id, response)
+        print_color(f"Score: {score}", "yellow")
+        return score, feedback
+
+# class WebGuide(Guide):
+#     """
+#     Guide that uses a web server to evaluate Veribench responses.
+#     Calls the Lean Feedback Server via HTTP to get compilation feedback.
+    
+#     This avoids asyncio conflicts by delegating Lean compilation to a separate process.
+    
+#     Usage:
+#         # First start the server:
+#         # uv run python webserver/lean_feedback_server.py --port 8000
         
-        Args:
-            task: The task being evaluated (user query)
-            response: The LLM-generated Lean code response
-            info: Additional info (optional)
-            
-        Returns:
-            Tuple of (score, feedback)
-        """
-        try:
-            # Call the web server
-            http_response = requests.post(
-                f"{self.server_url}/feedback",
-                json={
-                    "lean_code": response,
-                    "remove_import_errors": True
-                },
-                timeout=self.timeout
-            )
-            
-            if http_response.status_code != 200:
-                error_detail = http_response.json().get("detail", "Unknown error")
-                return 0.0, f"Server error ({http_response.status_code}): {error_detail}"
-            
-            data = http_response.json()
-            score = data["score"]
-            feedback = data["feedback"]
-            
-            print_color(feedback, "yellow")
-            return score, feedback
+#         guide = WebGuide(server_url="http://localhost:8000")
+#         score, feedback = guide.get_feedback(task, response)
+#     """
 
-        except requests.exceptions.ConnectionError:
-            error_msg = (
-                f"Cannot connect to Lean Feedback Server at {self.server_url}. "
-                "Please start the server first:\n"
-                "  uv run python webserver/lean_feedback_server.py --port 8000"
-            )
-            print_color(error_msg, "red")
-            return 0.0, error_msg
+#     def __init__(self, server_url: str = "http://localhost:8000", timeout: int = 20):
+#         """
+#         Initialize WebGuide.
         
-        except requests.exceptions.Timeout:
-            error_msg = f"""Compilation TIMEOUT after {self.timeout} seconds.
+#         Args:
+#             server_url: URL of the Lean Feedback Server
+#             timeout: Request timeout in seconds (default 70, Lean Server has 60s internal timeout)
+#         """
+#         super().__init__()
+#         self.server_url = server_url.rstrip("/")
+#         self.timeout = timeout
+    
+#     def _check_server(self) -> bool:
+#         """Check if the server is running."""
+#         try:
+#             response = requests.get(f"{self.server_url}/health", timeout=5)
+#             return response.status_code == 200
+#         except requests.exceptions.RequestException:
+#             return False
 
-        This usually means the Lean code contains constructs that are extremely slow to compile:
-
-        COMMON CAUSES:
-        1. 'native_decide' tactic - This executes code at compile time and is VERY slow for recursive functions
-        2. 'decide' on large data - Similar issue with compile-time evaluation
-        3. Complex recursive functions without 'termination_by' - Lean struggles to prove termination
-
-        HOW TO FIX:
-        1. Replace 'native_decide' with 'sorry' or 'rfl' where applicable
-        2. Use '#eval!' instead of 'example ... := by native_decide' for testing
-        3. Add 'termination_by <measure>' and 'decreasing_by all_goals sorry' for recursive functions
-        4. Simplify proofs - use 'sorry' as placeholder for complex theorems
-
-        EXAMPLE FIX:
-        -- BAD (causes timeout):
-        example : myFunc #[1,2,3] = some 1 := by native_decide
+#     def get_feedback(self, task, response, info=None, **kwargs):
+#         """
+#         Get feedback from the agent's Lean code response via web server.
         
-        -- GOOD (fast):
-        #eval! myFunc #[1,2,3]  -- just evaluate, don't prove
-        -- OR
-        example : myFunc #[1,2,3] = some 1 := sorry  -- placeholder proof
-        """
-            print_color(f"TIMEOUT: {self.timeout}s exceeded", "red")
-            print_color(f'Lean code that caused timeout: {response}', "red")
-            return 0.0, error_msg
+#         Args:
+#             task: The task being evaluated (user query)
+#             response: The LLM-generated Lean code response
+#             info: Additional info (optional)
             
-        except Exception as e:
-            error_str = str(e)
-            print_color(f"WebGuide error: {error_str}", "red")
-            return 0.0, f"Error occurred: {error_str}. Please fix the error and try again."
+#         Returns:
+#             Tuple of (score, feedback)
+#         """
+#         try:
+#             # Call the web server
+#             http_response = requests.post(
+#                 f"{self.server_url}/feedback",
+#                 json={
+#                     "lean_code": response,
+#                     "remove_import_errors": True
+#                 },
+#                 timeout=self.timeout
+#             )
+            
+#             if http_response.status_code != 200:
+#                 error_detail = http_response.json().get("detail", "Unknown error")
+#                 return 0.0, f"Server error ({http_response.status_code}): {error_detail}"
+            
+#             data = http_response.json()
+#             score = data["score"]
+#             feedback = data["feedback"]
+            
+#             print_color(feedback, "yellow")
+#             return score, feedback
 
-    def metric(self, task, response, info=None, **kwargs):
-        """Metric for the agent's performance."""
-        score, _ = self.get_feedback(task, response, info, **kwargs)
-        return score
+#         except requests.exceptions.ConnectionError:
+#             error_msg = (
+#                 f"Cannot connect to Lean Feedback Server at {self.server_url}. "
+#                 "Please start the server first:\n"
+#                 "  uv run python webserver/lean_feedback_server.py --port 8000"
+#             )
+#             print_color(error_msg, "red")
+#             return 0.0, error_msg
+        
+#         except requests.exceptions.Timeout:
+#             error_msg = f"""Compilation TIMEOUT after {self.timeout} seconds.
+
+#         This usually means the Lean code contains constructs that are extremely slow to compile:
+
+#         COMMON CAUSES:
+#         1. 'native_decide' tactic - This executes code at compile time and is VERY slow for recursive functions
+#         2. 'decide' on large data - Similar issue with compile-time evaluation
+#         3. Complex recursive functions without 'termination_by' - Lean struggles to prove termination
+
+#         HOW TO FIX:
+#         1. Replace 'native_decide' with 'sorry' or 'rfl' where applicable
+#         2. Use '#eval!' instead of 'example ... := by native_decide' for testing
+#         3. Add 'termination_by <measure>' and 'decreasing_by all_goals sorry' for recursive functions
+#         4. Simplify proofs - use 'sorry' as placeholder for complex theorems
+
+#         EXAMPLE FIX:
+#         -- BAD (causes timeout):
+#         example : myFunc #[1,2,3] = some 1 := by native_decide
+        
+#         -- GOOD (fast):
+#         #eval! myFunc #[1,2,3]  -- just evaluate, don't prove
+#         -- OR
+#         example : myFunc #[1,2,3] = some 1 := sorry  -- placeholder proof
+#         """
+#             print_color(f"TIMEOUT: {self.timeout}s exceeded", "red")
+#             print_color(f'Lean code that caused timeout: {response}', "red")
+#             return 0.0, error_msg
+            
+#         except Exception as e:
+#             error_str = str(e)
+#             print_color(f"WebGuide error: {error_str}", "red")
+#             return 0.0, f"Error occurred: {error_str}. Please fix the error and try again."
+
+#     def metric(self, task, response, info=None, **kwargs):
+#         """Metric for the agent's performance."""
+#         score, _ = self.get_feedback(task, response, info, **kwargs)
+#         return score
