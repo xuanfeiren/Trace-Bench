@@ -25,3 +25,5 @@ my_plots/
 my_process_data/
 
 self-opt-data-gen/
+
+*.bin
