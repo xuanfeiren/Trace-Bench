@@ -39,7 +39,10 @@ litellm.suppress_debug_info = True
 
 
 # os.environ["TRACE_LITELLM_MODEL"] = "gemini/gemini-2.5-flash-lite"
-from my_processing_agents import secrets_local  # Load environment variables from gitignored file
+# Load environment variables from gitignored file (if it exists)
+secrets_local_path = os.path.join(os.path.dirname(__file__), 'secrets_local.py')
+if os.path.exists(secrets_local_path):
+    from my_processing_agents import secrets_local
 # from optimize_veribench_agent import VeribenchGuide
 # from guide.guide import WebGuide as VeribenchGuide
 

@@ -31,7 +31,10 @@ import litellm
 litellm.drop_params = True
 litellm.suppress_debug_info = True
 
-from my_processing_agents import secrets_local  # Load environment variables from gitignored file
+# Load environment variables from gitignored file (if it exists)
+secrets_local_path = os.path.join(os.path.dirname(__file__), 'secrets_local.py')
+if os.path.exists(secrets_local_path):
+    from my_processing_agents import secrets_local
 from my_processing_agents.system_prompts import SYSTEM_PROMPT, EXAMPLES, SYSTEM_PROMPT_WITH_EXAMPLES
 
 @trace.model
