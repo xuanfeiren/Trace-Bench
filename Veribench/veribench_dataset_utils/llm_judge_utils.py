@@ -48,9 +48,11 @@ logging.getLogger("openai").setLevel(logging.WARNING)
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(parent_dir))
 
-# Import secrets from my_processing_agents
-sys.path.insert(0, str(parent_dir / "my_processing_agents"))
-import secrets_local
+# Import secrets from my_processing_agents (if file exists)
+secrets_local_path = parent_dir / "my_processing_agents" / "secrets_local.py"
+if secrets_local_path.exists():
+    sys.path.insert(0, str(parent_dir / "my_processing_agents"))
+    import secrets_local
 
 # Prompt directory (file is in veribench_dataset_utils/)
 veribench_root = parent_dir / "self-opt-data-gen" / "veribench_bundle"
