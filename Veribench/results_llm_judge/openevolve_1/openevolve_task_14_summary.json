@@ -1,11 +1,11 @@
 {
   "task_idx": 14,
   "task_id": 14,
-  "success": false,
-  "final_score": 0.9733333333333334,
+  "success": true,
+  "final_score": 1.0,
   "num_metric_calls": 50,
-  "success_at_metric_call": null,
-  "duration_seconds": 1165.7163653373718,
+  "success_at_metric_call": 19,
+  "duration_seconds": 1422.8953607082367,
   "model": "claude-3.5-sonnet",
   "method": "openevolve"
 }
