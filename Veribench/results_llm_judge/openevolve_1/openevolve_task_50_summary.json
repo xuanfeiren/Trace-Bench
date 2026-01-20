@@ -1,0 +1,11 @@
+{
+  "task_idx": 50,
+  "task_id": 50,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 47,
+  "duration_seconds": 1190.6751425266266,
+  "model": "claude-3.5-sonnet",
+  "method": "openevolve"
+}
