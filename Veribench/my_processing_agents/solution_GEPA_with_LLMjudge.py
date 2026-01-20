@@ -33,8 +33,11 @@ litellm.suppress_debug_info = True
 # Add retry logic for rate limiting errors
 litellm.num_retries = 3  # Retry up to 3 times
 litellm.request_timeout = 300  # 5 minute timeout per request
-
-from my_processing_agents import secrets_local  # Load environment variables
+try:
+    from my_processing_agents import secrets_local  # Load environment variables
+except ImportError:
+    print("secrets_local not found, using local secrets")
+    pass
 from my_processing_agents.system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES
 
 # Custom instructions for DSPy signature
