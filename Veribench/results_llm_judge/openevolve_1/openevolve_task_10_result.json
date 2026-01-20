@@ -1,0 +1,371 @@
+{
+  "task_idx": 10,
+  "task_id": 10,
+  "success": false,
+  "final_score": 0.3,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "/-!\n# List Parity Calculator\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n- Function requires all inputs to be even integers\n-/\n\nnamespace ListParity\n\n/-- Checks if a number is even -/\ndef isEven (n : Int) : Bool :=\n  n % 2 = 0\n\n/-- Verifies all elements in list are even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/--\nReturns the parity of sum of even integers.\nAlways returns 0 since sum of evens is even.\nThrows error if list contains non-even integers.\n-/\ndef prog (xs : List Int) : Int :=\n  match xs with\n  | [] => 0  -- Empty list case\n  | _  => if pre xs then 0 else panic! \"All elements must be even integers\"\n\n/-! Unit Tests -/\n\n/-- Empty list returns 0 -/\nexample : prog [] = 0 := by rfl\n#eval prog [] -- expected: 0\n\n/-- Single even number returns 0 -/\nexample : prog [2] = 0 := by rfl\n#eval prog [2] -- expected: 0\n\n/-- Multiple even numbers return 0 -/\nexample : prog [2, 4, 6] = 0 := by rfl\n#eval prog [2, 4, 6] -- expected: 0\n\n/-- Negative even numbers return 0 -/\nexample : prog [-2, -4] = 0 := by rfl\n#eval prog [-2, -4] -- expected: 0\n\n/-! Properties and Theorems -/\n\n/-- Empty list property -/\ntheorem empty_list_prop : prog [] = 0 := by rfl\n\n/-- Even list property -/\ntheorem even_list_prop (xs : List Int) (h : pre xs) :\n  prog xs = 0 := by\n  cases xs with\n  | nil => rfl\n  | cons _ _ => simp [prog, h]\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Int) :\n  pre xs \u2192 prog xs = 0 := by\n  intro h\n  exact even_list_prop xs h\n\nend ListParity",
+  "duration_seconds": 697.6119713783264,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 3
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 4
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 5
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 6
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 7
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 8
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 9
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 10
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 11
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 12
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 13
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 14
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 15
+    },
+    {
+      "attempt": 16,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 16
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 17
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 18
+    },
+    {
+      "attempt": 19,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 19
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 20
+    },
+    {
+      "attempt": 21,
+      "score": 0.3,
+      "best_score": 0.3,
+      "is_new_best": true,
+      "iteration_found": 21
+    },
+    {
+      "attempt": 22,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 22
+    },
+    {
+      "attempt": 23,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 23
+    },
+    {
+      "attempt": 24,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 24
+    },
+    {
+      "attempt": 25,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 25
+    },
+    {
+      "attempt": 26,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 26
+    },
+    {
+      "attempt": 27,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 27
+    },
+    {
+      "attempt": 28,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 28
+    },
+    {
+      "attempt": 29,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 29
+    },
+    {
+      "attempt": 30,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 30
+    },
+    {
+      "attempt": 31,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 31
+    },
+    {
+      "attempt": 32,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 32
+    },
+    {
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 33
+    },
+    {
+      "attempt": 34,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 34
+    },
+    {
+      "attempt": 35,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 35
+    },
+    {
+      "attempt": 36,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 36
+    },
+    {
+      "attempt": 37,
+      "score": 0.3,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 37
+    },
+    {
+      "attempt": 38,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 38
+    },
+    {
+      "attempt": 39,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 39
+    },
+    {
+      "attempt": 40,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 40
+    },
+    {
+      "attempt": 41,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 41
+    },
+    {
+      "attempt": 42,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 42
+    },
+    {
+      "attempt": 43,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 43
+    },
+    {
+      "attempt": 44,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 44
+    },
+    {
+      "attempt": 45,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 45
+    },
+    {
+      "attempt": 46,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 46
+    },
+    {
+      "attempt": 47,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 47
+    },
+    {
+      "attempt": 48,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 48
+    },
+    {
+      "attempt": 49,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 49
+    },
+    {
+      "attempt": 50,
+      "score": 0.0,
+      "best_score": 0.3,
+      "is_new_best": false,
+      "iteration_found": 50
+    }
+  ],
+  "metrics": {
+    "combined_score": 0.3
+  },
+  "settings": {
+    "model": "claude-3.5-sonnet",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}
