@@ -1,0 +1,421 @@
+{
+  "task_idx": 27,
+  "task_id": 27,
+  "success": false,
+  "final_score": 0.8,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix",
+  "duration_seconds": 832.0288524627686,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 3,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 4,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 5,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 6,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 7,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 8,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 9,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 10,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 11,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 12,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 13,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 14,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 15,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 16,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 16,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 17,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 18,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 19,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 19,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 20,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 21,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 21,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 22,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 22,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 23,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 23,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 24,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 24,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 25,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 25,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 26,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 26,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 27,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 27,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 28,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 28,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 29,
+      "score": 0.8,
+      "best_score": 0.8,
+      "is_new_best": true,
+      "iteration_found": 29,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 30,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 30,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 31,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 31,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 32,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 32,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 33,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 34,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 34,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 35,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 35,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 36,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 36,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 37,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 37,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 38,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 38,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 39,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 39,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 40,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 40,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 41,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 41,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 42,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 42,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 43,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 43,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 44,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 44,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 45,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 45,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 46,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 46,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 47,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 47,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 48,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 48,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 49,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 49,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    },
+    {
+      "attempt": 50,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 50,
+      "best_lean_program": "/-!\n# Longest Common Prefix\n\nFinds the longest common prefix among an array of strings.\n\nEdge cases:\n- Empty list returns empty string\n- List must contain only strings\n-/\n\nnamespace LongestCommonPrefix\n\n/--\nFind the longest common prefix among an array of strings.\n\nExamples:\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- \"fl\"\n#eval longestCommonPrefix [] -- \"\"\n-/\ndef longestCommonPrefix (strs : List String) : String :=\n  match strs with\n  | [] => \"\"\n  | first :: rest =>\n    let minLen := rest.foldl (fun acc s => min acc s.length) first.length\n    let rec findPrefix (len : Nat) : String :=\n      if len = 0 then \n        \"\"\n      else\n        let candidate := first.take len\n        if rest.all (\u00b7.startsWith candidate) then\n          candidate\n        else\n          findPrefix (len - 1)\n    findPrefix minLen\n\n/-! Unit Tests -/\n\nexample : longestCommonPrefix [] = \"\" := by native_decide\n#eval longestCommonPrefix [] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"hello\"] = \"hello\" := by native_decide\n#eval longestCommonPrefix [\"hello\"] -- Expected: \"hello\"\n\nexample : longestCommonPrefix [\"flower\", \"flow\", \"flight\"] = \"fl\" := by native_decide\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"] -- Expected: \"fl\"\n\nexample : longestCommonPrefix [\"dog\", \"cat\", \"bird\"] = \"\" := by native_decide\n#eval longestCommonPrefix [\"dog\", \"cat\", \"bird\"] -- Expected: \"\"\n\nexample : longestCommonPrefix [\"test\", \"test\", \"test\"] = \"test\" := by native_decide\n#eval longestCommonPrefix [\"test\", \"test\", \"test\"] -- Expected: \"test\"\n\n/-! Properties and Theorems -/\n\n/-- Empty list produces empty string -/\ntheorem empty_list_empty_result :\n  longestCommonPrefix [] = \"\" := by native_decide\n\n/-- Single string returns itself -/\ntheorem single_string_returns_itself (s : String) :\n  longestCommonPrefix [s] = s := by\n  simp [longestCommonPrefix]\n  sorry\n\n/-- The result is a prefix of all input strings -/\ntheorem result_is_prefix_of_all (strs : List String) :\n  let result := longestCommonPrefix strs\n  strs.all (\u00b7.startsWith result) := by\n  match strs with\n  | [] => simp [longestCommonPrefix]\n  | _ :: _ => sorry\n\nend LongestCommonPrefix"
+    }
+  ],
+  "metrics": {
+    "combined_score": 0.8
+  },
+  "settings": {
+    "model": "claude-3.5-sonnet",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}
