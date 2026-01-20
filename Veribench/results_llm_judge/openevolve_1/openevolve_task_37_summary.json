@@ -2,10 +2,10 @@
   "task_idx": 37,
   "task_id": 37,
   "success": false,
-  "final_score": 0.84,
+  "final_score": 0.8,
   "num_metric_calls": 50,
   "success_at_metric_call": null,
-  "duration_seconds": 915.2111835479736,
+  "duration_seconds": 784.1945495605469,
   "model": "claude-3.5-sonnet",
   "method": "openevolve"
 }
