@@ -1,0 +1,175 @@
+{
+  "task_idx": 43,
+  "task_id": 43,
+  "success": false,
+  "early_stopped": false,
+  "final_score": 0.8133333333333334,
+  "num_metric_calls": 50,
+  "num_iterations_total": 19,
+  "num_candidates_discovered": 12,
+  "success_at_metric_call": null,
+  "duration_seconds": 1109.0177600383759,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 2,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0
+    },
+    {
+      "iteration": 3,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 10,
+      "calls_this_iter": 4,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.7333333333333333
+    },
+    {
+      "iteration": 4,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 4,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.7066666666666667
+    },
+    {
+      "iteration": 5,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 6,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 7,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 22,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.7066666666666667
+    },
+    {
+      "iteration": 8,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 26,
+      "calls_this_iter": 4,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0
+    },
+    {
+      "iteration": 9,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 30,
+      "calls_this_iter": 4,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.6799999999999999
+    },
+    {
+      "iteration": 10,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 34,
+      "calls_this_iter": 4,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.64
+    },
+    {
+      "iteration": 11,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 38,
+      "calls_this_iter": 4,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.7066666666666667
+    },
+    {
+      "iteration": 12,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 41,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 13,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 44,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.7066666666666667
+    },
+    {
+      "iteration": 14,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 47,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 15,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 49,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 16,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 52,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.64
+    },
+    {
+      "iteration": 17,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 55,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 18,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 57,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null
+    },
+    {
+      "iteration": 19,
+      "best_score_so_far": 0.8133333333333334,
+      "num_metric_calls_so_far": 60,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.7333333333333333
+    }
+  ],
+  "settings": {
+    "model": "anthropic/claude-3.5-sonnet",
+    "max_iterations": null,
+    "max_metric_calls_budget": 50,
+    "reflection_minibatch_size": 1,
+    "num_threads": 5,
+    "perfect_score_stopping_enabled": true
+  }
+}
