@@ -396,6 +396,8 @@ def main():
     # Logging parameters
     parser.add_argument('--save_results', action='store_true', default=False,
                        help='Save full results (default: only summary)')
+    parser.add_argument('--run_num', type=int, default=1,
+                       help='Run number (default: 1)')
     
     args = parser.parse_args()
     
@@ -497,8 +499,9 @@ def main():
         print(f"\nSaved summary to {summary_path}")
         
         # Save full result if requested
+        run_num = args.run_num
         if args.save_results:
-            full_result_path = f"results_llm_judge/openevolve_1/openevolve_task_{args.task_idx}_result.json"
+            full_result_path = f"results_llm_judge/openevolve_{run_num}/openevolve_task_{args.task_idx}_result.json"
             
             result_data = {
                 'task_idx': args.task_idx,
