@@ -298,6 +298,27 @@ If a theorem keeps giving error, you can use := sorry to skip it."""
     return config
 
 
+def extract_lean_code_from_program(program_text: str) -> str:
+    """
+    Extract Lean code from program text (between evolve markers).
+    
+    Args:
+        program_text: Full program text with markers
+        
+    Returns:
+        Extracted Lean code
+    """
+    start_marker = "# EVOLVE-BLOCK-START"
+    end_marker = "# EVOLVE-BLOCK-END"
+    
+    if start_marker in program_text and end_marker in program_text:
+        lean_code = program_text.split(start_marker)[1].split(end_marker)[0].strip()
+        return lean_code
+    else:
+        # Fallback: return entire text
+        return program_text.strip()
+
+
 def extract_evolution_history(output_dir: str) -> tuple[int, list]:
     """
     Extract evolution history from OpenEvolve output by reading all program files.
@@ -307,7 +328,7 @@ def extract_evolution_history(output_dir: str) -> tuple[int, list]:
         
     Returns:
         Tuple of (num_metric_calls, history_list)
-        history_list contains: [{'attempt': i, 'score': s, 'best_score': bs}, ...]
+        history_list contains: [{'attempt': i, 'score': s, 'best_score': bs, 'best_lean_program': code}, ...]
     """
     history = []
     num_metric_calls = 0
@@ -342,20 +363,31 @@ def extract_evolution_history(output_dir: str) -> tuple[int, list]:
                     programs_sorted = sorted(all_programs, key=lambda p: p.get('iteration_found', 0))
                     num_metric_calls = len(programs_sorted)
                     
-                    # Build history with best score tracking
+                    # Build history with best score tracking and best program
                     best_score_so_far = 0.0
+                    best_lean_program = "-- No code generated yet"
+                    
                     for i, prog in enumerate(programs_sorted, 1):
                         score = prog.get('metrics', {}).get('combined_score', 0.0)
                         is_new_best = score > best_score_so_far
+                        
+                        # Update best program if this is better
                         if is_new_best:
                             best_score_so_far = score
+                            # Extract Lean code from program text
+                            program_text = prog.get('code', prog.get('program_text', ''))
+                            if program_text:
+                                best_lean_program = extract_lean_code_from_program(program_text)
+                            else:
+                                best_lean_program = "-- Code not available"
                         
                         history.append({
                             'attempt': i,
                             'score': score,
                             'best_score': best_score_so_far,
                             'is_new_best': is_new_best,
-                            'iteration_found': prog.get('iteration_found', 0)
+                            'iteration_found': prog.get('iteration_found', 0),
+                            'best_lean_program': best_lean_program,
                         })
                     
                     print(f"Extracted {len(history)} programs from OpenEvolve checkpoint (last iteration: {last_checkpoint_num})")
@@ -501,6 +533,7 @@ def main():
         # Save full result if requested
         run_num = args.run_num
         if args.save_results:
+            os.makedirs(f'results_llm_judge/openevolve_{run_num}', exist_ok=True)
             full_result_path = f"results_llm_judge/openevolve_{run_num}/openevolve_task_{args.task_idx}_result.json"
             
             result_data = {
