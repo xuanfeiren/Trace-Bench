@@ -6,7 +6,7 @@
   "num_metric_calls": 50,
   "success_at_metric_call": null,
   "best_lean_code": "# Python program being translated (for context):\n# Task: Translate the following Python code to Lean 4\n#\n# \"\"\"Return the first character of a non-empty string.\n# \n# Edge cases:\n# - Single character strings return that character.\n# - The function raises ValueError if the string is empty or not a string.\n# \"\"\"\n# \n# def pre(s: str) -> bool:\n#     \"\"\"True iff the input is a non-empty string.\"\"\"\n#     return isinstance(s, str) and len(s) > 0\n# \n# def prog(s: str) -> str:\n#     \"\"\"\n#     Return the first character of s for non-empty strings.\n#     Raises ValueError if the precondition is violated.\n#     \"\"\"\n#     if not pre(s):\n#         r...\n\n# EVOLVE-BLOCK-START\n-- Lean 4 translation of the Python program\n# EVOLVE-BLOCK-END\n",
-  "duration_seconds": 674.854513168335,
+  "duration_seconds": 1197.4017570018768,
   "history": [
     {
       "attempt": 1,
