@@ -1,0 +1,11 @@
+{
+  "task_idx": 18,
+  "task_id": 18,
+  "success": false,
+  "final_score": 0.8,
+  "num_metric_calls": 51,
+  "success_at_metric_call": null,
+  "duration_seconds": 1444.9292669296265,
+  "model": "anthropic/claude-3.5-sonnet",
+  "early_stopped": false
+}
