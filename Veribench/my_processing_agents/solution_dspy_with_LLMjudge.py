@@ -210,6 +210,8 @@ def sequential_optimization(
             'best_score': best_score,
             'is_new_best': is_new_best,
             'feedback': feedback[:500],  # Truncate for storage
+            'lean_code': lean_code,  # Current lean code generated at this step
+            'best_lean_code': best_lean_code,  # Best lean code so far at this step
         })
         
         # Print score information
