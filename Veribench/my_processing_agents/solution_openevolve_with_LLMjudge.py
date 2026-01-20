@@ -29,9 +29,11 @@ from my_processing_agents.system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES
 import litellm
 litellm.drop_params = True
 litellm.suppress_debug_info = True
-
-from my_processing_agents import secrets_local  # Load environment variables
-
+try:
+    from my_processing_agents import secrets_local  # Load environment variables
+except ImportError:
+    print("secrets_local not found, using local secrets")
+    pass
 
 def write_initial_lean_program(temp_dir: str, python_program: str, task_idx: int) -> str:
     """
