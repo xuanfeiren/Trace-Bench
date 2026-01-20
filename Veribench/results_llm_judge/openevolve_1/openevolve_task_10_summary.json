@@ -5,7 +5,7 @@
   "final_score": 0.92,
   "num_metric_calls": 50,
   "success_at_metric_call": null,
-  "duration_seconds": 1306.6942517757416,
+  "duration_seconds": 1162.1091976165771,
   "model": "claude-3.5-sonnet",
   "method": "openevolve"
 }
