@@ -29,8 +29,11 @@ litellm.suppress_debug_info = True
 # Add retry logic for rate limiting errors
 litellm.num_retries = 3
 litellm.request_timeout = 300
-
-from my_processing_agents import secrets_local  # Load environment variables
+try:
+    from my_processing_agents import secrets_local  # Load environment variables
+except ImportError:
+    print("secrets_local not found, using local secrets")
+    pass
 from my_processing_agents.system_prompts import SYSTEM_PROMPT_WITH_EXAMPLES
 
 
