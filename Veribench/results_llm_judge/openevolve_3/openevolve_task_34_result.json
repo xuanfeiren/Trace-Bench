@@ -1,0 +1,421 @@
+{
+  "task_idx": 34,
+  "task_id": 34,
+  "success": false,
+  "final_score": 0.76,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree",
+  "duration_seconds": 868.5337023735046,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 3,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 4,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 5,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 6,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 7,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 8,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 8,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 9,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 10,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 10,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 11,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 12,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 12,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 13,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 13,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 14,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 15,
+      "best_lean_program": "-- No code generated yet"
+    },
+    {
+      "attempt": 16,
+      "score": 0.76,
+      "best_score": 0.76,
+      "is_new_best": true,
+      "iteration_found": 16,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 17,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 17,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 18,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 19,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 19,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 20,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 21,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 21,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 22,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 22,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 23,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 23,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 24,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 24,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 25,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 25,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 26,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 26,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 27,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 27,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 28,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 28,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 29,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 29,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 30,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 30,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 31,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 31,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 32,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 32,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 33,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 34,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 34,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 35,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 35,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 36,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 36,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 37,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 37,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 38,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 38,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 39,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 39,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 40,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 40,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 41,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 41,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 42,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 42,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 43,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 43,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 44,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 44,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 45,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 45,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 46,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 46,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 47,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 47,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 48,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 48,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 49,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 49,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    },
+    {
+      "attempt": 50,
+      "score": 0.0,
+      "best_score": 0.76,
+      "is_new_best": false,
+      "iteration_found": 50,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Works with positive and negative integers\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\nReturn four times the absolute difference between `a` and `b`, then add three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 2 2 = 3\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int := \n  let diff := a - b\n  let absDiff := if diff < 0 then -diff else diff\n  4 * absDiff + 3\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: 7 and 2 should return 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n\n/-- Edge case: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 2 2 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 2 -- expected: 3\n\n/-- Test with negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by native_decide\n#eval quadrupleAbsDiffPlusThree (-3) 1 -- expected: 19\n\n/-- Test commutativity: order doesn't matter -/\nexample : quadrupleAbsDiffPlusThree 1 5 = quadrupleAbsDiffPlusThree 5 1 := by native_decide\n#eval quadrupleAbsDiffPlusThree 1 5 -- expected: 19\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem result_ge_three (a b : Int) : quadrupleAbsDiffPlusThree a b \u2265 3 := by\n  sorry\n\n/-- Property: Function is symmetric -/\ntheorem symmetric (a b : Int) : \n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by\n  sorry\n\n/-- Property: Equal inputs return 3 -/\ntheorem equal_inputs (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by\n  sorry\n\nend QuadrupleAbsDiffPlusThree"
+    }
+  ],
+  "metrics": {
+    "combined_score": 0.76
+  },
+  "settings": {
+    "model": "claude-3.5-sonnet",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}
