@@ -268,6 +268,8 @@ def main():
     # Logging parameters
     parser.add_argument('--save_results', action='store_true', default=False,
                        help='Save results to JSON file (default: False)')
+    parser.add_argument('--run_num', type=int, default=1,
+                       help='Run number (default: 1)')
     
     args = parser.parse_args()
     
@@ -321,10 +323,10 @@ def main():
     )
     
     duration = time.time() - start_time
-    
+    run_num = args.run_num
     # Save result if requested
     if args.save_results:
-        save_path = f"results_llm_judge/dspy_1/dspy_task_{args.task_idx}_result.json"
+        save_path = f"results_llm_judge/dspy_{run_num}/dspy_task_{args.task_idx}_result.json"
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
         result_data = {
