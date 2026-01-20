@@ -1,0 +1,371 @@
+{
+  "task_idx": 12,
+  "task_id": 12,
+  "success": false,
+  "final_score": 0.8933333333333333,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "/-!\n# String Length Function\n\nReturns the number of characters in a string.\n\nEdge cases:\n- Empty string has length 0\n-/\n\nnamespace StringLength\n\n/--\nReturns the length of a string.\n\n## Examples\n#eval stringLength \"hello\" -- expected: 5\n#eval stringLength \"\" -- expected: 0\n-/\ndef stringLength (s : String) : Nat := \n  s.length\n\n/-!\n# Tests\n-/\n\n/-- Basic test: length of \"hello\" is 5 -/\nexample : stringLength \"hello\" = 5 := by native_decide\n#eval stringLength \"hello\" -- expected: 5\n\n/-- Test with empty string -/\nexample : stringLength \"\" = 0 := by native_decide\n#eval stringLength \"\" -- expected: 0\n\n/-- Test with single character -/\nexample : stringLength \"a\" = 1 := by native_decide\n#eval stringLength \"a\" -- expected: 1\n\n/-- Test with spaces -/\nexample : stringLength \"  \" = 2 := by native_decide\n#eval stringLength \"  \" -- expected: 2\n\n/-!\n# Properties\n-/\n\n/-- Property: Length is always non-negative -/\ntheorem length_nonnegative (s : String) : stringLength s \u2265 0 := by\n  unfold stringLength\n  exact Nat.zero_le s.length\n\n/-- Property: Empty string has length 0 -/\ntheorem empty_string_length : stringLength \"\" = 0 := by\n  unfold stringLength\n  rfl\n\n/-- Property: Length of concatenated strings equals sum of lengths -/\ntheorem concat_length (s\u2081 s\u2082 : String) : \n  stringLength (s\u2081 ++ s\u2082) = stringLength s\u2081 + stringLength s\u2082 := by\n  unfold stringLength\n  exact String.length_append s\u2081 s\u2082\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using character iteration.\n-/\ndef stringLengthImp (s : String) : Nat :=\n  Id.run do\n    let mut count := 0\n    for _ in s.data do\n      count := count + 1\n    return count\n\n/-!\n# Pre-Condition\n-/\n\n/-- Pre-condition: input must be a string (always true in Lean) -/\ndef Pre (s : String) : Prop := True\n\n/-!\n# Post-Condition\n-/\n\n/-- Post-condition: string length satisfies basic properties -/\ndef Post (s : String) : Prop :=\n  (stringLength s \u2265 0) \u2227 \n  (s = \"\" \u2192 stringLength s = 0)\n\n/-- Correctness theorem: string length function satisfies post-condition -/\ntheorem correctness (s : String) : Post s := by\n  constructor\n  \u00b7 exact length_nonnegative s\n  \u00b7 intro h\n    rw [h]\n    exact empty_string_length\n\n/-- Equivalence theorem: functional and imperative implementations coincide -/\ntheorem implementation_equivalence (s : String) :\n  stringLength s = stringLengthImp s := by sorry\n\nend StringLength",
+  "duration_seconds": 1029.2342777252197,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2
+    },
+    {
+      "attempt": 3,
+      "score": 0.8,
+      "best_score": 0.8,
+      "is_new_best": true,
+      "iteration_found": 3
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 4
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 5
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 6
+    },
+    {
+      "attempt": 7,
+      "score": 0.84,
+      "best_score": 0.84,
+      "is_new_best": true,
+      "iteration_found": 7
+    },
+    {
+      "attempt": 8,
+      "score": 0.84,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 8
+    },
+    {
+      "attempt": 9,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 9
+    },
+    {
+      "attempt": 10,
+      "score": 0.8,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 10
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 11
+    },
+    {
+      "attempt": 12,
+      "score": 0.84,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 12
+    },
+    {
+      "attempt": 13,
+      "score": 0.8,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 13
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 14
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 15
+    },
+    {
+      "attempt": 16,
+      "score": 0.84,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 16
+    },
+    {
+      "attempt": 17,
+      "score": 0.84,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 17
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 18
+    },
+    {
+      "attempt": 19,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 19
+    },
+    {
+      "attempt": 20,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 20
+    },
+    {
+      "attempt": 21,
+      "score": 0.0,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 21
+    },
+    {
+      "attempt": 22,
+      "score": 0.84,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 22
+    },
+    {
+      "attempt": 23,
+      "score": 0.8,
+      "best_score": 0.84,
+      "is_new_best": false,
+      "iteration_found": 23
+    },
+    {
+      "attempt": 24,
+      "score": 0.8666666666666667,
+      "best_score": 0.8666666666666667,
+      "is_new_best": true,
+      "iteration_found": 24
+    },
+    {
+      "attempt": 25,
+      "score": 0.8,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 25
+    },
+    {
+      "attempt": 26,
+      "score": 0.0,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 26
+    },
+    {
+      "attempt": 27,
+      "score": 0.0,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 27
+    },
+    {
+      "attempt": 28,
+      "score": 0.8,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 28
+    },
+    {
+      "attempt": 29,
+      "score": 0.8,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 29
+    },
+    {
+      "attempt": 30,
+      "score": 0.8,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 30
+    },
+    {
+      "attempt": 31,
+      "score": 0.8666666666666667,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 31
+    },
+    {
+      "attempt": 32,
+      "score": 0.0,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 32
+    },
+    {
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 0.8666666666666667,
+      "is_new_best": false,
+      "iteration_found": 33
+    },
+    {
+      "attempt": 34,
+      "score": 0.8799999999999999,
+      "best_score": 0.8799999999999999,
+      "is_new_best": true,
+      "iteration_found": 34
+    },
+    {
+      "attempt": 35,
+      "score": 0.8666666666666667,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 35
+    },
+    {
+      "attempt": 36,
+      "score": 0.8666666666666667,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 36
+    },
+    {
+      "attempt": 37,
+      "score": 0.8666666666666667,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 37
+    },
+    {
+      "attempt": 38,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 38
+    },
+    {
+      "attempt": 39,
+      "score": 0.8933333333333333,
+      "best_score": 0.8933333333333333,
+      "is_new_best": true,
+      "iteration_found": 39
+    },
+    {
+      "attempt": 40,
+      "score": 0.8,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 40
+    },
+    {
+      "attempt": 41,
+      "score": 0.8933333333333333,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 41
+    },
+    {
+      "attempt": 42,
+      "score": 0.0,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 42
+    },
+    {
+      "attempt": 43,
+      "score": 0.0,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 43
+    },
+    {
+      "attempt": 44,
+      "score": 0.8933333333333333,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 44
+    },
+    {
+      "attempt": 45,
+      "score": 0.0,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 45
+    },
+    {
+      "attempt": 46,
+      "score": 0.0,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 46
+    },
+    {
+      "attempt": 47,
+      "score": 0.8933333333333333,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 47
+    },
+    {
+      "attempt": 48,
+      "score": 0.8933333333333333,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 48
+    },
+    {
+      "attempt": 49,
+      "score": 0.0,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 49
+    },
+    {
+      "attempt": 50,
+      "score": 0.0,
+      "best_score": 0.8933333333333333,
+      "is_new_best": false,
+      "iteration_found": 50
+    }
+  ],
+  "metrics": {
+    "combined_score": 0.8933333333333333
+  },
+  "settings": {
+    "model": "claude-3.5-sonnet",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

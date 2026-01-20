@@ -1,0 +1,371 @@
+{
+  "task_idx": 14,
+  "task_id": 14,
+  "success": false,
+  "final_score": 0.9333333333333333,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "/-!\n# Remove Spaces Function\n\nRemoves all space characters from a string using two approaches:\n1. Functional (using String.replace)\n2. Imperative (using character-by-character processing)\n\nEdge cases:\n- Empty string returns empty string\n- String with only spaces returns empty string\n-/\n\nnamespace RemoveSpaces\n\n/--\nReturns a string with all space characters removed.\n\nExamples:\n- removeSpaces \"hello world\" = \"helloworld\"\n- removeSpaces \"\" = \"\"\n- removeSpaces \"   \" = \"\"\n-/\ndef removeSpaces (s : String) : String :=\n  s.replace \" \" \"\"\n\n/-- Imperative implementation using character-by-character processing -/\ndef removeSpacesImp (s : String) : String :=\n  Id.run do\n    let mut result := \"\"\n    for c in s.data do\n      if c \u2260 ' ' then\n        result := result.push c\n    return result\n\n/-! # Pre/Post Conditions -/\n\n/-- Pre-condition: Input must be a valid string -/\ndef Pre (s : String) : Prop := True\n\n/-- Post-condition: Output contains no spaces and preserves non-space characters -/\ndef Post (s result : String) : Prop :=\n  (\u00acresult.contains ' ') \u2227 \n  (result.length \u2264 s.length) \u2227\n  (\u2200 c, c \u2260 ' ' \u2192 (s.contains c \u2194 result.contains c))\n\n/-! # Unit Tests -/\n\n/-- Basic functionality tests -/\nexample : removeSpaces \"hello world\" = \"helloworld\" := by native_decide\n#eval removeSpaces \"hello world\" -- expected: \"helloworld\"\n\nexample : removeSpaces \"\" = \"\" := by native_decide\n#eval removeSpaces \"\" -- expected: \"\"\n\nexample : removeSpaces \"   \" = \"\" := by native_decide\n#eval removeSpaces \"   \" -- expected: \"\"\n\n/-- Edge case tests -/\nexample : removeSpaces \" \" = \"\" := by native_decide\nexample : removeSpaces \"  \" = \"\" := by native_decide\nexample : removeSpaces \" a \" = \"a\" := by native_decide\n\n/-- Position-specific tests -/\nexample : removeSpaces \"a b\" = \"ab\" := by native_decide\nexample : removeSpaces \" ab\" = \"ab\" := by native_decide\nexample : removeSpaces \"ab \" = \"ab\" := by native_decide\n\n/-- Special character tests -/\nexample : removeSpaces \"hello!@#$%^&*()\" = \"hello!@#$%^&*()\" := by native_decide\nexample : removeSpaces \"123 456\" = \"123456\" := by native_decide\n\n/-! # Implementation Equivalence Tests -/\n\nexample : removeSpacesImp \"hello world\" = \"helloworld\" := by native_decide\nexample : removeSpacesImp \"\" = \"\" := by native_decide\nexample : removeSpacesImp \"   \" = \"\" := by native_decide\n\n/-! # Properties and Theorems -/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_preserving : removeSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with only spaces becomes empty -/\ntheorem spaces_only : removeSpaces \"   \" = \"\" := by native_decide\n\n/-- Property: String without spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) : \n  \u00acs.contains ' ' \u2192 removeSpaces s = s := by\n  intro h\n  simp [removeSpaces]\n  sorry\n\n/-- Property: Idempotence - applying function twice gives same result as once -/\ntheorem idempotent (s : String) : \n  removeSpaces (removeSpaces s) = removeSpaces s := by\n  simp [removeSpaces]\n  sorry\n\n/-- Property: Result length is at most input length -/\ntheorem length_decreases (s : String) : \n  (removeSpaces s).length \u2264 s.length := by\n  simp [removeSpaces]\n  sorry\n\n/-- Property: Result contains no spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac(removeSpaces s).contains ' ' := by\n  simp [removeSpaces]\n  sorry\n\n/-- Property: Character preservation - non-space characters are preserved in order -/\ntheorem char_preservation (s : String) (c : Char) :\n  c \u2260 ' ' \u2192 (s.contains c \u2194 (removeSpaces s).contains c) := by\n  intro h\n  simp [removeSpaces]\n  sorry\n\n/-- Property: String append distributivity -/\ntheorem append_distributivity (s\u2081 s\u2082 : String) :\n  removeSpaces (s\u2081 ++ s\u2082) = removeSpaces s\u2081 ++ removeSpaces s\u2082 := by\n  simp [removeSpaces]\n  sorry\n\n/-- Correctness theorem: Pre-condition implies Post-condition -/\ntheorem correctness (s : String) (h : Pre s) :\n  Post s (removeSpaces s) := sorry\n\n/-- Equivalence of implementations -/\ntheorem impl_equivalence (s : String) :\n  removeSpaces s = removeSpacesImp s := sorry\n\nend RemoveSpaces",
+  "duration_seconds": 1039.9094820022583,
+  "history": [
+    {
+      "attempt": 1,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 1
+    },
+    {
+      "attempt": 2,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 2
+    },
+    {
+      "attempt": 3,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 3
+    },
+    {
+      "attempt": 4,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 4
+    },
+    {
+      "attempt": 5,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 5
+    },
+    {
+      "attempt": 6,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 6
+    },
+    {
+      "attempt": 7,
+      "score": 0.0,
+      "best_score": 0.0,
+      "is_new_best": false,
+      "iteration_found": 7
+    },
+    {
+      "attempt": 8,
+      "score": 0.8,
+      "best_score": 0.8,
+      "is_new_best": true,
+      "iteration_found": 8
+    },
+    {
+      "attempt": 9,
+      "score": 0.76,
+      "best_score": 0.8,
+      "is_new_best": false,
+      "iteration_found": 9
+    },
+    {
+      "attempt": 10,
+      "score": 0.8799999999999999,
+      "best_score": 0.8799999999999999,
+      "is_new_best": true,
+      "iteration_found": 10
+    },
+    {
+      "attempt": 11,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 11
+    },
+    {
+      "attempt": 12,
+      "score": 0.76,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 12
+    },
+    {
+      "attempt": 13,
+      "score": 0.76,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 13
+    },
+    {
+      "attempt": 14,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 14
+    },
+    {
+      "attempt": 15,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 15
+    },
+    {
+      "attempt": 16,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 16
+    },
+    {
+      "attempt": 17,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 17
+    },
+    {
+      "attempt": 18,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 18
+    },
+    {
+      "attempt": 19,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 19
+    },
+    {
+      "attempt": 20,
+      "score": 0.7333333333333333,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 20
+    },
+    {
+      "attempt": 21,
+      "score": 0.7333333333333333,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 21
+    },
+    {
+      "attempt": 22,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 22
+    },
+    {
+      "attempt": 23,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 23
+    },
+    {
+      "attempt": 24,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 24
+    },
+    {
+      "attempt": 25,
+      "score": 0.76,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 25
+    },
+    {
+      "attempt": 26,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 26
+    },
+    {
+      "attempt": 27,
+      "score": 0.7333333333333333,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 27
+    },
+    {
+      "attempt": 28,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 28
+    },
+    {
+      "attempt": 29,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 29
+    },
+    {
+      "attempt": 30,
+      "score": 0.76,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 30
+    },
+    {
+      "attempt": 31,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 31
+    },
+    {
+      "attempt": 32,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 32
+    },
+    {
+      "attempt": 33,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 33
+    },
+    {
+      "attempt": 34,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 34
+    },
+    {
+      "attempt": 35,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 35
+    },
+    {
+      "attempt": 36,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 36
+    },
+    {
+      "attempt": 37,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 37
+    },
+    {
+      "attempt": 38,
+      "score": 0.84,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 38
+    },
+    {
+      "attempt": 39,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 39
+    },
+    {
+      "attempt": 40,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 40
+    },
+    {
+      "attempt": 41,
+      "score": 0.84,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 41
+    },
+    {
+      "attempt": 42,
+      "score": 0.7733333333333333,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 42
+    },
+    {
+      "attempt": 43,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 43
+    },
+    {
+      "attempt": 44,
+      "score": 0.8,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 44
+    },
+    {
+      "attempt": 45,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 45
+    },
+    {
+      "attempt": 46,
+      "score": 0.8666666666666667,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 46
+    },
+    {
+      "attempt": 47,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 47
+    },
+    {
+      "attempt": 48,
+      "score": 0.8666666666666667,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 48
+    },
+    {
+      "attempt": 49,
+      "score": 0.0,
+      "best_score": 0.8799999999999999,
+      "is_new_best": false,
+      "iteration_found": 49
+    },
+    {
+      "attempt": 50,
+      "score": 0.9333333333333333,
+      "best_score": 0.9333333333333333,
+      "is_new_best": true,
+      "iteration_found": 50
+    }
+  ],
+  "metrics": {
+    "combined_score": 0.9333333333333333
+  },
+  "settings": {
+    "model": "claude-3.5-sonnet",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}
