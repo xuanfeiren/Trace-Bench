@@ -393,6 +393,8 @@ def main():
                        help='Number of performance trials (default: 5)')
     parser.add_argument('--verbose', action='store_true', default=False,
                        help='Print detailed logs during evolution')
+    parser.add_argument('--run_num', type=int, default=1,
+                       help='Run number (default: 1)')
 
     # Logging parameters
     parser.add_argument('--save_results', action='store_true', default=False,
@@ -484,8 +486,9 @@ def main():
                     success_at = num_metric_calls  # Fallback
 
         # Always save summary to kernel_openevolve folder
-        os.makedirs('results/kernel_openevolve_1', exist_ok=True)
-        summary_path = f"results/kernel_openevolve_1/task_{args.task_idx}_summary.json"
+        run_num = args.run_num
+        os.makedirs('results/kernel_openevolve_{run_num}', exist_ok=True)
+        summary_path = f"results/kernel_openevolve_{run_num}/task_{args.task_idx}_summary.json"
 
         summary_data = {
             'task_idx': args.task_idx,
@@ -507,7 +510,7 @@ def main():
 
         # Save full result if requested
         if args.save_results:
-            full_result_path = f"results/kernel_openevolve_1/task_{args.task_idx}_result.json"
+            full_result_path = f"results/kernel_openevolve_{run_num}/task_{args.task_idx}_result.json"
 
             result_data = {
                 'task_idx': args.task_idx,
