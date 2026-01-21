@@ -487,7 +487,7 @@ def main():
 
         # Always save summary to kernel_openevolve folder
         run_num = args.run_num
-        os.makedirs('results/kernel_openevolve_{run_num}', exist_ok=True)
+        os.makedirs(f'results/kernel_openevolve_{run_num}', exist_ok=True)
         summary_path = f"results/kernel_openevolve_{run_num}/task_{args.task_idx}_summary.json"
 
         summary_data = {
