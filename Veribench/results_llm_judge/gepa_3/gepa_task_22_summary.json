@@ -5,7 +5,8 @@
   "final_score": 0.0,
   "num_metric_calls": 51,
   "success_at_metric_call": null,
-  "duration_seconds": 1346.7338256835938,
+  "duration_seconds": 467.0171890258789,
   "model": "anthropic/claude-3.5-sonnet",
-  "early_stopped": false
+  "early_stopped": false,
+  "method": "gepa_direct"
 }

@@ -3,173 +3,321 @@
   "task_id": 43,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8133333333333334,
-  "num_metric_calls": 50,
-  "num_iterations_total": 19,
-  "num_candidates_discovered": 12,
+  "final_score": 0.92,
+  "num_metric_calls": 51,
+  "num_iterations_total": 27,
+  "num_candidates_discovered": 3,
   "success_at_metric_call": null,
-  "duration_seconds": 1109.0177600383759,
+  "best_lean_code": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReplaceSpaces\n\n/--\nPre-condition for the replace_spaces function.\nIn Lean, this is handled by the type system requiring a String input.\n-/\ndef Pre (s : String) : Prop := True\n\n/--\nMain implementation using String.replace.\nReplaces all spaces in the input string with underscores.\n-/\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/--\nAlternative imperative implementation using String.foldl\n-/\ndef replaceSpacesImp (s : String) : String :=\n  Id.run do\n    let mut result := \"\"\n    for c in s.data do\n      if c = ' ' then\n        result := result.push '_'\n      else\n        result := result.push c\n    return result\n\n/-!\n# Tests\n-/\n\n-- Basic tests\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- Edge cases\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\nexample : replaceSpaces \"  \" = \"__\" := by native_decide\n#eval replaceSpaces \"  \" -- expected: \"__\"\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length preservation -/\ntheorem length_preservation (s : String) :\n  (replaceSpaces s).length = s.length := sorry\n\n/-- Property: Space replacement -/\ntheorem space_replacement_prop (s : String) :\n  s.contains ' ' \u2192 (replaceSpaces s).contains '_' := sorry\n\n/-- Property: Non-space character preservation -/\ndef non_space_char (c : Char) : Prop := c \u2260 ' '\n\ntheorem non_space_preservation_prop (s : String) (c : Char) :\n  non_space_char c \u2192 s.contains c \u2192 (replaceSpaces s).contains c := sorry\n\n/-!\n# Post-Condition\n-/\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post (s : String) (result : String) : Prop :=\n  (result = replaceSpaces s) \u2227\n  (\u00ac result.contains ' ') \u2227\n  (s.length = result.length)\n\n/-!\n# Correctness Theorems\n-/\n\n/-- Main correctness theorem linking pre and post conditions -/\ntheorem correctness_thm (s : String) (h : Pre s) :\n  Post s (replaceSpaces s) := sorry\n\n/-- Equivalence theorem between implementations -/\ntheorem implementation_equivalence (s : String) :\n  replaceSpaces s = replaceSpacesImp s := sorry\n\n/-!\n# Implementation Tests\n-/\n\n-- Testing imperative implementation\nexample : replaceSpacesImp \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpacesImp \"hello world\" -- expected: \"hello_world\"\n\nexample : replaceSpacesImp \"\" = \"\" := by native_decide\n#eval replaceSpacesImp \"\" -- expected: \"\"\n\nexample : replaceSpacesImp \"  \" = \"__\" := by native_decide\n#eval replaceSpacesImp \"  \" -- expected: \"__\"\n\nend ReplaceSpaces",
+  "duration_seconds": 516.6201238632202,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 6,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 5,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 10,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7333333333333333
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 14,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 17,
-      "calls_this_iter": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 19,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 13,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 22,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 26,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 30,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.6799999999999999
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 34,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.64
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 38,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 41,
-      "calls_this_iter": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 44,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 27,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 47,
-      "calls_this_iter": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 29,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 49,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 31,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 52,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.64
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 33,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 55,
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- String.replace is used for the implementation\n-/\n\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/-!\n# Tests\n-/\n\n-- Basic test\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\n-- Multiple spaces test\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- No spaces test\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\n-- Empty string test (edge case)\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\n/-!\n# Properties\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length only changes based on number of spaces -/\ntheorem length_property (s : String) :\n  (replaceSpaces s).length = s.length := sorry",
+      "test_score": 0.76
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 57,
+      "score": 0.7866666666666666,
+      "best_score_so_far": 0.7866666666666666,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- String.replace is used for the implementation\n-/\n\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/-!\n# Tests\n-/\n\n-- Basic test\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\n-- Multiple spaces test\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- No spaces test\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\n-- Empty string test (edge case)\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\n/-!\n# Properties\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length only changes based on number of spaces -/\ntheorem length_property (s : String) :\n  (replaceSpaces s).length = s.length := sorry",
+      "test_score": 0.76
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.8133333333333334,
-      "num_metric_calls_so_far": 60,
+      "score": 0.76,
+      "best_score_so_far": 0.7866666666666666,
+      "num_metric_calls_so_far": 40,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- String.replace is used for the implementation\n-/\n\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/-!\n# Tests\n-/\n\n-- Basic test\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\n-- Multiple spaces test\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- No spaces test\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\n-- Empty string test (edge case)\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\n/-!\n# Properties\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length only changes based on number of spaces -/\ntheorem length_property (s : String) :\n  (replaceSpaces s).length = s.length := sorry",
+      "test_score": 0.76
+    },
+    {
+      "iteration": 20,
+      "score": 0.76,
+      "best_score_so_far": 0.7866666666666666,
+      "num_metric_calls_so_far": 42,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- String.replace is used for the implementation\n-/\n\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/-!\n# Tests\n-/\n\n-- Basic test\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\n-- Multiple spaces test\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- No spaces test\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\n-- Empty string test (edge case)\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\n/-!\n# Properties\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length only changes based on number of spaces -/\ntheorem length_property (s : String) :\n  (replaceSpaces s).length = s.length := sorry",
+      "test_score": 0.76
+    },
+    {
+      "iteration": 21,
+      "score": 0.7866666666666666,
+      "best_score_so_far": 0.7866666666666666,
+      "num_metric_calls_so_far": 44,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- String.replace is used for the implementation\n-/\n\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/-!\n# Tests\n-/\n\n-- Basic test\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\n-- Multiple spaces test\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- No spaces test\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\n-- Empty string test (edge case)\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\n/-!\n# Properties\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length only changes based on number of spaces -/\ntheorem length_property (s : String) :\n  (replaceSpaces s).length = s.length := sorry",
+      "test_score": 0.76
+    },
+    {
+      "iteration": 22,
+      "score": 0.76,
+      "best_score_so_far": 0.7866666666666666,
+      "num_metric_calls_so_far": 46,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- String.replace is used for the implementation\n-/\n\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/-!\n# Tests\n-/\n\n-- Basic test\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\n-- Multiple spaces test\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- No spaces test\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\n-- Empty string test (edge case)\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\n/-!\n# Properties\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length only changes based on number of spaces -/\ntheorem length_property (s : String) :\n  (replaceSpaces s).length = s.length := sorry",
+      "test_score": 0.76
+    },
+    {
+      "iteration": 23,
+      "score": 0.92,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 49,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.7333333333333333
+      "new_candidate_score": 0.92,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReplaceSpaces\n\n/--\nPre-condition for the replace_spaces function.\nIn Lean, this is handled by the type system requiring a String input.\n-/\ndef Pre (s : String) : Prop := True\n\n/--\nMain implementation using String.replace.\nReplaces all spaces in the input string with underscores.\n-/\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/--\nAlternative imperative implementation using String.foldl\n-/\ndef replaceSpacesImp (s : String) : String :=\n  Id.run do\n    let mut result := \"\"\n    for c in s.data do\n      if c = ' ' then\n        result := result.push '_'\n      else\n        result := result.push c\n    return result\n\n/-!\n# Tests\n-/\n\n-- Basic tests\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- Edge cases\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\nexample : replaceSpaces \"  \" = \"__\" := by native_decide\n#eval replaceSpaces \"  \" -- expected: \"__\"\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length preservation -/\ntheorem length_preservation (s : String) :\n  (replaceSpaces s).length = s.length := sorry\n\n/-- Property: Space replacement -/\ntheorem space_replacement_prop (s : String) :\n  s.contains ' ' \u2192 (replaceSpaces s).contains '_' := sorry\n\n/-- Property: Non-space character preservation -/\ndef non_space_char (c : Char) : Prop := c \u2260 ' '\n\ntheorem non_space_preservation_prop (s : String) (c : Char) :\n  non_space_char c \u2192 s.contains c \u2192 (replaceSpaces s).contains c := sorry\n\n/-!\n# Post-Condition\n-/\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post (s : String) (result : String) : Prop :=\n  (result = replaceSpaces s) \u2227\n  (\u00ac result.contains ' ') \u2227\n  (s.length = result.length)\n\n/-!\n# Correctness Theorems\n-/\n\n/-- Main correctness theorem linking pre and post conditions -/\ntheorem correctness_thm (s : String) (h : Pre s) :\n  Post s (replaceSpaces s) := sorry\n\n/-- Equivalence theorem between implementations -/\ntheorem implementation_equivalence (s : String) :\n  replaceSpaces s = replaceSpacesImp s := sorry\n\n/-!\n# Implementation Tests\n-/\n\n-- Testing imperative implementation\nexample : replaceSpacesImp \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpacesImp \"hello world\" -- expected: \"hello_world\"\n\nexample : replaceSpacesImp \"\" = \"\" := by native_decide\n#eval replaceSpacesImp \"\" -- expected: \"\"\n\nexample : replaceSpacesImp \"  \" = \"__\" := by native_decide\n#eval replaceSpacesImp \"  \" -- expected: \"__\"\n\nend ReplaceSpaces",
+      "test_score": 0.8666666666666667
+    },
+    {
+      "iteration": 24,
+      "score": 0.92,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 51,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace spaces with underscores in strings.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReplaceSpaces\n\n/--\nPre-condition for the replace_spaces function.\nIn Lean, this is handled by the type system requiring a String input.\n-/\ndef Pre (s : String) : Prop := True\n\n/--\nMain implementation using String.replace.\nReplaces all spaces in the input string with underscores.\n-/\ndef replaceSpaces (s : String) : String :=\n  s.replace \" \" \"_\"\n\n/--\nAlternative imperative implementation using String.foldl\n-/\ndef replaceSpacesImp (s : String) : String :=\n  Id.run do\n    let mut result := \"\"\n    for c in s.data do\n      if c = ' ' then\n        result := result.push '_'\n      else\n        result := result.push c\n    return result\n\n/-!\n# Tests\n-/\n\n-- Basic tests\nexample : replaceSpaces \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpaces \"hello world\" -- expected: \"hello_world\"\n\nexample : replaceSpaces \"a b c\" = \"a_b_c\" := by native_decide\n#eval replaceSpaces \"a b c\" -- expected: \"a_b_c\"\n\n-- Edge cases\nexample : replaceSpaces \"\" = \"\" := by native_decide\n#eval replaceSpaces \"\" -- expected: \"\"\n\nexample : replaceSpaces \"no-spaces\" = \"no-spaces\" := by native_decide\n#eval replaceSpaces \"no-spaces\" -- expected: \"no-spaces\"\n\nexample : replaceSpaces \"  \" = \"__\" := by native_decide\n#eval replaceSpaces \"  \" -- expected: \"__\"\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Property: Empty string remains empty -/\ntheorem empty_string_prop : replaceSpaces \"\" = \"\" := by native_decide\n\n/-- Property: String with no spaces remains unchanged -/\ntheorem no_spaces_unchanged (s : String) (h : \u00ac s.contains ' ') : \n  replaceSpaces s = s := sorry\n\n/-- Property: Result never contains spaces -/\ntheorem no_spaces_in_result (s : String) :\n  \u00ac (replaceSpaces s).contains ' ' := sorry\n\n/-- Property: Length preservation -/\ntheorem length_preservation (s : String) :\n  (replaceSpaces s).length = s.length := sorry\n\n/-- Property: Space replacement -/\ntheorem space_replacement_prop (s : String) :\n  s.contains ' ' \u2192 (replaceSpaces s).contains '_' := sorry\n\n/-- Property: Non-space character preservation -/\ndef non_space_char (c : Char) : Prop := c \u2260 ' '\n\ntheorem non_space_preservation_prop (s : String) (c : Char) :\n  non_space_char c \u2192 s.contains c \u2192 (replaceSpaces s).contains c := sorry\n\n/-!\n# Post-Condition\n-/\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post (s : String) (result : String) : Prop :=\n  (result = replaceSpaces s) \u2227\n  (\u00ac result.contains ' ') \u2227\n  (s.length = result.length)\n\n/-!\n# Correctness Theorems\n-/\n\n/-- Main correctness theorem linking pre and post conditions -/\ntheorem correctness_thm (s : String) (h : Pre s) :\n  Post s (replaceSpaces s) := sorry\n\n/-- Equivalence theorem between implementations -/\ntheorem implementation_equivalence (s : String) :\n  replaceSpaces s = replaceSpacesImp s := sorry\n\n/-!\n# Implementation Tests\n-/\n\n-- Testing imperative implementation\nexample : replaceSpacesImp \"hello world\" = \"hello_world\" := by native_decide\n#eval replaceSpacesImp \"hello world\" -- expected: \"hello_world\"\n\nexample : replaceSpacesImp \"\" = \"\" := by native_decide\n#eval replaceSpacesImp \"\" -- expected: \"\"\n\nexample : replaceSpacesImp \"  \" = \"__\" := by native_decide\n#eval replaceSpacesImp \"  \" -- expected: \"__\"\n\nend ReplaceSpaces",
+      "test_score": 0.8666666666666667
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.76,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 35,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.92,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 48,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.92,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.76,
+    0.92
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

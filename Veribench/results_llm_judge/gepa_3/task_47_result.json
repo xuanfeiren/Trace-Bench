@@ -3,221 +3,321 @@
   "task_id": 47,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8666666666666667,
-  "num_metric_calls": 51,
-  "num_iterations_total": 25,
-  "num_candidates_discovered": 1,
+  "final_score": 0.9333333333333333,
+  "num_metric_calls": 50,
+  "num_iterations_total": 27,
+  "num_candidates_discovered": 4,
   "success_at_metric_call": null,
-  "duration_seconds": 1347.9420337677002,
+  "best_lean_code": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element \n- Raises error for empty list to match Python's ValueError\n- Cannot accept negative numbers (enforced by Nat type)\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef maxList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl max x\n\n/--\nMain program that implements the Python function behavior.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef prog (xs : List Nat) : Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = 5 := by native_decide\n#eval prog [5]  -- Expected: 5\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Post-condition: output must be an element of the list -/\ndef Post_member (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs\n\n/-- Post-condition: result must satisfy both maximum and membership properties -/\ndef Post_complete (xs : List Nat) (result : Nat) : Prop :=\n  Post xs result \u2227 Post_member xs result\n\n/-- Theorem: For non-empty lists, result exists and is in the list -/\ntheorem prog_member (xs : List Nat) (h : Pre xs) :\n  Post_member xs (prog xs) := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (h : Pre xs) :\n  Post xs (prog xs) := sorry\n\n/-- Theorem: For singleton list, result equals the single element -/\ntheorem prog_singleton (x : Nat) :\n  prog [x] = x := sorry\n\n/-- Theorem: Result satisfies both maximum and membership properties -/\ntheorem prog_complete (xs : List Nat) (h : Pre xs) :\n  Post_complete xs (prog xs) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using mutable state.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef progImp (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::rest) => Id.run do\n    let mut max_val := x\n    for val in rest do\n      if val > max_val then\n        max_val := val\n    return max_val\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation with basic case -/\nexample : progImp [7,3,9,2] = 9 := by native_decide\n#eval progImp [7,3,9,2]  -- Expected: 9\n\n/-- Test imperative implementation with singleton -/\nexample : progImp [5] = 5 := by native_decide\n#eval progImp [5]  -- Expected: 5\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem prog_equiv (xs : List Nat) (h : Pre xs) :\n  prog xs = progImp xs := sorry\n\nend MaxList",
+  "duration_seconds": 555.1789598464966,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 4,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 9,
+      "num_metric_calls_so_far": 10,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 11,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 12,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 13,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 14,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 15,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 16,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 17,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 18,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 19,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 21,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 22,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 23,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 24,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 25,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 26,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 27,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 28,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 29,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 31,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 32,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 33,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 34,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 35,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 37,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nFor empty lists or invalid inputs, returns none.\n-/\ndef maxList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | (x::xs) => some (xs.foldl max x)\n\n/--\nMain program that implements the Python function behavior.\nReturns the maximum value if list is non-empty, otherwise none.\n-/\ndef prog (xs : List Nat) : Option Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = some 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: some 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = some 5 := by native_decide\n#eval prog [5]  -- Expected: some 5\n\n/-- Edge case: empty list should return none -/\nexample : prog [] = none := by native_decide\n#eval prog []  -- Expected: none\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = some 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: some 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Theorem: For non-empty lists, prog returns some value -/\ntheorem prog_nonempty_some (xs : List Nat) (h : Pre xs) :\n  \u2203 n, prog xs = some n := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (result : Nat) (h : prog xs = some result) :\n  Post xs result := sorry\n\nend MaxList",
+      "test_score": 0.3
     },
     {
       "iteration": 19,
+      "score": 0.8666666666666667,
       "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 39,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "num_metric_calls_so_far": 41,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element\n- Empty list or list with negative numbers are invalid inputs\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nThrows error for empty list.\n-/\ndef maxList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Empty list\"  \n  | (x::xs) => xs.foldl max x\n\n/--\nMain program that implements the Python function behavior.\nThrows error for empty list, matching Python's ValueError behavior.\n-/\ndef prog (xs : List Nat) : Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = 5 := by native_decide\n#eval prog [5]  -- Expected: 5\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Post-condition: output must be an element of the list -/\ndef Post_member (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs\n\n/-- Theorem: For non-empty lists, result exists and is in the list -/\ntheorem prog_member (xs : List Nat) (h : Pre xs) :\n  Post_member xs (prog xs) := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (h : Pre xs) :\n  Post xs (prog xs) := sorry\n\n/-- Theorem: For singleton list, result equals the single element -/\ntheorem prog_singleton (x : Nat) :\n  prog [x] = x := sorry\n\nend MaxList",
+      "test_score": 0.8133333333333334
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 41,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 44,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9333333333333333,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element \n- Raises error for empty list to match Python's ValueError\n- Cannot accept negative numbers (enforced by Nat type)\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef maxList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl max x\n\n/--\nMain program that implements the Python function behavior.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef prog (xs : List Nat) : Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = 5 := by native_decide\n#eval prog [5]  -- Expected: 5\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Post-condition: output must be an element of the list -/\ndef Post_member (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs\n\n/-- Post-condition: result must satisfy both maximum and membership properties -/\ndef Post_complete (xs : List Nat) (result : Nat) : Prop :=\n  Post xs result \u2227 Post_member xs result\n\n/-- Theorem: For non-empty lists, result exists and is in the list -/\ntheorem prog_member (xs : List Nat) (h : Pre xs) :\n  Post_member xs (prog xs) := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (h : Pre xs) :\n  Post xs (prog xs) := sorry\n\n/-- Theorem: For singleton list, result equals the single element -/\ntheorem prog_singleton (x : Nat) :\n  prog [x] = x := sorry\n\n/-- Theorem: Result satisfies both maximum and membership properties -/\ntheorem prog_complete (xs : List Nat) (h : Pre xs) :\n  Post_complete xs (prog xs) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using mutable state.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef progImp (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::rest) => Id.run do\n    let mut max_val := x\n    for val in rest do\n      if val > max_val then\n        max_val := val\n    return max_val\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation with basic case -/\nexample : progImp [7,3,9,2] = 9 := by native_decide\n#eval progImp [7,3,9,2]  -- Expected: 9\n\n/-- Test imperative implementation with singleton -/\nexample : progImp [5] = 5 := by native_decide\n#eval progImp [5]  -- Expected: 5\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem prog_equiv (xs : List Nat) (h : Pre xs) :\n  prog xs = progImp xs := sorry\n\nend MaxList",
+      "test_score": 0.92
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 43,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 46,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element \n- Raises error for empty list to match Python's ValueError\n- Cannot accept negative numbers (enforced by Nat type)\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef maxList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl max x\n\n/--\nMain program that implements the Python function behavior.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef prog (xs : List Nat) : Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = 5 := by native_decide\n#eval prog [5]  -- Expected: 5\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Post-condition: output must be an element of the list -/\ndef Post_member (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs\n\n/-- Post-condition: result must satisfy both maximum and membership properties -/\ndef Post_complete (xs : List Nat) (result : Nat) : Prop :=\n  Post xs result \u2227 Post_member xs result\n\n/-- Theorem: For non-empty lists, result exists and is in the list -/\ntheorem prog_member (xs : List Nat) (h : Pre xs) :\n  Post_member xs (prog xs) := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (h : Pre xs) :\n  Post xs (prog xs) := sorry\n\n/-- Theorem: For singleton list, result equals the single element -/\ntheorem prog_singleton (x : Nat) :\n  prog [x] = x := sorry\n\n/-- Theorem: Result satisfies both maximum and membership properties -/\ntheorem prog_complete (xs : List Nat) (h : Pre xs) :\n  Post_complete xs (prog xs) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using mutable state.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef progImp (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::rest) => Id.run do\n    let mut max_val := x\n    for val in rest do\n      if val > max_val then\n        max_val := val\n    return max_val\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation with basic case -/\nexample : progImp [7,3,9,2] = 9 := by native_decide\n#eval progImp [7,3,9,2]  -- Expected: 9\n\n/-- Test imperative implementation with singleton -/\nexample : progImp [5] = 5 := by native_decide\n#eval progImp [5]  -- Expected: 5\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem prog_equiv (xs : List Nat) (h : Pre xs) :\n  prog xs = progImp xs := sorry\n\nend MaxList",
+      "test_score": 0.92
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 45,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element \n- Raises error for empty list to match Python's ValueError\n- Cannot accept negative numbers (enforced by Nat type)\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef maxList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl max x\n\n/--\nMain program that implements the Python function behavior.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef prog (xs : List Nat) : Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = 5 := by native_decide\n#eval prog [5]  -- Expected: 5\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Post-condition: output must be an element of the list -/\ndef Post_member (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs\n\n/-- Post-condition: result must satisfy both maximum and membership properties -/\ndef Post_complete (xs : List Nat) (result : Nat) : Prop :=\n  Post xs result \u2227 Post_member xs result\n\n/-- Theorem: For non-empty lists, result exists and is in the list -/\ntheorem prog_member (xs : List Nat) (h : Pre xs) :\n  Post_member xs (prog xs) := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (h : Pre xs) :\n  Post xs (prog xs) := sorry\n\n/-- Theorem: For singleton list, result equals the single element -/\ntheorem prog_singleton (x : Nat) :\n  prog [x] = x := sorry\n\n/-- Theorem: Result satisfies both maximum and membership properties -/\ntheorem prog_complete (xs : List Nat) (h : Pre xs) :\n  Post_complete xs (prog xs) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using mutable state.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef progImp (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::rest) => Id.run do\n    let mut max_val := x\n    for val in rest do\n      if val > max_val then\n        max_val := val\n    return max_val\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation with basic case -/\nexample : progImp [7,3,9,2] = 9 := by native_decide\n#eval progImp [7,3,9,2]  -- Expected: 9\n\n/-- Test imperative implementation with singleton -/\nexample : progImp [5] = 5 := by native_decide\n#eval progImp [5]  -- Expected: 5\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem prog_equiv (xs : List Nat) (h : Pre xs) :\n  prog xs = progImp xs := sorry\n\nend MaxList",
+      "test_score": 0.92
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 47,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 50,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Maximum Element in List\nReturns the largest element in a non-empty list of natural numbers.\n\nEdge cases:\n- Single element list returns that element \n- Raises error for empty list to match Python's ValueError\n- Cannot accept negative numbers (enforced by Nat type)\n-/\n\nnamespace MaxList\n\n/--\nReturn the maximum element in a non-empty list of natural numbers.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef maxList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl max x\n\n/--\nMain program that implements the Python function behavior.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef prog (xs : List Nat) : Nat := maxList xs\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: list [7,3,9,2] should return 9 -/\nexample : prog [7,3,9,2] = 9 := by native_decide\n#eval prog [7,3,9,2]  -- Expected: 9\n\n/-- Edge case: single element list [5] should return 5 -/\nexample : prog [5] = 5 := by native_decide\n#eval prog [5]  -- Expected: 5\n\n/-- Test larger numbers -/\nexample : prog [10,20,30,5,15] = 30 := by native_decide\n#eval prog [10,20,30,5,15]  -- Expected: 30\n\n/-!\n# Property Tests and Theorems\n-/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/-- Post-condition: output must be greater than or equal to all elements -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  \u2200 x \u2208 xs, result \u2265 x\n\n/-- Post-condition: output must be an element of the list -/\ndef Post_member (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs\n\n/-- Post-condition: result must satisfy both maximum and membership properties -/\ndef Post_complete (xs : List Nat) (result : Nat) : Prop :=\n  Post xs result \u2227 Post_member xs result\n\n/-- Theorem: For non-empty lists, result exists and is in the list -/\ntheorem prog_member (xs : List Nat) (h : Pre xs) :\n  Post_member xs (prog xs) := sorry\n\n/-- Theorem: Result is greater than or equal to all elements -/\ntheorem prog_maximum (xs : List Nat) (h : Pre xs) :\n  Post xs (prog xs) := sorry\n\n/-- Theorem: For singleton list, result equals the single element -/\ntheorem prog_singleton (x : Nat) :\n  prog [x] = x := sorry\n\n/-- Theorem: Result satisfies both maximum and membership properties -/\ntheorem prog_complete (xs : List Nat) (h : Pre xs) :\n  Post_complete xs (prog xs) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using mutable state.\nRaises error for empty list, matching Python's ValueError behavior.\n-/\ndef progImp (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"ValueError: Require non-empty list of non-negative integers\"\n  | (x::rest) => Id.run do\n    let mut max_val := x\n    for val in rest do\n      if val > max_val then\n        max_val := val\n    return max_val\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation with basic case -/\nexample : progImp [7,3,9,2] = 9 := by native_decide\n#eval progImp [7,3,9,2]  -- Expected: 9\n\n/-- Test imperative implementation with singleton -/\nexample : progImp [5] = 5 := by native_decide\n#eval progImp [5]  -- Expected: 5\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem prog_equiv (xs : List Nat) (h : Pre xs) :\n  prog xs = progImp xs := sorry\n\nend MaxList",
+      "test_score": 0.92
     },
     {
-      "iteration": 24,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 49,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
     },
     {
-      "iteration": 25,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 51,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "iteration": 2,
+      "score": 0.3,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 7,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 40,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 43,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9333333333333333,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.3,
+    0.8666666666666667,
+    0.9333333333333333
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

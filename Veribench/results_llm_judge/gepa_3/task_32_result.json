@@ -3,205 +3,321 @@
   "task_id": 32,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.76,
-  "num_metric_calls": 51,
-  "num_iterations_total": 23,
-  "num_candidates_discovered": 5,
+  "final_score": 0.8,
+  "num_metric_calls": 50,
+  "num_iterations_total": 27,
+  "num_candidates_discovered": 4,
   "success_at_metric_call": null,
-  "duration_seconds": 1255.1433386802673,
+  "best_lean_code": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+  "duration_seconds": 713.815614938736,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 5,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid and will return none\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = some 2\n- myMinList [5] = some 5\n- myMinList [] = none\n-/\ndef myMinList (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none  \n  | (x::xs) => some (xs.foldl min x)\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = some 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: some 2\n\n-- Edge case: single element\nexample : myMinList [5] = some 5 := by native_decide  \n#eval myMinList [5]  -- expected: some 5\n\n-- Edge case: empty list\nexample : myMinList [] = none := by native_decide\n#eval myMinList []  -- expected: none\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = some 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: some 1\n\nexample : myMinList [10, 5, 8, 3, 9] = some 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: some 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is Some of the minimum value in the list -/\ndef Post (xs : List Nat) (result : Option Nat) : Prop :=\n  match result with\n  | none => xs.length = 0\n  | some min => \u2200 x \u2208 xs, min \u2264 x\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.3
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 9,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 5,
-      "best_score_so_far": 0.3,
+      "score": 0.9066666666666667,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 11,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 6,
-      "best_score_so_far": 0.3,
+      "iteration": 5,
+      "score": 0.7333333333333333,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 13,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 7,
-      "best_score_so_far": 0.3,
+      "iteration": 6,
+      "score": 0.9066666666666667,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 15,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 8,
-      "best_score_so_far": 0.3,
+      "iteration": 7,
+      "score": 0.8799999999999999,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 17,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 9,
-      "best_score_so_far": 0.3,
+      "iteration": 8,
+      "score": 0.8,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 19,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 10,
-      "best_score_so_far": 0.3,
+      "iteration": 9,
+      "score": 0.8,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 21,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 11,
-      "best_score_so_far": 0.3,
+      "iteration": 10,
+      "score": 0.8133333333333334,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 23,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
-      "iteration": 12,
-      "best_score_so_far": 0.3,
+      "iteration": 11,
+      "score": 0.8,
+      "best_score_so_far": 0.9066666666666667,
       "num_metric_calls_so_far": 25,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
+    },
+    {
+      "iteration": 12,
+      "score": 0.7333333333333333,
+      "best_score_so_far": 0.9066666666666667,
+      "num_metric_calls_so_far": 27,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 28,
+      "score": 0.8,
+      "best_score_so_far": 0.9066666666666667,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "new_candidate_score": 0.8,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 31,
-      "calls_this_iter": 3,
+      "score": 0.92,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 32,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.3,
+      "score": 0.7333333333333333,
+      "best_score_so_far": 0.92,
       "num_metric_calls_so_far": 34,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.3
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 37,
-      "calls_this_iter": 3,
+      "score": 0.76,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 36,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 39,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 41,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 40,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 43,
+      "score": 0.8933333333333333,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 42,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 46,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 44,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 50,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 46,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 53,
-      "calls_this_iter": 3,
+      "score": 0.76,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 48,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 55,
+      "score": 0.84,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 50,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Minimum of Non-negative Integer List\n\nReturns the smallest element in a non-empty list of non-negative integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list raises error\n-/\n\nnamespace MyMinList\n\n/--\nReturns the smallest element in a non-empty list of non-negative integers.\n\nExamples:\n- myMinList [7, 3, 9, 2] = 2\n- myMinList [5] = 5\nRaises error on empty list.\n-/\ndef myMinList (xs : List Nat) : Nat :=\n  match xs with\n  | [] => panic! \"Require non-empty list of non-negative integers\"\n  | (x::xs) => xs.foldl min x\n\n/-! Unit Tests -/\n\n-- Basic test\nexample : myMinList [7, 3, 9, 2] = 2 := by native_decide\n#eval myMinList [7, 3, 9, 2]  -- expected: 2\n\n-- Edge case: single element\nexample : myMinList [5] = 5 := by native_decide  \n#eval myMinList [5]  -- expected: 5\n\n-- Additional test cases\nexample : myMinList [1, 2, 3] = 1 := by native_decide\n#eval myMinList [1, 2, 3]  -- expected: 1\n\nexample : myMinList [10, 5, 8, 3, 9] = 3 := by native_decide\n#eval myMinList [10, 5, 8, 3, 9]  -- expected: 3\n\nexample : myMinList [3, 3, 3] = 3 := by native_decide\n#eval myMinList [3, 3, 3]  -- expected: 3\n\n/-! Properties -/\n\n/-- Pre-condition: List must not be empty and contain only non-negative integers -/\ndef Pre (xs : List Nat) : Prop := xs.length > 0\n\n/-- Post-condition: Result is the minimum value in the list -/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- Minimum value property: result is less than or equal to all elements -/\ntheorem min_property (xs : List Nat) (h : Pre xs) :\n  \u2200 x \u2208 xs, myMinList xs \u2264 x := sorry\n\n/-- Result membership property: result is an element of the input list -/\ntheorem member_property (xs : List Nat) (h : Pre xs) :\n  myMinList xs \u2208 xs := sorry\n\n/-- Main correctness theorem -/\ntheorem correctness (xs : List Nat) (h : Pre xs) :\n  Post xs (myMinList xs) := sorry\n\nend MyMinList",
+      "test_score": 0.8
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.3,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 5,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.8,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 8,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.8,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 29,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.3,
+    0.8,
+    0.8
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

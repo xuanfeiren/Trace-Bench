@@ -2,10 +2,11 @@
   "task_idx": 30,
   "task_id": 30,
   "success": false,
-  "final_score": 0.0,
-  "num_metric_calls": 51,
+  "final_score": 0.9733333333333334,
+  "num_metric_calls": 50,
   "success_at_metric_call": null,
-  "duration_seconds": 1364.793871641159,
+  "duration_seconds": 798.3217322826385,
   "model": "anthropic/claude-3.5-sonnet",
-  "early_stopped": false
+  "early_stopped": false,
+  "method": "gepa_direct"
 }

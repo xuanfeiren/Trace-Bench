@@ -3,221 +3,332 @@
   "task_id": 30,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8,
-  "num_metric_calls": 51,
-  "num_iterations_total": 25,
-  "num_candidates_discovered": 1,
+  "final_score": 0.9733333333333334,
+  "num_metric_calls": 50,
+  "num_iterations_total": 28,
+  "num_candidates_discovered": 4,
   "success_at_metric_call": null,
-  "duration_seconds": 1364.793871641159,
+  "best_lean_code": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even using pattern matching -/\ndef isEvenDigit (c : Char) : Bool :=\n  match c with\n  | '0' | '2' | '4' | '6' | '8' => true\n  | _ => false\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Single digit count property -/\ndef single_digit_count_prop (n : Nat) : Prop :=\n  n < 10 \u2192 countEvenDigits n = if isEvenDigit n.repr.data[0]! then 1 else 0\n\n/-- Digit count property -/\ndef digit_count_prop (n : Nat) : Prop :=\n  countEvenDigits n = (n.repr.data.filter isEvenDigit).length\n\n/-- Even digit characterization -/\ndef even_digit_char_prop (c : Char) : Prop :=\n  isEvenDigit c = (c.isDigit \u2227 (c.toNat - '0'.toNat) % 2 = 0)\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Single digit even theorem -/\ntheorem single_even_thm (n : Nat) :\n  single_even_prop n := sorry\n\n/-- Single digit odd theorem -/\ntheorem single_odd_thm (n : Nat) :\n  single_odd_prop n := sorry\n\n/-- Even digit characterization theorem -/\ntheorem even_digit_char_thm (c : Char) :\n  even_digit_char_prop c := sorry\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Digit count theorem -/\ntheorem digit_count_thm (n : Nat) :\n  digit_count_prop n := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1) \u2227\n  digit_count_prop n \u2227\n  (n < 10 \u2192 single_digit_count_prop n)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+  "duration_seconds": 798.3217322826385,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.8,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
+      "score": 0.76,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 9,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.92,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.92,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 11,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 13,
-      "calls_this_iter": 2,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 1,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 15,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 8,
-      "best_score_so_far": 0.8,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 17,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 9,
-      "best_score_so_far": 0.8,
+      "iteration": 8,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 19,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 10,
-      "best_score_so_far": 0.8,
+      "iteration": 9,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 21,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 11,
-      "best_score_so_far": 0.8,
+      "iteration": 10,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 23,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 12,
-      "best_score_so_far": 0.8,
+      "iteration": 11,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 25,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 13,
-      "best_score_so_far": 0.8,
+      "iteration": 12,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 27,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 14,
-      "best_score_so_far": 0.8,
+      "iteration": 13,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 29,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 15,
-      "best_score_so_far": 0.8,
+      "iteration": 14,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 31,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 16,
-      "best_score_so_far": 0.8,
+      "iteration": 15,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 33,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 17,
-      "best_score_so_far": 0.8,
+      "iteration": 16,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 35,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 18,
-      "best_score_so_far": 0.8,
+      "iteration": 17,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 37,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 19,
-      "best_score_so_far": 0.8,
+      "iteration": 18,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 39,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 20,
-      "best_score_so_far": 0.8,
+      "iteration": 19,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 41,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
+    },
+    {
+      "iteration": 20,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 42,
+      "calls_this_iter": 1,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 43,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 44,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 45,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 46,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 47,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
       "iteration": 24,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 49,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 50,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Count Even Digits\n\nCounts the number of even digits in a non-negative integer.\n\nEdge cases:\n- 0 has one even digit (0)\n- Only non-negative integers are valid inputs\n-/\n\nnamespace CountEvenDigits\n\n/-- Helper function to check if a digit is even -/\ndef isEvenDigit (c : Char) : Bool :=\n  let digit := c.toNat - '0'.toNat\n  digit % 2 == 0\n\n/--\nReturns the number of even digits in a non-negative integer.\n\nExamples:\n#eval countEvenDigits 24863 -- expected: 4\n#eval countEvenDigits 0     -- expected: 1\n#eval countEvenDigits 13579 -- expected: 0\n-/\ndef countEvenDigits (n : Nat) : Nat :=\n  let digits := n.repr.data\n  digits.foldl (fun count c =>\n    if isEvenDigit c then\n      count + 1\n    else\n      count\n  ) 0\n\n/--\nImperative implementation using mutable state\n-/\ndef countEvenDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    let digits := n.repr.data\n    let mut count := 0\n    for c in digits do\n      if isEvenDigit c then\n        count := count + 1\n    return count\n\n/-! # Tests -/\n\n/-- Basic test case -/\nexample : countEvenDigits 24863 = 4 := by native_decide\n#eval countEvenDigits 24863 -- expected: 4\n\n/-- Edge case: zero -/\nexample : countEvenDigits 0 = 1 := by native_decide\n#eval countEvenDigits 0 -- expected: 1\n\n/-- Test case with no even digits -/\nexample : countEvenDigits 13579 = 0 := by native_decide\n#eval countEvenDigits 13579 -- expected: 0\n\n/-- Additional test cases -/\nexample : countEvenDigits 2468 = 4 := by native_decide\n#eval countEvenDigits 2468 -- expected: 4\n\nexample : countEvenDigits 1111 = 0 := by native_decide\n#eval countEvenDigits 1111 -- expected: 0\n\n/-! # Imperative Implementation Tests -/\n\n/-- Verify imperative implementation matches functional -/\nexample : countEvenDigitsImp 24863 = 4 := by native_decide\nexample : countEvenDigitsImp 0 = 1 := by native_decide\nexample : countEvenDigitsImp 13579 = 0 := by native_decide\n\n/-! # Properties -/\n\n/-- Pre-condition: Input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Single digit even property -/\ndef single_even_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = (n % 2 = 0)\n\n/-- Single digit odd property -/\ndef single_odd_prop (n : Nat) : Prop :=\n  n < 10 \u2192 isEvenDigit n.repr.data[0]! = false \u2192 n % 2 = 1\n\n/-- Result is non-negative -/\ntheorem result_non_negative (n : Nat) : \n  countEvenDigits n \u2265 0 := by simp\n\n/-- Zero has exactly one even digit -/\ntheorem zero_has_one_even_digit : \n  countEvenDigits 0 = 1 := by native_decide\n\n/-- Result cannot exceed number of digits -/\ntheorem result_bounded (n : Nat) : \n  countEvenDigits n \u2264 n.repr.length := sorry\n\n/-- Post-condition combining all properties -/\ndef Post_prop (n : Nat) : Prop :=\n  countEvenDigits n \u2265 0 \u2227 \n  countEvenDigits n \u2264 n.repr.length \u2227\n  (n = 0 \u2192 countEvenDigits n = 1)\n\n/-- Implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) :\n  countEvenDigits n = countEvenDigitsImp n := sorry\n\n/-- Correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post_prop n := sorry\n\nend CountEvenDigits",
+      "test_score": 0.8666666666666667
     },
     {
-      "iteration": 25,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 51,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.76,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 7,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.92,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 10,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.92,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 13,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.76,
+    0.92,
+    0.9733333333333334
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

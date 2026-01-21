@@ -3,189 +3,343 @@
   "task_id": 17,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.84,
-  "num_metric_calls": 51,
-  "num_iterations_total": 21,
-  "num_candidates_discovered": 9,
+  "final_score": 0.9733333333333334,
+  "num_metric_calls": 50,
+  "num_iterations_total": 29,
+  "num_candidates_discovered": 6,
   "success_at_metric_call": null,
-  "duration_seconds": 1313.1686797142029,
+  "best_lean_code": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace MyFibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [2:n+1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test: F(5) = 5 -/\nexample : fib 5 = 5 := by native_decide\n#eval fib 5 -- expected: 5\n\n/-- Basic test: F(4) = 3 -/\nexample : fib 4 = 3 := by native_decide\n#eval fib 4 -- expected: 3\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case: F(2) = 1 -/\nexample : fib 2 = 1 := by native_decide\n#eval fib 2 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-- Edge case iterative: F(2) = 1 -/\nexample : fibIter 2 = 1 := by native_decide\n#eval fibIter 2 -- expected: 1\n\n/-!\n# Test Cases Matching Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Test implementations match on basic case -/\nexample : fib 6 = fibIter 6 := by native_decide\n#eval decide (fib 6 = fibIter 6) -- expected: true\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\ntheorem fib_base_two : fib 2 = 1 := by native_decide\n\n/-! \n# Core Properties \n-/\n\n/-- Non-negativity property: all Fibonacci numbers are non-negative -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property: sequence is strictly increasing for n \u2265 2 -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property: F(0)=0 and F(1)=1 -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-- Implementation equivalence property: recursive and iterative versions match -/\ndef ImplementationsProp (n : Nat) : Prop :=\n  fib n = fibIter n\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-- Implementations are equivalent -/\ntheorem fib_implementations (n : Nat) : ImplementationsProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n \u2227\n  ImplementationsProp n\n\n/-- Main correctness theorem: Pre implies Post -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend MyFibonacci",
+  "duration_seconds": 878.115385055542,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 10,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 11,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.72
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.8,
+      "score": 0.8933333333333333,
+      "best_score_so_far": 0.9333333333333333,
       "num_metric_calls_so_far": 14,
-      "calls_this_iter": 4,
+      "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "new_candidate_score": 0.8933333333333333,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 18,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.8933333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 16,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 3,
+      "score": 0.92,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 18,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 23,
+      "score": 0.7333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 26,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.92,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 1,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 30,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 33,
-      "calls_this_iter": 3,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 35,
+      "score": 0.92,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 27,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 37,
+      "score": 0.92,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 29,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 39,
-      "calls_this_iter": 2,
+      "score": 0.8,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 30,
+      "calls_this_iter": 1,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 42,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 32,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0\n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\n-/\ndef fib : Nat \u2192 Nat\n| 0 => 0\n| 1 => 1\n| n + 2 => fib n + fib (n + 1)\n\n/--\nMore efficient iterative implementation of Fibonacci using mutable state\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-!\n# Tests\n-/\n\n/-- Basic test case: fib(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Edge case: fib(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: fib(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-!\n# Tests for Iterative Implementation\n-/\n\n/-- Basic test case for iterative: fibIter(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide\n#eval fibIter 6 -- expected: 8\n\n/-- Edge case for iterative: fibIter(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case for iterative: fibIter(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Properties\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- First two Fibonacci numbers are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\n\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Recursive property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef recursive_prop (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- The recursive implementation and iterative implementation are equivalent -/\ntheorem fib_equiv (n : Nat) : fib n = fibIter n := sorry\n\nend Fibonacci",
+      "test_score": 0.8
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 45,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 35,
       "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9333333333333333,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Test Cases From Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Non-negativity property -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n\n\n/-- Main correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- The recursive and iterative implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) : fib n = fibIter n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend Fibonacci",
+      "test_score": 0.92
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 48,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 37,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Test Cases From Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Non-negativity property -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n\n\n/-- Main correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- The recursive and iterative implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) : fib n = fibIter n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend Fibonacci",
+      "test_score": 0.92
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 52,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 39,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Test Cases From Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Non-negativity property -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n\n\n/-- Main correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- The recursive and iterative implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) : fib n = fibIter n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend Fibonacci",
+      "test_score": 0.92
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 55,
-      "calls_this_iter": 3,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
+      "num_metric_calls_so_far": 41,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Test Cases From Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Non-negativity property -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n\n\n/-- Main correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- The recursive and iterative implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) : fib n = fibIter n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend Fibonacci",
+      "test_score": 0.92
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 57,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 43,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace Fibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [:n-1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-!\n# Test Cases From Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\n\n/-- Non-negativity property -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n\n\n/-- Main correctness theorem -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- The recursive and iterative implementations are equivalent -/\ntheorem implementations_equivalent (n : Nat) : fib n = fibIter n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend Fibonacci",
+      "test_score": 0.92
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 59,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 46,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace MyFibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [2:n+1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test: F(5) = 5 -/\nexample : fib 5 = 5 := by native_decide\n#eval fib 5 -- expected: 5\n\n/-- Basic test: F(4) = 3 -/\nexample : fib 4 = 3 := by native_decide\n#eval fib 4 -- expected: 3\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case: F(2) = 1 -/\nexample : fib 2 = 1 := by native_decide\n#eval fib 2 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-- Edge case iterative: F(2) = 1 -/\nexample : fibIter 2 = 1 := by native_decide\n#eval fibIter 2 -- expected: 1\n\n/-!\n# Test Cases Matching Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Test implementations match on basic case -/\nexample : fib 6 = fibIter 6 := by native_decide\n#eval decide (fib 6 = fibIter 6) -- expected: true\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\ntheorem fib_base_two : fib 2 = 1 := by native_decide\n\n/-! \n# Core Properties \n-/\n\n/-- Non-negativity property: all Fibonacci numbers are non-negative -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property: sequence is strictly increasing for n \u2265 2 -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property: F(0)=0 and F(1)=1 -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-- Implementation equivalence property: recursive and iterative versions match -/\ndef ImplementationsProp (n : Nat) : Prop :=\n  fib n = fibIter n\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-- Implementations are equivalent -/\ntheorem fib_implementations (n : Nat) : ImplementationsProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n \u2227\n  ImplementationsProp n\n\n/-- Main correctness theorem: Pre implies Post -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend MyFibonacci",
+      "test_score": 0.9733333333333334
+    },
+    {
+      "iteration": 22,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace MyFibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [2:n+1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test: F(5) = 5 -/\nexample : fib 5 = 5 := by native_decide\n#eval fib 5 -- expected: 5\n\n/-- Basic test: F(4) = 3 -/\nexample : fib 4 = 3 := by native_decide\n#eval fib 4 -- expected: 3\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case: F(2) = 1 -/\nexample : fib 2 = 1 := by native_decide\n#eval fib 2 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-- Edge case iterative: F(2) = 1 -/\nexample : fibIter 2 = 1 := by native_decide\n#eval fibIter 2 -- expected: 1\n\n/-!\n# Test Cases Matching Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Test implementations match on basic case -/\nexample : fib 6 = fibIter 6 := by native_decide\n#eval decide (fib 6 = fibIter 6) -- expected: true\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\ntheorem fib_base_two : fib 2 = 1 := by native_decide\n\n/-! \n# Core Properties \n-/\n\n/-- Non-negativity property: all Fibonacci numbers are non-negative -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property: sequence is strictly increasing for n \u2265 2 -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property: F(0)=0 and F(1)=1 -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-- Implementation equivalence property: recursive and iterative versions match -/\ndef ImplementationsProp (n : Nat) : Prop :=\n  fib n = fibIter n\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-- Implementations are equivalent -/\ntheorem fib_implementations (n : Nat) : ImplementationsProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n \u2227\n  ImplementationsProp n\n\n/-- Main correctness theorem: Pre implies Post -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend MyFibonacci",
+      "test_score": 0.9733333333333334
+    },
+    {
+      "iteration": 23,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 50,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fibonacci Number Calculator\n\nReturns the nth Fibonacci number for natural number indices.\n\nEdge cases:\n- fibonacci(0) = 0 \n- fibonacci(1) = 1\n- fibonacci(n) = fibonacci(n-1) + fibonacci(n-2) for n > 1\n- Function operates on natural numbers (non-negative integers)\n-/\n\nnamespace MyFibonacci\n\n/--\nReturns the nth Fibonacci number for a natural number input.\nRecursive implementation that follows the mathematical definition.\n\nProperties:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n-/\ndef fib : Nat \u2192 Nat \n| 0 => 0\n| 1 => 1\n| n + 2 => fib (n + 1) + fib n\n\n/--\nIterative implementation matching the Python version's algorithm.\nUses mutable state for efficiency.\n-/\ndef fibIter (n : Nat) : Nat := Id.run do\n  if n \u2264 1 then\n    return n\n  let mut a := 0\n  let mut b := 1\n  for _ in [2:n+1] do\n    let temp := a + b\n    a := b\n    b := temp\n  return b\n\n/-! \n# Basic Unit Tests\n-/\n\n/-- Basic test: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Basic test: F(5) = 5 -/\nexample : fib 5 = 5 := by native_decide\n#eval fib 5 -- expected: 5\n\n/-- Basic test: F(4) = 3 -/\nexample : fib 4 = 3 := by native_decide\n#eval fib 4 -- expected: 3\n\n/-- Basic test for iterative: F(6) = 8 -/\nexample : fibIter 6 = 8 := by native_decide \n#eval fibIter 6 -- expected: 8\n\n/-!\n# Edge Case Tests\n-/\n\n/-- Edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Edge case: F(1) = 1 -/\nexample : fib 1 = 1 := by native_decide\n#eval fib 1 -- expected: 1\n\n/-- Edge case: F(2) = 1 -/\nexample : fib 2 = 1 := by native_decide\n#eval fib 2 -- expected: 1\n\n/-- Edge case iterative: F(0) = 0 -/\nexample : fibIter 0 = 0 := by native_decide\n#eval fibIter 0 -- expected: 0\n\n/-- Edge case iterative: F(1) = 1 -/\nexample : fibIter 1 = 1 := by native_decide\n#eval fibIter 1 -- expected: 1\n\n/-- Edge case iterative: F(2) = 1 -/\nexample : fibIter 2 = 1 := by native_decide\n#eval fibIter 2 -- expected: 1\n\n/-!\n# Test Cases Matching Python\n-/\n\n/-- Test Python basic case: F(6) = 8 -/\nexample : fib 6 = 8 := by native_decide\n#eval fib 6 -- expected: 8\n\n/-- Test Python edge case: F(0) = 0 -/\nexample : fib 0 = 0 := by native_decide\n#eval fib 0 -- expected: 0\n\n/-- Test implementations match on basic case -/\nexample : fib 6 = fibIter 6 := by native_decide\n#eval decide (fib 6 = fibIter 6) -- expected: true\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Base cases are fixed -/\ntheorem fib_base_zero : fib 0 = 0 := by native_decide\ntheorem fib_base_one : fib 1 = 1 := by native_decide\ntheorem fib_base_two : fib 2 = 1 := by native_decide\n\n/-! \n# Core Properties \n-/\n\n/-- Non-negativity property: all Fibonacci numbers are non-negative -/\ndef NonNegProp (n : Nat) : Prop := fib n \u2265 0\n\n/-- Monotonicity property: sequence is strictly increasing for n \u2265 2 -/\ndef MonotoneProp (n : Nat) : Prop := \n  n \u2265 2 \u2192 fib n > fib (n-1)\n\n/-- Recursive definition property: F(n) = F(n-1) + F(n-2) for n \u2265 2 -/\ndef RecursiveProp (n : Nat) : Prop :=\n  n \u2265 2 \u2192 fib n = fib (n-1) + fib (n-2)\n\n/-- Initial values property: F(0)=0 and F(1)=1 -/\ndef InitialValuesProp (n : Nat) : Prop :=\n  (n = 0 \u2192 fib n = 0) \u2227 (n = 1 \u2192 fib n = 1)\n\n/-- Implementation equivalence property: recursive and iterative versions match -/\ndef ImplementationsProp (n : Nat) : Prop :=\n  fib n = fibIter n\n\n/-! \n# Core Properties Theorems\n-/\n\n/-- All Fibonacci numbers are non-negative -/\ntheorem fib_nonneg (n : Nat) : NonNegProp n := sorry\n\n/-- Fibonacci sequence is strictly increasing for n \u2265 2 -/\ntheorem fib_monotone (n : Nat) : MonotoneProp n := sorry\n\n/-- Fibonacci numbers follow the recursive definition -/\ntheorem fib_recursive (n : Nat) : RecursiveProp n := sorry\n\n/-- Initial values are correct -/\ntheorem fib_initial (n : Nat) : InitialValuesProp n := sorry\n\n/-- Implementations are equivalent -/\ntheorem fib_implementations (n : Nat) : ImplementationsProp n := sorry\n\n/-!\n# Post-Condition and Correctness\n-/\n\n/-- Post-condition combines all core properties -/\ndef Post (n : Nat) : Prop :=\n  NonNegProp n \u2227 \n  MonotoneProp n \u2227\n  RecursiveProp n \u2227\n  InitialValuesProp n \u2227\n  ImplementationsProp n\n\n/-- Main correctness theorem: Pre implies Post -/\ntheorem correctness (n : Nat) (h : Pre n) : Post n := sorry\n\n/-- Base cases are handled correctly in both implementations -/\ntheorem base_cases_correct (n : Nat) : n \u2264 1 \u2192 fib n = fibIter n \u2227 fib n = n := sorry\n\nend MyFibonacci",
+      "test_score": 0.9733333333333334
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.8,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 7,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 10,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.8933333333333333,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 13,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8933333333333333,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 5,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 34,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9333333333333333,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 6,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 45,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.8,
+    0.8666666666666667,
+    0.8933333333333333,
+    0.9333333333333333,
+    0.9733333333333334
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

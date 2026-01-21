@@ -3,205 +3,310 @@
   "task_id": 37,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8,
-  "num_metric_calls": 51,
-  "num_iterations_total": 23,
-  "num_candidates_discovered": 5,
+  "final_score": 0.76,
+  "num_metric_calls": 50,
+  "num_iterations_total": 26,
+  "num_candidates_discovered": 2,
   "success_at_metric_call": null,
-  "duration_seconds": 1385.2192330360413,
+  "best_lean_code": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+  "duration_seconds": 598.4201190471649,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 7,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 10,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 13,
-      "calls_this_iter": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 15,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 13,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 18,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 9,
+      "score": 0.76,
       "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 24,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.3
+      "new_candidate_score": 0.76,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 10,
+      "score": 0.76,
       "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 27,
-      "calls_this_iter": 3,
+      "num_metric_calls_so_far": 22,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 11,
+      "score": 0.76,
       "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 29,
+      "num_metric_calls_so_far": 24,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 12,
+      "score": 0.76,
       "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 31,
+      "num_metric_calls_so_far": 26,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 13,
+      "score": 0.76,
       "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 33,
+      "num_metric_calls_so_far": 28,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 35,
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 37,
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 32,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 39,
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 34,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 41,
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 18,
+      "score": 0.8,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 43,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 19,
+      "score": 0.76,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 45,
+      "num_metric_calls_so_far": 40,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 20,
+      "score": 0.76,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 47,
+      "num_metric_calls_so_far": 42,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 21,
+      "score": 0.76,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 49,
+      "num_metric_calls_so_far": 44,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 22,
+      "score": 0.76,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 52,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
+      "num_metric_calls_so_far": 46,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
     },
     {
       "iteration": 23,
+      "score": 0.76,
       "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 55,
-      "calls_this_iter": 3,
+      "num_metric_calls_so_far": 48,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
+    },
+    {
+      "iteration": 24,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 50,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Word Reverser\n\nFunction to reverse each word in a string while preserving word order.\n\nEdge cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by Lean's type system)\n-/\n\nnamespace ReverseWords\n\n/--\nReverses a single word represented as a list of characters.\n-/\ndef reverseWord (word : List Char) : List Char :=\n  word.reverse\n\n/--\nSplits a string into words and reverses each word, then joins them back.\nInput must be a string.\n\nExamples:\n```lean\n#eval reverseWords \"hello world\" -- returns \"olleh dlrow\"\n#eval reverseWords \"lean is great\" -- returns \"nael si taerg\"\n#eval reverseWords \"\" -- returns \"\"\n```\n-/\ndef reverseWords (s : String) : String := Id.run do\n  let words := s.split (\u00b7 == ' ')\n  let reversedWords := words.map (fun word => String.mk (reverseWord word.data))\n  String.join (List.intersperse \" \" reversedWords)\n\n/-!\n# Tests\n-/\n\n/-- Basic test case -/\nexample : reverseWords \"hello world\" = \"olleh dlrow\" := by native_decide\n#eval reverseWords \"hello world\" -- expected: \"olleh dlrow\"\n\n/-- Test with more words -/\nexample : reverseWords \"lean is great\" = \"nael si taerg\" := by native_decide\n#eval reverseWords \"lean is great\" -- expected: \"nael si taerg\"\n\n/-- Edge case: empty string -/\nexample : reverseWords \"\" = \"\" := by native_decide\n#eval reverseWords \"\" -- expected: \"\"\n\n/-- Edge case: single word -/\nexample : reverseWords \"hello\" = \"olleh\" := by native_decide\n#eval reverseWords \"hello\" -- expected: \"olleh\"\n\n/-- Edge case: string with multiple spaces -/\nexample : reverseWords \"hello   world\" = \"olleh   dlrow\" := by native_decide\n#eval reverseWords \"hello   world\" -- expected: \"olleh   dlrow\"\n\n/-!\n# Properties\n-/\n\n/-- Empty string property -/\ntheorem empty_string_prop : reverseWords \"\" = \"\" := by native_decide\n\n/-- Reversing twice gives original string -/\ntheorem double_reverse_prop (s : String) : \n  reverseWords (reverseWords s) = s := sorry\n\nend ReverseWords",
+      "test_score": 0.76
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 19,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.76
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

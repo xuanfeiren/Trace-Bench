@@ -5,203 +5,308 @@
   "early_stopped": false,
   "final_score": 0.3,
   "num_metric_calls": 50,
-  "num_iterations_total": 23,
-  "num_candidates_discovered": 4,
+  "num_iterations_total": 26,
+  "num_candidates_discovered": 2,
   "success_at_metric_call": null,
-  "duration_seconds": 1088.0802421569824,
-  "initial_seed_score": 0.3,
+  "best_lean_code": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+  "duration_seconds": 427.2988049983978,
+  "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 3,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 2,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 5,
+      "num_metric_calls_so_far": 6,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 3,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 7,
+      "num_metric_calls_so_far": 8,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 4,
+      "score": 0.3,
       "best_score_so_far": 0.3,
       "num_metric_calls_so_far": 10,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.3
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 5,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 13,
-      "calls_this_iter": 3,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 6,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 15,
+      "num_metric_calls_so_far": 14,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 7,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 17,
+      "num_metric_calls_so_far": 16,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 8,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 19,
+      "num_metric_calls_so_far": 18,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 9,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 21,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 10,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 24,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.3
+      "num_metric_calls_so_far": 22,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 11,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 27,
-      "calls_this_iter": 3,
+      "num_metric_calls_so_far": 24,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 12,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 30,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.3
+      "num_metric_calls_so_far": 26,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 13,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 33,
-      "calls_this_iter": 3,
+      "num_metric_calls_so_far": 28,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 14,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 35,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 15,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 37,
+      "num_metric_calls_so_far": 32,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 16,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 39,
+      "num_metric_calls_so_far": 34,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 17,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 41,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 18,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 43,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 19,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 45,
+      "num_metric_calls_so_far": 40,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 20,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 47,
+      "num_metric_calls_so_far": 42,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 21,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 49,
+      "num_metric_calls_so_far": 44,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 22,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 51,
+      "num_metric_calls_so_far": 46,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
     },
     {
       "iteration": 23,
+      "score": 0.3,
       "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 53,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
+    },
+    {
+      "iteration": 24,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 50,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# List Parity Sum\nReturns the parity (0 or 1) of the sum of all elements in a list of even integers.\n\nEdge cases:\n- Sum of even numbers is always even (parity 0)\n- Empty list sums to 0 (parity 0)\n-/\n\nnamespace ListParitySum\n\n/-- Check if a number is even -/\ndef isEven (n : Int) : Bool := \n  n % 2 = 0\n\n/-- Precondition: Check if input is a list of even integers -/\ndef pre (xs : List Int) : Bool :=\n  xs.all isEven\n\n/-- \nReturn parity of sum for a list of even integers.\nRequires: All elements must be even integers\nReturns: 0 or 1 representing parity of sum\n-/\ndef prog (xs : List Int) : Option Int :=\n  if !pre xs then\n    none  -- Represent error case with none\n  else\n    some (xs.foldl (\u00b7 + \u00b7) 0 % 2)\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : prog [2, 4, 6] = some 0 := by native_decide\n#eval prog [2, 4, 6] -- Expected: some 0\n\n/-- Edge case: empty list -/\nexample : prog [] = some 0 := by native_decide \n#eval prog [] -- Expected: some 0\n\n/-- Edge case: single even number -/\nexample : prog [2] = some 0 := by native_decide\n#eval prog [2] -- Expected: some 0\n\n/-- Negative test: list with odd numbers should return none -/\nexample : prog [1, 3, 5] = none := by native_decide\n#eval prog [1, 3, 5] -- Expected: none\n\n/-- Negative test: mixed even and odd numbers should return none -/\nexample : prog [2, 3, 4] = none := by native_decide\n#eval prog [2, 3, 4] -- Expected: none\n\n/-! Properties and Theorems -/\n\n/-- Property: Sum of even numbers has even parity (0) -/\ntheorem even_sum_even_parity (xs : List Int) (h : pre xs = true) :\n  prog xs = some 0 := sorry\n\n/-- Property: Empty list has parity 0 -/\ntheorem empty_list_parity :\n  prog [] = some 0 := by native_decide\n\nend ListParitySum",
+      "test_score": 0.3
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 3,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.3
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

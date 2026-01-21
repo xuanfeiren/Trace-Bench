@@ -1,0 +1,17 @@
+task_idx,success,attempts,best_score,duration_seconds,model
+0,True,7,1.0093457943925235,377.35413670539856,anthropic/claude-3.7-sonnet
+1,False,10,0.0,248.2007224559784,anthropic/claude-3.7-sonnet
+2,True,7,14.146341463414634,175.7844603061676,anthropic/claude-3.7-sonnet
+3,False,10,0.948905109489051,540.51455950737,anthropic/claude-3.7-sonnet
+4,False,10,0.6194503171247357,513.0022368431091,anthropic/claude-3.7-sonnet
+5,True,10,1.0067796610169493,559.4893720149994,anthropic/claude-3.7-sonnet
+6,False,10,0.9465648854961831,575.6930112838745,anthropic/claude-3.7-sonnet
+7,False,10,0.0,280.75524139404297,anthropic/claude-3.7-sonnet
+8,False,10,0.06013986013986014,474.4287848472595,anthropic/claude-3.7-sonnet
+9,True,10,2.36697247706422,520.6119973659515,anthropic/claude-3.7-sonnet
+10,False,10,0.0,252.02473902702332,anthropic/claude-3.7-sonnet
+11,False,10,0.8377403846153846,553.0572552680969,anthropic/claude-3.7-sonnet
+12,False,10,0.0,349.9488070011139,anthropic/claude-3.7-sonnet
+13,False,10,0.43826530612244896,409.3505668640137,anthropic/claude-3.7-sonnet
+14,True,6,1.9757785467128026,242.0876579284668,anthropic/claude-3.7-sonnet
+15,False,10,0.9987654320987654,504.3923969268799,anthropic/claude-3.7-sonnet

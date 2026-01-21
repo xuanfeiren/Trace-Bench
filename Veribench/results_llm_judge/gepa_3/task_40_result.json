@@ -3,213 +3,332 @@
   "task_id": 40,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8666666666666667,
+  "final_score": 0.9733333333333334,
   "num_metric_calls": 50,
-  "num_iterations_total": 24,
-  "num_candidates_discovered": 2,
+  "num_iterations_total": 28,
+  "num_candidates_discovered": 5,
   "success_at_metric_call": null,
-  "duration_seconds": 1559.00239610672,
-  "initial_seed_score": 0.76,
+  "best_lean_code": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+  "duration_seconds": 860.7240281105042,
+  "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.76,
       "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 3,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 5,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.84,
+      "best_score_so_far": 0.92,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.84,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 4,
-      "best_score_so_far": 0.76,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9333333333333333,
       "num_metric_calls_so_far": 9,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
-      "iteration": 5,
-      "best_score_so_far": 0.76,
+      "iteration": 4,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 11,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
-      "iteration": 6,
-      "best_score_so_far": 0.8,
+      "iteration": 5,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 13,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
-      "iteration": 7,
-      "best_score_so_far": 0.8,
+      "iteration": 6,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 15,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
-      "iteration": 8,
-      "best_score_so_far": 0.8,
+      "iteration": 7,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 17,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
+    },
+    {
+      "iteration": 8,
+      "score": 0.84,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.84,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 19,
+      "score": 0.96,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 22,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nThis module implements a function that checks if all elements in a list are even integers.\n\nEdge cases:\n- Empty list returns True\n- Only works on integer lists (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n- `allEven [2, 4, 6] = true`\n- `allEven [1, 2, 4] = false` \n- `allEven [] = true`\n-/\ndef allEven (xs : List Nat) : Bool :=\n  match xs with\n  | [] => true  -- empty list case\n  | _  => xs.all (fun x => x % 2 = 0)\n\n/-! # Unit Tests -/\n\n/-- Basic test with all even numbers -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Test with some odd numbers -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list returns true -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- More test cases -/\nexample : allEven [0] = true := by native_decide\n#eval allEven [0]  -- expected: true\n\nexample : allEven [1] = false := by native_decide\n#eval allEven [1]  -- expected: false\n\nexample : allEven [2, 4, 8, 10] = true := by native_decide\n#eval allEven [2, 4, 8, 10]  -- expected: true\n\nexample : allEven [2, 3, 4] = false := by native_decide\n#eval allEven [2, 3, 4]  -- expected: false\n\n/-! # Properties and Theorems -/\n\n/-- Property: empty list always returns true -/\ntheorem empty_list_is_true : allEven [] = true := by native_decide\n\n/-- Property: list with single even number returns true -/\ntheorem single_even_is_true (n : Nat) (h : n % 2 = 0) : \n  allEven [n] = true := sorry\n\n/-- Property: list with single odd number returns false -/\ntheorem single_odd_is_false (n : Nat) (h : n % 2 = 1) :\n  allEven [n] = false := sorry\n\n/-- Property: concatenating two all-even lists preserves the all-even property -/\ntheorem concat_preserves_all_even (xs ys : List Nat)\n  (hxs : allEven xs = true) (hys : allEven ys = true) :\n  allEven (xs ++ ys) = true := sorry\n\nend AllEven",
+      "test_score": 0.8
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 23,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 12,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 25,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 13,
-      "best_score_so_far": 0.84,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 27,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 14,
-      "best_score_so_far": 0.84,
+      "iteration": 12,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 29,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 15,
-      "best_score_so_far": 0.8666666666666667,
+      "iteration": 13,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 31,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 16,
-      "best_score_so_far": 0.8666666666666667,
+      "iteration": 14,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 33,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 17,
-      "best_score_so_far": 0.8666666666666667,
+      "iteration": 15,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 35,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 18,
-      "best_score_so_far": 0.8666666666666667,
+      "iteration": 16,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 37,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 19,
-      "best_score_so_far": 0.8666666666666667,
+      "iteration": 17,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 39,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
+    },
+    {
+      "iteration": 18,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 40,
+      "calls_this_iter": 1,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
+    },
+    {
+      "iteration": 19,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 42,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 42,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.72
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 44,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 45,
-      "calls_this_iter": 3,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 46,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 47,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 49,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 50,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# All Even Elements Checker\n\nA module that checks if all elements in a list are even integers.\n\nFile structure:\n1. Core definitions and types\n2. Function implementations (functional and imperative)\n3. Properties and specifications\n4. Unit tests\n5. Theorems and correctness proofs\n\nEdge cases:\n- Empty list returns True\n- Only works on natural numbers (Nat in Lean)\n-/\n\nnamespace AllEven\n\n/-! ## Core Definitions -/\n\n/--\nReturns true if all elements in the list are even numbers.\n\nExamples:\n```lean\nallEven [2, 4, 6] = true\nallEven [1, 2, 4] = false\nallEven [] = true\n```\n-/\ndef allEven : List Nat \u2192 Bool := fun xs => xs.all (fun x => x % 2 = 0)\n\n/--\nImperative implementation using a mutable accumulator.\nSemantically equivalent to the functional version.\n-/\ndef allEvenImp (xs : List Nat) : Bool :=\n  Id.run do\n    let mut result := true\n    for x in xs do\n      if x % 2 \u2260 0 then\n        result := false\n    return result\n\n/-! ## Properties and Specifications -/\n\n/-- Pre-condition: Input must be a list of natural numbers -/\ndef Pre (xs : List Nat) : Prop := True \n\n/-- Property: Value is even -/\ndef isEven (n : Nat) : Prop := n % 2 = 0\n\n/-- Property: List contains only even numbers -/\ndef allEvenProp (xs : List Nat) : Prop :=\n  \u2200 x \u2208 xs, isEven x\n\n/-- Property: List contains at least one odd number -/\ndef hasOddProp (xs : List Nat) : Prop :=\n  \u2203 x \u2208 xs, \u00acisEven x\n\n/-- Property: Result is boolean -/\ndef isBoolResult (b : Bool) : Prop :=\n  b = true \u2228 b = false\n\n/-- Post-condition: Result matches all-even property -/\ndef Post (xs : List Nat) (result : Bool) : Prop := \n  (result = true \u2192 allEvenProp xs) \u2227\n  (result = false \u2192 hasOddProp xs) \u2227\n  isBoolResult result\n\n/-! ## Unit Tests -/\n\n/-- Basic positive test -/\nexample : allEven [2, 4, 6] = true := by native_decide\n#eval allEven [2, 4, 6]  -- expected: true\n\n/-- Basic negative test -/\nexample : allEven [1, 2, 4] = false := by native_decide\n#eval allEven [1, 2, 4]  -- expected: false\n\n/-- Edge case: empty list -/\nexample : allEven [] = true := by native_decide\n#eval allEven []  -- expected: true\n\n/-- Additional test cases -/\nexample : allEven [0] = true := by native_decide\nexample : allEven [2, 4, 8, 10] = true := by native_decide\nexample : allEven [1] = false := by native_decide\nexample : allEven [2, 3, 4] = false := by native_decide\n\n/-- Imperative implementation tests -/\nexample : allEvenImp [2, 4, 6] = true := by native_decide\nexample : allEvenImp [] = true := by native_decide\nexample : allEvenImp [1, 2, 4] = false := by native_decide\n\n/-! ## Theorems and Proofs -/\n\n/-- Empty list theorem -/\n@[simp] theorem empty_list_thm : allEven [] = true := by native_decide\n\n/-- Single even number theorem -/\ntheorem single_even_thm {n : Nat} (h : isEven n) : \n  allEven [n] = true := sorry\n\n/-- Single odd number theorem -/\ntheorem single_odd_thm {n : Nat} (h : \u00acisEven n) :\n  allEven [n] = false := sorry\n\n/-- Odd element implies false result -/\ntheorem odd_implies_false_thm {xs : List Nat} :\n  hasOddProp xs \u2192 allEven xs = false := sorry\n\n/-- Boolean result theorem -/\ntheorem bool_result_thm (xs : List Nat) :\n  isBoolResult (allEven xs) := sorry\n\n/-- Correctness theorem -/\ntheorem correctness_thm {xs : List Nat} (h : Pre xs) :\n  Post xs (allEven xs) := sorry\n\n/-- Implementation equivalence theorem -/\ntheorem impl_equiv_thm (xs : List Nat) :\n  allEven xs = allEvenImp xs := sorry\n\nend AllEven",
+      "test_score": 1.0
     },
     {
-      "iteration": 24,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 51,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.76,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 3,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.84,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 6,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.84,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.84,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 19,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.84,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 5,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 24,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.76,
+    0.84,
+    0.84,
+    0.9733333333333334
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

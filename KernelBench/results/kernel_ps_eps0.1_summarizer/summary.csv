@@ -1,0 +1,17 @@
+task_idx,success,best_score,duration_seconds,model
+0,False,0.0,0.0,unknown
+1,False,0.0,0.0,unknown
+2,True,10.347222222222223,0.0,unknown
+3,False,0.0,0.0,unknown
+4,True,0.8351955307262571,0.0,unknown
+5,False,0.0,0.0,unknown
+6,True,0.8031746031746031,0.0,unknown
+7,True,1.0105263157894737,0.0,unknown
+8,False,0.0,0.0,unknown
+9,True,3.0896226415094343,0.0,unknown
+10,True,1.0111940298507462,0.0,unknown
+11,True,1.0157819225251077,0.0,unknown
+12,True,1.0050761421319796,0.0,unknown
+13,True,1.0023337222870479,0.0,unknown
+14,True,1.010344827586207,0.0,unknown
+15,True,1.9858156028368794,0.0,unknown

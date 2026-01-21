@@ -1,207 +1,81 @@
 {
   "task_idx": 49,
   "task_id": 49,
-  "success": false,
-  "early_stopped": false,
-  "final_score": 0.76,
-  "num_metric_calls": 51,
-  "num_iterations_total": 23,
-  "num_candidates_discovered": 5,
-  "success_at_metric_call": null,
-  "duration_seconds": 1325.9641864299774,
+  "success": true,
+  "early_stopped": true,
+  "final_score": 1.0,
+  "num_metric_calls": 7,
+  "num_iterations_total": 5,
+  "num_candidates_discovered": 3,
+  "success_at_metric_call": 6,
+  "best_lean_code": "/-!\n# List Reversal\n\nThis module implements a function to reverse a list of natural numbers.\n\nEdge cases:\n- Empty list returns empty list.\n- Single element list returns the same list.\n-/\n\nnamespace MyReverse\n\n/--\nReverses a list of natural numbers.\n\nExamples:\n- `reverse [1, 2, 3, 4] = [4, 3, 2, 1]`\n- `reverse [] = []`\n- `reverse [1] = [1]`\n-/\ndef reverse (xs : List Nat) : List Nat :=\n  match xs with\n  | [] => []\n  | x::xs' => (reverse xs') ++ [x]\n\n/-!\n# Tests\n-/\n\n/-- Basic test: reverse [1,2,3,4] = [4,3,2,1] -/\nexample : reverse [1,2,3,4] = [4,3,2,1] := by native_decide\n#eval reverse [1,2,3,4] -- expected: [4,3,2,1]\n\n/-- Edge case test: empty list -/\nexample : reverse [] = ([] : List Nat) := by native_decide\n#eval reverse [] -- expected: []\n\n/-- Edge case test: single element list -/\nexample : reverse [1] = [1] := by native_decide\n#eval reverse [1] -- expected: [1]\n\n/-- Additional test: two element list -/\nexample : reverse [1, 2] = [2, 1] := by native_decide\n#eval reverse [1, 2] -- expected: [2, 1]\n\n/-!\n# Properties\n-/\n\n/-- Property: reversing twice yields the original list -/\ndef reverse_twice_prop (xs : List Nat) : Prop :=\n  reverse (reverse xs) = xs\n\n/-- Property: reverse of empty list is empty -/\ndef reverse_empty_prop : Prop :=\n  reverse [] = []\n\n/-- Property: reverse of single element list is unchanged -/\ndef reverse_singleton_prop (x : Nat) : Prop :=\n  reverse [x] = [x]\n\n/-- Property: length is preserved after reversal -/\ndef length_preservation_prop (xs : List Nat) : Prop :=\n  (reverse xs).length = xs.length\n\n/-- Property: membership is preserved after reversal -/\ndef membership_preservation_prop (xs : List Nat) (x : Nat) : Prop :=\n  x \u2208 xs \u2194 x \u2208 (reverse xs)\n\n/-- Property: reverse of concatenation equals concatenation of reverses in opposite order -/\ndef reverse_append_prop (xs ys : List Nat) : Prop :=\n  reverse (xs ++ ys) = (reverse ys) ++ (reverse xs)\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nReverses a list using imperative features.\nUses a mutable accumulator to build the reversed list.\n-/\ndef reverseImp (xs : List Nat) : List Nat :=\n  Id.run do\n    let mut acc : List Nat := []\n    for x in xs do\n      acc := x :: acc\n    return acc\n\n/-!\n# Theorems\n-/\n\n/-- Theorem: reversing twice yields the original list -/\ntheorem reverse_twice_thm (xs : List Nat) : reverse_twice_prop xs := sorry\n\n/-- Theorem: reverse of empty list is empty -/\ntheorem reverse_empty_thm : reverse_empty_prop := sorry\n\n/-- Theorem: reverse of single element list is unchanged -/\ntheorem reverse_singleton_thm (x : Nat) : reverse_singleton_prop x := sorry\n\n/-- Theorem: length is preserved after reversal -/\ntheorem length_preservation_thm (xs : List Nat) : length_preservation_prop xs := sorry\n\n/-- Theorem: membership is preserved after reversal -/\ntheorem membership_preservation_thm (xs : List Nat) (x : Nat) : \n  membership_preservation_prop xs x := sorry\n\n/-- Theorem: reverse of concatenation -/\ntheorem reverse_append_thm (xs ys : List Nat) : reverse_append_prop xs ys := sorry\n\n/-!\n# Post-condition\n-/\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post_prop (xs : List Nat) : Prop :=\n  reverse_twice_prop xs \u2227\n  reverse_empty_prop \u2227\n  (\u2200 x, reverse_singleton_prop x) \u2227\n  length_preservation_prop xs \u2227\n  (\u2200 x, membership_preservation_prop xs x) \u2227\n  (\u2200 ys, reverse_append_prop xs ys)\n\n/-- Correctness theorem: the function satisfies its post-condition -/\ntheorem correctness_thm (xs : List Nat) : Post_prop xs := sorry\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation: basic case -/\nexample : reverseImp [1,2,3,4] = [4,3,2,1] := by native_decide\n#eval reverseImp [1,2,3,4] -- expected: [4,3,2,1]\n\n/-- Test imperative implementation: empty list -/\nexample : reverseImp [] = ([] : List Nat) := by native_decide\n#eval reverseImp [] -- expected: []\n\n/-- Equivalence theorem: functional and imperative implementations coincide -/\ntheorem reverse_equivalence_thm (xs : List Nat) :\n  reverse xs = reverseImp xs := sorry\n\nend MyReverse",
+  "duration_seconds": 82.71090388298035,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 3,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "/-!\n# List Reversal\n\nThis module implements a function to reverse a list of natural numbers.\n\nEdge cases:\n- Empty list returns empty list\n- Single element list returns the same list\n-/\n\nnamespace ListReversal\n\n/--\nReverses a list of natural numbers.\n\nExamples:\n- `reverse [1, 2, 3, 4] = [4, 3, 2, 1]`\n- `reverse [] = []`\n-/\ndef reverse (xs : List Nat) : List Nat :=\n  xs.reverse\n\n/-!\n# Tests\n-/\n\n/-- Basic test: reverse [1,2,3,4] = [4,3,2,1] -/\nexample : reverse [1,2,3,4] = [4,3,2,1] := by native_decide\n#eval reverse [1,2,3,4] -- expected: [4,3,2,1]\n\n/-- Edge case test: empty list -/\nexample : reverse [] = ([] : List Nat) := by native_decide\n#eval reverse [] -- expected: []\n\n/-- Edge case test: single element list -/\nexample : reverse [1] = [1] := by native_decide\n#eval reverse [1] -- expected: [1]\n\n/-!\n# Properties\n-/\n\n/-- Property: reversing twice yields the original list -/\ndef reverse_twice_prop (xs : List Nat) : Prop :=\n  reverse (reverse xs) = xs\n\n/-- Property: reverse of empty list is empty -/\ndef reverse_empty_prop : Prop :=\n  reverse [] = []\n\n/-- Property: reverse of single element list is unchanged -/\ndef reverse_singleton_prop (x : Nat) : Prop :=\n  reverse [x] = [x]\n\n/-!\n# Theorems\n-/\n\n/-- Theorem: reversing twice yields the original list -/\ntheorem reverse_twice_thm (xs : List Nat) : reverse_twice_prop xs := sorry\n\n/-- Theorem: reverse of empty list is empty -/\ntheorem reverse_empty_thm : reverse_empty_prop := sorry\n\n/-- Theorem: reverse of single element list is unchanged -/\ntheorem reverse_singleton_thm (x : Nat) : reverse_singleton_prop x := sorry\n\n/-!\n# Post-condition\n-/\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post_prop (xs : List Nat) : Prop :=\n  reverse_twice_prop xs \u2227\n  reverse_empty_prop \u2227\n  (\u2200 x, reverse_singleton_prop x)\n\n/-- Correctness theorem: the function satisfies its post-condition -/\ntheorem correctness_thm (xs : List Nat) : Post_prop xs := sorry\n\nend ListReversal",
+      "test_score": 0.76
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 6,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 7,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "new_candidate_score": 1.0,
+      "best_lean_program": "/-!\n# List Reversal\n\nThis module implements a function to reverse a list of natural numbers.\n\nEdge cases:\n- Empty list returns empty list.\n- Single element list returns the same list.\n-/\n\nnamespace MyReverse\n\n/--\nReverses a list of natural numbers.\n\nExamples:\n- `reverse [1, 2, 3, 4] = [4, 3, 2, 1]`\n- `reverse [] = []`\n- `reverse [1] = [1]`\n-/\ndef reverse (xs : List Nat) : List Nat :=\n  match xs with\n  | [] => []\n  | x::xs' => (reverse xs') ++ [x]\n\n/-!\n# Tests\n-/\n\n/-- Basic test: reverse [1,2,3,4] = [4,3,2,1] -/\nexample : reverse [1,2,3,4] = [4,3,2,1] := by native_decide\n#eval reverse [1,2,3,4] -- expected: [4,3,2,1]\n\n/-- Edge case test: empty list -/\nexample : reverse [] = ([] : List Nat) := by native_decide\n#eval reverse [] -- expected: []\n\n/-- Edge case test: single element list -/\nexample : reverse [1] = [1] := by native_decide\n#eval reverse [1] -- expected: [1]\n\n/-- Additional test: two element list -/\nexample : reverse [1, 2] = [2, 1] := by native_decide\n#eval reverse [1, 2] -- expected: [2, 1]\n\n/-!\n# Properties\n-/\n\n/-- Property: reversing twice yields the original list -/\ndef reverse_twice_prop (xs : List Nat) : Prop :=\n  reverse (reverse xs) = xs\n\n/-- Property: reverse of empty list is empty -/\ndef reverse_empty_prop : Prop :=\n  reverse [] = []\n\n/-- Property: reverse of single element list is unchanged -/\ndef reverse_singleton_prop (x : Nat) : Prop :=\n  reverse [x] = [x]\n\n/-- Property: length is preserved after reversal -/\ndef length_preservation_prop (xs : List Nat) : Prop :=\n  (reverse xs).length = xs.length\n\n/-- Property: membership is preserved after reversal -/\ndef membership_preservation_prop (xs : List Nat) (x : Nat) : Prop :=\n  x \u2208 xs \u2194 x \u2208 (reverse xs)\n\n/-- Property: reverse of concatenation equals concatenation of reverses in opposite order -/\ndef reverse_append_prop (xs ys : List Nat) : Prop :=\n  reverse (xs ++ ys) = (reverse ys) ++ (reverse xs)\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nReverses a list using imperative features.\nUses a mutable accumulator to build the reversed list.\n-/\ndef reverseImp (xs : List Nat) : List Nat :=\n  Id.run do\n    let mut acc : List Nat := []\n    for x in xs do\n      acc := x :: acc\n    return acc\n\n/-!\n# Theorems\n-/\n\n/-- Theorem: reversing twice yields the original list -/\ntheorem reverse_twice_thm (xs : List Nat) : reverse_twice_prop xs := sorry\n\n/-- Theorem: reverse of empty list is empty -/\ntheorem reverse_empty_thm : reverse_empty_prop := sorry\n\n/-- Theorem: reverse of single element list is unchanged -/\ntheorem reverse_singleton_thm (x : Nat) : reverse_singleton_prop x := sorry\n\n/-- Theorem: length is preserved after reversal -/\ntheorem length_preservation_thm (xs : List Nat) : length_preservation_prop xs := sorry\n\n/-- Theorem: membership is preserved after reversal -/\ntheorem membership_preservation_thm (xs : List Nat) (x : Nat) : \n  membership_preservation_prop xs x := sorry\n\n/-- Theorem: reverse of concatenation -/\ntheorem reverse_append_thm (xs ys : List Nat) : reverse_append_prop xs ys := sorry\n\n/-!\n# Post-condition\n-/\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post_prop (xs : List Nat) : Prop :=\n  reverse_twice_prop xs \u2227\n  reverse_empty_prop \u2227\n  (\u2200 x, reverse_singleton_prop x) \u2227\n  length_preservation_prop xs \u2227\n  (\u2200 x, membership_preservation_prop xs x) \u2227\n  (\u2200 ys, reverse_append_prop xs ys)\n\n/-- Correctness theorem: the function satisfies its post-condition -/\ntheorem correctness_thm (xs : List Nat) : Post_prop xs := sorry\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation: basic case -/\nexample : reverseImp [1,2,3,4] = [4,3,2,1] := by native_decide\n#eval reverseImp [1,2,3,4] -- expected: [4,3,2,1]\n\n/-- Test imperative implementation: empty list -/\nexample : reverseImp [] = ([] : List Nat) := by native_decide\n#eval reverseImp [] -- expected: []\n\n/-- Equivalence theorem: functional and imperative implementations coincide -/\ntheorem reverse_equivalence_thm (xs : List Nat) :\n  reverse xs = reverseImp xs := sorry\n\nend MyReverse",
+      "test_score": 1.0
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.76,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 3,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 9,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 4,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 11,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 5,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 13,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 6,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 16,
-      "calls_this_iter": 3,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 6,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.6666666666666666
-    },
-    {
-      "iteration": 7,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 19,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 8,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 9,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 23,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 10,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 25,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 11,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 27,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 12,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 29,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 13,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 31,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 14,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 34,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.6666666666666666
-    },
-    {
-      "iteration": 15,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 37,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 16,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 39,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 17,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 42,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.6666666666666666
-    },
-    {
-      "iteration": 18,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 45,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 19,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 47,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 20,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 49,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 21,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 51,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 22,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 53,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 23,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 55,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": 1.0,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.76,
+    1.0
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

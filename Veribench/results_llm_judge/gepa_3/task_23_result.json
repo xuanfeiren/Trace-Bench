@@ -3,221 +3,310 @@
   "task_id": 23,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.0,
-  "num_metric_calls": 51,
-  "num_iterations_total": 25,
-  "num_candidates_discovered": 1,
+  "final_score": 0.3,
+  "num_metric_calls": 50,
+  "num_iterations_total": 26,
+  "num_candidates_discovered": 2,
   "success_at_metric_call": null,
-  "duration_seconds": 1519.386535167694,
+  "best_lean_code": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+  "duration_seconds": 556.1892881393433,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 7,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 9,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 5,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 11,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 13,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 15,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 16,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 17,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 18,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 19,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 21,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 22,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 23,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 24,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 25,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 26,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 27,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 28,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 29,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 31,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 32,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 33,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 34,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 35,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 37,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 39,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 40,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 41,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 42,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 43,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 44,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 45,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 46,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 47,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
       "iteration": 24,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 49,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 50,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Fast Fibonacci Implementation\nComputes Fibonacci numbers using matrix exponentiation for O(log n) time complexity.\n\nEdge cases:\n- F(0) = 0, F(1) = 1\n- Input must be non-negative\n-/\n\nnamespace FastFibonacci\n\n/-- Represents a 2x2 matrix as (a11, a12, a21, a22) -/\nstructure Matrix where\n  a11 : Nat\n  a12 : Nat\n  a21 : Nat\n  a22 : Nat\nderiving Repr\n\n/-- Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix) : Matrix := {\n  a11 := a.a11 * b.a11 + a.a12 * b.a21\n  a12 := a.a11 * b.a12 + a.a12 * b.a22\n  a21 := a.a21 * b.a11 + a.a22 * b.a21\n  a22 := a.a21 * b.a12 + a.a22 * b.a22\n}\n\n/-- Compute matrix^n using binary exponentiation -/\ndef matrixPower (matrix : Matrix) (n : Nat) : Matrix :=\n  if n = 0 then\n    -- Identity matrix\n    { a11 := 1, a12 := 0, a21 := 0, a22 := 1 }\n  else if n = 1 then\n    matrix\n  else\n    let half := matrixPower matrix (n / 2)\n    let result := matrixMultiply half half\n    if n % 2 = 1 then\n      matrixMultiply result matrix\n    else\n      result\n\n/--\nCompute the nth Fibonacci number using matrix exponentiation.\nFor non-negative n:\nF(0) = 0\nF(1) = 1\nF(n) = F(n-1) + F(n-2) for n > 1\n-/\ndef fastFibonacci (n : Nat) : Nat :=\n  if n \u2264 1 then\n    n\n  else\n    -- The Fibonacci matrix: [[1, 1], [1, 0]]\n    let fibMatrix : Matrix := { a11 := 1, a12 := 1, a21 := 1, a22 := 0 }\n    let resultMatrix := matrixPower fibMatrix (n - 1)\n    resultMatrix.a11\n\n/-! Unit Tests -/\n\n/-- Basic test case -/\nexample : fastFibonacci 7 = 13 := by native_decide\n#eval fastFibonacci 7 -- expected: 13\n\n/-- Edge case tests -/\nexample : fastFibonacci 0 = 0 := by native_decide\n#eval fastFibonacci 0 -- expected: 0\n\nexample : fastFibonacci 1 = 1 := by native_decide\n#eval fastFibonacci 1 -- expected: 1\n\n/-- Additional test cases -/\nexample : fastFibonacci 2 = 1 := by native_decide\n#eval fastFibonacci 2 -- expected: 1\n\nexample : fastFibonacci 3 = 2 := by native_decide\n#eval fastFibonacci 3 -- expected: 2\n\nexample : fastFibonacci 4 = 3 := by native_decide\n#eval fastFibonacci 4 -- expected: 3\n\nexample : fastFibonacci 5 = 5 := by native_decide\n#eval fastFibonacci 5 -- expected: 5\n\n/-! Correctness Theorems -/\n\n/-- Pre-condition: input must be non-negative (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Post-condition: basic Fibonacci properties -/\ndef Post (n : Nat) (result : Nat) : Prop :=\n  (n = 0 \u2192 result = 0) \u2227\n  (n = 1 \u2192 result = 1) \u2227\n  (n \u2265 2 \u2192 result = fastFibonacci (n-1) + fastFibonacci (n-2))\n\n/-- Correctness theorem -/\ntheorem fastFibonacci_correct (n : Nat) :\n  Pre n \u2192 Post n (fastFibonacci n) := sorry\n\nend FastFibonacci",
+      "test_score": 0.3
     },
     {
-      "iteration": 25,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 51,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 13,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.3
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

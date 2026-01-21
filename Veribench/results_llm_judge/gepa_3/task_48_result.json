@@ -1,191 +1,147 @@
 {
   "task_idx": 48,
   "task_id": 48,
-  "success": false,
-  "early_stopped": false,
-  "final_score": 0.8,
-  "num_metric_calls": 50,
-  "num_iterations_total": 21,
-  "num_candidates_discovered": 8,
-  "success_at_metric_call": null,
-  "duration_seconds": 1224.7207877635956,
+  "success": true,
+  "early_stopped": true,
+  "final_score": 1.0,
+  "num_metric_calls": 19,
+  "num_iterations_total": 11,
+  "num_candidates_discovered": 3,
+  "success_at_metric_call": 18,
+  "best_lean_code": "/-!\n# Even Numbers Filter\n\nReturns a list containing only even numbers from the input list.\n\nEdge cases:\n- Empty list returns empty list\n- List with no even numbers returns empty list\n- Function requires input to be a list of integers\n-/\n\nnamespace EvenNumbersFilter\n\n/--\nTakes a list of integers and returns a new list containing only the even numbers.\n-/\ndef filterEvenNumbers (xs : List Int) : List Int :=\n  xs.filter (fun x => x % 2 = 0)\n\n/--\nImperative implementation using mutable state\n-/\ndef filterEvenNumbersImp (xs : List Int) : List Int :=\n  Id.run do\n    let mut result : List Int := []\n    for x in xs do\n      if x % 2 = 0 then\n        result := result ++ [x]\n    return result\n\n/-!\n# Tests\n-/\n\n/-- Basic test: filter even numbers from a mixed list -/\nexample : filterEvenNumbers [1, 2, 3, 4, 5, 6] = [2, 4, 6] := by native_decide\n#eval filterEvenNumbers [1, 2, 3, 4, 5, 6] -- expected: [2, 4, 6]\n\n/-- Edge case test: empty list returns empty list -/\nexample : filterEvenNumbers [] = [] := by native_decide\n#eval filterEvenNumbers [] -- expected: []\n\n/-- Edge case test: list with no even numbers returns empty list -/\nexample : filterEvenNumbers [1, 3, 5] = [] := by native_decide\n#eval filterEvenNumbers [1, 3, 5] -- expected: []\n\n/-- Edge case test: list with only even numbers returns same numbers -/\nexample : filterEvenNumbers [2, 4, 6] = [2, 4, 6] := by native_decide\n#eval filterEvenNumbers [2, 4, 6] -- expected: [2, 4, 6]\n\n/-!\n# Pre and Post Conditions\n-/\n\n/-- Pre-condition: input must be a list of integers (always true in Lean) -/\ndef Pre (xs : List Int) : Prop := True\n\n/-- Post-condition: conjunction of all required properties -/\ndef Post (xs result : List Int) : Prop :=\n  -- Result only contains even numbers\n  (result.all (fun x => x % 2 = 0)) \u2227\n  -- All even numbers from input are preserved\n  (\u2200 x, x \u2208 xs \u2192 x % 2 = 0 \u2192 x \u2208 result) \u2227\n  -- Result is subset of input\n  (\u2200 x, x \u2208 result \u2192 x \u2208 xs) \u2227\n  -- Multiplicity is preserved\n  (\u2200 x, x % 2 = 0 \u2192 (result.count x = xs.count x)) \u2227\n  -- Operation is idempotent\n  (filterEvenNumbers result = result)\n\n/-!\n# Properties\n-/\n\n/-- Property: result list only contains even numbers -/\ndef resultOnlyHasEvenNumbers (xs : List Int) : Prop :=\n  (filterEvenNumbers xs).all (fun x => x % 2 = 0)\n\n/-- Property: all even numbers from input are preserved in output -/\ndef preservesAllEvenNumbers (xs : List Int) : Prop :=\n  \u2200 x, x \u2208 xs \u2192 x % 2 = 0 \u2192 x \u2208 (filterEvenNumbers xs)\n\n/-- Property: output list is a subset of input list -/\ndef outputIsSubset (xs : List Int) : Prop :=\n  \u2200 x, x \u2208 (filterEvenNumbers xs) \u2192 x \u2208 xs\n\n/-- Property: multiplicity of even numbers is preserved -/\ndef preservesMultiplicity (xs : List Int) : Prop :=\n  \u2200 x, x % 2 = 0 \u2192 ((filterEvenNumbers xs).count x = xs.count x)\n\n/-- Property: filtering is idempotent -/\ndef isIdempotent (xs : List Int) : Prop :=\n  filterEvenNumbers (filterEvenNumbers xs) = filterEvenNumbers xs\n\n/-!\n# Theorems\n-/\n\n/-- Theorem: result only contains even numbers -/\ntheorem resultOnlyEven (xs : List Int) :\n  resultOnlyHasEvenNumbers xs := sorry\n\n/-- Theorem: all even numbers are preserved -/\ntheorem preservesEven (xs : List Int) :\n  preservesAllEvenNumbers xs := sorry\n\n/-- Theorem: output is subset of input -/\ntheorem isSubset (xs : List Int) :\n  outputIsSubset xs := sorry\n\n/-- Theorem: multiplicity is preserved -/\ntheorem preservesCount (xs : List Int) :\n  preservesMultiplicity xs := sorry\n\n/-- Theorem: operation is idempotent -/\ntheorem idempotent (xs : List Int) :\n  isIdempotent xs := sorry\n\n/-- Correctness theorem: pre-condition implies post-condition -/\ntheorem correctness_thm (xs : List Int) (h : Pre xs) :\n  Post xs (filterEvenNumbers xs) := sorry\n\n/-- Equivalence theorem: functional and imperative implementations coincide -/\ntheorem impl_equivalence (xs : List Int) :\n  filterEvenNumbers xs = filterEvenNumbersImp xs := sorry\n\nend EvenNumbersFilter",
+  "duration_seconds": 215.8873007297516,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 8,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.3,
-      "num_metric_calls_so_far": 12,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 16,
-      "calls_this_iter": 4,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 12,
+      "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 19,
-      "calls_this_iter": 3,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 14,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 21,
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 16,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 23,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 9,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 25,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 10,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 27,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 11,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 30,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 19,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.8
+      "new_candidate_score": 1.0,
+      "best_lean_program": "/-!\n# Even Numbers Filter\n\nReturns a list containing only even numbers from the input list.\n\nEdge cases:\n- Empty list returns empty list\n- List with no even numbers returns empty list\n- Function requires input to be a list of integers\n-/\n\nnamespace EvenNumbersFilter\n\n/--\nTakes a list of integers and returns a new list containing only the even numbers.\n-/\ndef filterEvenNumbers (xs : List Int) : List Int :=\n  xs.filter (fun x => x % 2 = 0)\n\n/--\nImperative implementation using mutable state\n-/\ndef filterEvenNumbersImp (xs : List Int) : List Int :=\n  Id.run do\n    let mut result : List Int := []\n    for x in xs do\n      if x % 2 = 0 then\n        result := result ++ [x]\n    return result\n\n/-!\n# Tests\n-/\n\n/-- Basic test: filter even numbers from a mixed list -/\nexample : filterEvenNumbers [1, 2, 3, 4, 5, 6] = [2, 4, 6] := by native_decide\n#eval filterEvenNumbers [1, 2, 3, 4, 5, 6] -- expected: [2, 4, 6]\n\n/-- Edge case test: empty list returns empty list -/\nexample : filterEvenNumbers [] = [] := by native_decide\n#eval filterEvenNumbers [] -- expected: []\n\n/-- Edge case test: list with no even numbers returns empty list -/\nexample : filterEvenNumbers [1, 3, 5] = [] := by native_decide\n#eval filterEvenNumbers [1, 3, 5] -- expected: []\n\n/-- Edge case test: list with only even numbers returns same numbers -/\nexample : filterEvenNumbers [2, 4, 6] = [2, 4, 6] := by native_decide\n#eval filterEvenNumbers [2, 4, 6] -- expected: [2, 4, 6]\n\n/-!\n# Pre and Post Conditions\n-/\n\n/-- Pre-condition: input must be a list of integers (always true in Lean) -/\ndef Pre (xs : List Int) : Prop := True\n\n/-- Post-condition: conjunction of all required properties -/\ndef Post (xs result : List Int) : Prop :=\n  -- Result only contains even numbers\n  (result.all (fun x => x % 2 = 0)) \u2227\n  -- All even numbers from input are preserved\n  (\u2200 x, x \u2208 xs \u2192 x % 2 = 0 \u2192 x \u2208 result) \u2227\n  -- Result is subset of input\n  (\u2200 x, x \u2208 result \u2192 x \u2208 xs) \u2227\n  -- Multiplicity is preserved\n  (\u2200 x, x % 2 = 0 \u2192 (result.count x = xs.count x)) \u2227\n  -- Operation is idempotent\n  (filterEvenNumbers result = result)\n\n/-!\n# Properties\n-/\n\n/-- Property: result list only contains even numbers -/\ndef resultOnlyHasEvenNumbers (xs : List Int) : Prop :=\n  (filterEvenNumbers xs).all (fun x => x % 2 = 0)\n\n/-- Property: all even numbers from input are preserved in output -/\ndef preservesAllEvenNumbers (xs : List Int) : Prop :=\n  \u2200 x, x \u2208 xs \u2192 x % 2 = 0 \u2192 x \u2208 (filterEvenNumbers xs)\n\n/-- Property: output list is a subset of input list -/\ndef outputIsSubset (xs : List Int) : Prop :=\n  \u2200 x, x \u2208 (filterEvenNumbers xs) \u2192 x \u2208 xs\n\n/-- Property: multiplicity of even numbers is preserved -/\ndef preservesMultiplicity (xs : List Int) : Prop :=\n  \u2200 x, x % 2 = 0 \u2192 ((filterEvenNumbers xs).count x = xs.count x)\n\n/-- Property: filtering is idempotent -/\ndef isIdempotent (xs : List Int) : Prop :=\n  filterEvenNumbers (filterEvenNumbers xs) = filterEvenNumbers xs\n\n/-!\n# Theorems\n-/\n\n/-- Theorem: result only contains even numbers -/\ntheorem resultOnlyEven (xs : List Int) :\n  resultOnlyHasEvenNumbers xs := sorry\n\n/-- Theorem: all even numbers are preserved -/\ntheorem preservesEven (xs : List Int) :\n  preservesAllEvenNumbers xs := sorry\n\n/-- Theorem: output is subset of input -/\ntheorem isSubset (xs : List Int) :\n  outputIsSubset xs := sorry\n\n/-- Theorem: multiplicity is preserved -/\ntheorem preservesCount (xs : List Int) :\n  preservesMultiplicity xs := sorry\n\n/-- Theorem: operation is idempotent -/\ntheorem idempotent (xs : List Int) :\n  isIdempotent xs := sorry\n\n/-- Correctness theorem: pre-condition implies post-condition -/\ntheorem correctness_thm (xs : List Int) (h : Pre xs) :\n  Post xs (filterEvenNumbers xs) := sorry\n\n/-- Equivalence theorem: functional and imperative implementations coincide -/\ntheorem impl_equivalence (xs : List Int) :\n  filterEvenNumbers xs = filterEvenNumbersImp xs := sorry\n\nend EvenNumbersFilter",
+      "test_score": 1.0
     },
     {
-      "iteration": 12,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 33,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 13,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 35,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 14,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 38,
-      "calls_this_iter": 3,
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.6799999999999999
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
     },
     {
-      "iteration": 15,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 42,
-      "calls_this_iter": 4,
+      "iteration": 2,
+      "score": 0.76,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 11,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.7333333333333333
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
     },
     {
-      "iteration": 16,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 45,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 17,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 47,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 18,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 49,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 19,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 52,
-      "calls_this_iter": 3,
+      "iteration": 3,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 18,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.8
-    },
-    {
-      "iteration": 20,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 55,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 21,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 57,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": 1.0,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.76,
+    1.0
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

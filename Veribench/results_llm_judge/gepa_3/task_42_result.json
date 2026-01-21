@@ -3,221 +3,321 @@
   "task_id": 42,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8666666666666667,
-  "num_metric_calls": 52,
-  "num_iterations_total": 25,
-  "num_candidates_discovered": 2,
+  "final_score": 0.8,
+  "num_metric_calls": 50,
+  "num_iterations_total": 27,
+  "num_candidates_discovered": 4,
   "success_at_metric_call": null,
-  "duration_seconds": 1447.569461107254,
-  "initial_seed_score": 0.3,
+  "best_lean_code": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+  "duration_seconds": 721.9419801235199,
+  "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 3,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 4,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 5,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 6,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 7,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 8,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 9,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 10,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 11,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 12,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 13,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 14,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 15,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 16,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 17,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 18,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 19,
+      "score": 0.3,
+      "best_score_so_far": 0.3,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none  -- Return none for empty list\n  | x::xs => some (xs.foldl (\u00b7 * \u00b7) x)\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Option Int :=\n  match xs with\n  | [] => none\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return some result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = some 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = some 5 := by native_decide\n#eval productOfList [5] -- expected: some 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = some 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: some 1\n\n/-- Edge case: empty list -/\nexample : productOfList [] = none := by native_decide\n#eval productOfList [] -- expected: none\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = some 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: some 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = some 5 := by native_decide\n#eval productOfListImp [5] -- expected: some 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: result is Some for non-empty lists -/\ndef Post (xs : List Int) (result : Option Int) : Prop :=\n  match xs, result with\n  | [], none => True\n  | _::_, some _ => True\n  | _, _ => False\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.3
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.76,
+      "best_score_so_far": 0.76,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element\n- Empty list is invalid\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Empty list\"  -- Match Python's ValueError\n  | x::xs => xs.foldl (\u00b7 * \u00b7) x\n\n/-- Imperative version using mutation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Empty list\"\n  | x::xs => Id.run do\n    let mut result := x\n    for y in xs do\n      result := result * y\n    return result\n\n/-! # Tests -/\n\n/-- Basic test -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- More test cases -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\nexample : productOfList [7] = 7 := by native_decide\n#eval productOfList [7] -- expected: 7\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-! # Properties -/\n\n/-- Pre-condition: list is non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition: for non-empty lists, returns their product -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 result = (xs.foldl (\u00b7 * \u00b7) (xs.head!))\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Equivalence theorem between functional and imperative versions -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 23,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 26,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 25,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 28,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 27,
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 29,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 32,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 31,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 34,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 33,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 35,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 37,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 40,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 39,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 42,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 41,
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 44,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 43,
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 46,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 45,
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 48,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 47,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 50,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Product of List\nComputes the product of all elements in a non-empty list of integers.\n\nEdge cases:\n- Single-element list returns that element.\n- Empty list raises ValueError.\n-/\n\nnamespace ProductOfList\n\n/--\nReturns the product of all elements in a non-empty list of integers.\n\nExamples:\n- product_of_list [2, 3, 4] = 24\n- product_of_list [5] = 5\n- product_of_list [1, 1, 1] = 1\n\nThrows if list is empty.\n-/\ndef productOfList (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"  -- Match Python's ValueError message\n  | _ => xs.foldl (\u00b7 * \u00b7) 1  -- Start with 1 like Python implementation\n\n/-- Imperative version that exactly matches Python implementation -/\ndef productOfListImp (xs : List Int) : Int :=\n  match xs with\n  | [] => panic! \"Require non-empty List[int]\"\n  | _ => Id.run do\n    let mut result := 1  -- Start with 1 like Python\n    for x in xs do\n      result := result * x\n    return result\n\n/-! # Basic Tests -/\n\n/-- Basic test case: [2,3,4] -> 24 -/\nexample : productOfList [2, 3, 4] = 24 := by native_decide\n#eval productOfList [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element [5] -> 5 -/\nexample : productOfList [5] = 5 := by native_decide\n#eval productOfList [5] -- expected: 5\n\n/-- Edge case: all ones [1,1,1] -> 1 -/\nexample : productOfList [1, 1, 1] = 1 := by native_decide\n#eval productOfList [1, 1, 1] -- expected: 1\n\n/-- Test case: list with zero [10,0,5] -> 0 -/\nexample : productOfList [10, 0, 5] = 0 := by native_decide\n#eval productOfList [10, 0, 5] -- expected: 0\n\n/-! # Tests for Imperative Version -/\n\n/-- Basic test imperative -/\nexample : productOfListImp [2, 3, 4] = 24 := by native_decide\n#eval productOfListImp [2, 3, 4] -- expected: 24\n\n/-- Edge case: single element imperative -/\nexample : productOfListImp [5] = 5 := by native_decide\n#eval productOfListImp [5] -- expected: 5\n\n/-- Edge case: all ones imperative -/\nexample : productOfListImp [1, 1, 1] = 1 := by native_decide\n#eval productOfListImp [1, 1, 1] -- expected: 1\n\n/-! # Properties -/\n\n/-- Pre-condition: list must be non-empty -/\ndef Pre (xs : List Int) : Prop := xs \u2260 []\n\n/-- Post-condition properties -/\ndef Post (xs : List Int) (result : Int) : Prop :=\n  xs \u2260 [] \u2192 \n  (result = xs.foldl (\u00b7 * \u00b7) 1) \u2227  -- Matches implementation\n  (xs.length = 1 \u2192 result = xs.head!) \u2227  -- Single element case\n  (\u2200 x \u2208 xs, x = 0 \u2192 result = 0) -- Zero property\n\n/-- Correctness theorem -/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (productOfList xs) := sorry\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem equivalence_thm (xs : List Int) :\n  productOfList xs = productOfListImp xs := sorry\n\n/-- Single element list returns that element -/\ntheorem single_element_thm (x : Int) :\n  productOfList [x] = x := sorry\n\n/-- Product with zero gives zero -/\ntheorem zero_thm (xs : List Int) (h : 0 \u2208 xs) (hPre : Pre xs) :\n  productOfList xs = 0 := sorry\n\n/-- Product of all ones gives one -/\ntheorem ones_thm (n : Nat) (xs : List Int) (h : xs = List.replicate n 1) (hPre : Pre xs) :\n  productOfList xs = 1 := sorry\n\nend ProductOfList",
+      "test_score": 0.76
     },
     {
-      "iteration": 24,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 49,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 25,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 52,
-      "calls_this_iter": 3,
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.3,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 3,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.3,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.76,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 22,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.76,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.8,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 25,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.3,
+    0.76,
+    0.8
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

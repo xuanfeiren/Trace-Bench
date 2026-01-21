@@ -1,199 +1,92 @@
 {
   "task_idx": 18,
   "task_id": 18,
-  "success": false,
-  "early_stopped": false,
-  "final_score": 0.8666666666666667,
-  "num_metric_calls": 51,
-  "num_iterations_total": 22,
-  "num_candidates_discovered": 7,
-  "success_at_metric_call": null,
-  "duration_seconds": 1444.9292669296265,
+  "success": true,
+  "early_stopped": true,
+  "final_score": 1.0,
+  "num_metric_calls": 9,
+  "num_iterations_total": 6,
+  "num_candidates_discovered": 3,
+  "success_at_metric_call": 8,
+  "best_lean_code": "/-!\n# Power Function Implementation\nReturns base raised to the power of exponent for natural numbers.\n\nEdge cases:\n- power(n, 0) = 1 for any n\n- power(0, n) = 0 for n > 0\n- power(0, 0) = 1 by convention\n-/\n\nnamespace Power\n\n/--\nPower function that computes base^exponent for natural numbers.\nReturns base raised to the power of exponent.\n-/\ndef power (base exponent : Nat) : Nat :=\n  match exponent with\n  | 0 => 1\n  | n + 1 => base * power base n\n\n/-! \n# Tests\n-/\n\n/-- Basic unit test: 2^3 = 8 -/\nexample : power 2 3 = 8 := by native_decide\n#eval power 2 3 -- expected: 8\n\n/-- Edge case test: 0^0 = 1 -/\nexample : power 0 0 = 1 := by native_decide\n#eval power 0 0 -- expected: 1\n\n/-- Edge case test: n^0 = 1 -/\nexample : power 5 0 = 1 := by native_decide\n#eval power 5 0 -- expected: 1\n\n/-- Edge case test: 0^n = 0 for n > 0 -/\nexample : power 0 3 = 0 := by native_decide\n#eval power 0 3 -- expected: 0\n\n/-- Additional test: 3^2 = 9 -/\nexample : power 3 2 = 9 := by native_decide\n#eval power 3 2 -- expected: 9\n\n/-!\n# Property Theorems\n-/\n\n/-- Pre-condition: both inputs must be natural numbers (always true for Nat) -/\ndef Pre (base exponent : Nat) : Prop := True\n\n/-- Zero exponent property: n^0 = 1 for any n -/\ndef zero_exp_prop (n : Nat) : Prop := power n 0 = 1\n\n/-- Zero base property: 0^n = 0 for n > 0 -/\ndef zero_base_prop (n : Nat) : Prop := n > 0 \u2192 power 0 n = 0\n\n/-- Zero base zero exponent property: 0^0 = 1 -/\ndef zero_zero_prop : Prop := power 0 0 = 1\n\n/-- One base property: 1^n = 1 for any n -/\ndef one_base_prop (n : Nat) : Prop := power 1 n = 1\n\n/-- Power of successive exponents: a^(n+1) = a^n * a -/\ndef power_succ_prop (base n : Nat) : Prop := \n  power base (n + 1) = power base n * base\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post_prop (base exponent : Nat) : Prop :=\n  zero_exp_prop base \u2227  -- n^0 = 1\n  (exponent > 0 \u2192 zero_base_prop exponent) \u2227  -- 0^n = 0 for n > 0\n  zero_zero_prop \u2227  -- 0^0 = 1\n  one_base_prop exponent \u2227  -- 1^n = 1\n  power_succ_prop base exponent  -- a^(n+1) = a^n * a\n\n/-- Basic theorems -/\ntheorem zero_exp_thm (n : Nat) : zero_exp_prop n := sorry\ntheorem zero_base_thm (n : Nat) : zero_base_prop n := sorry\ntheorem zero_zero_thm : zero_zero_prop := sorry\ntheorem one_base_thm (n : Nat) : one_base_prop n := sorry\ntheorem power_succ_thm (base n : Nat) : power_succ_prop base n := sorry\n\n/-- Correctness theorem: Pre implies Post -/\ntheorem correctness_thm (base exponent : Nat) (hPre : Pre base exponent) : \n  Post_prop base exponent := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation of power function using mutable state\n-/\ndef powerImp (base exponent : Nat) : Nat :=\n  Id.run do\n    if exponent = 0 then\n      return 1\n    let mut result : Nat := 1\n    for _ in [:exponent] do\n      result := result * base\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation: 2^3 = 8 -/\nexample : powerImp 2 3 = 8 := by native_decide\n#eval powerImp 2 3 -- expected: 8\n\n/-- Test imperative implementation: 0^0 = 1 -/\nexample : powerImp 0 0 = 1 := by native_decide\n#eval powerImp 0 0 -- expected: 1\n\n/-- Test imperative implementation: 3^2 = 9 -/\nexample : powerImp 3 2 = 9 := by native_decide\n#eval powerImp 3 2 -- expected: 9\n\n/-- Test imperative implementation: 0^3 = 0 -/\nexample : powerImp 0 3 = 0 := by native_decide\n#eval powerImp 0 3 -- expected: 0\n\n/-- Equivalence theorem between functional and imperative implementations -/\ntheorem power_equivalence_thm (base exponent : Nat) :\n  power base exponent = powerImp base exponent := sorry\n\nend Power",
+  "duration_seconds": 107.3051221370697,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 4,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 7,
+      "score": 0.8,
+      "best_score_so_far": 0.8933333333333333,
+      "num_metric_calls_so_far": 6,
       "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.76,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
       "num_metric_calls_so_far": 9,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 4,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 11,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 5,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 14,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.8
+      "new_candidate_score": 1.0,
+      "best_lean_program": "/-!\n# Power Function Implementation\nReturns base raised to the power of exponent for natural numbers.\n\nEdge cases:\n- power(n, 0) = 1 for any n\n- power(0, n) = 0 for n > 0\n- power(0, 0) = 1 by convention\n-/\n\nnamespace Power\n\n/--\nPower function that computes base^exponent for natural numbers.\nReturns base raised to the power of exponent.\n-/\ndef power (base exponent : Nat) : Nat :=\n  match exponent with\n  | 0 => 1\n  | n + 1 => base * power base n\n\n/-! \n# Tests\n-/\n\n/-- Basic unit test: 2^3 = 8 -/\nexample : power 2 3 = 8 := by native_decide\n#eval power 2 3 -- expected: 8\n\n/-- Edge case test: 0^0 = 1 -/\nexample : power 0 0 = 1 := by native_decide\n#eval power 0 0 -- expected: 1\n\n/-- Edge case test: n^0 = 1 -/\nexample : power 5 0 = 1 := by native_decide\n#eval power 5 0 -- expected: 1\n\n/-- Edge case test: 0^n = 0 for n > 0 -/\nexample : power 0 3 = 0 := by native_decide\n#eval power 0 3 -- expected: 0\n\n/-- Additional test: 3^2 = 9 -/\nexample : power 3 2 = 9 := by native_decide\n#eval power 3 2 -- expected: 9\n\n/-!\n# Property Theorems\n-/\n\n/-- Pre-condition: both inputs must be natural numbers (always true for Nat) -/\ndef Pre (base exponent : Nat) : Prop := True\n\n/-- Zero exponent property: n^0 = 1 for any n -/\ndef zero_exp_prop (n : Nat) : Prop := power n 0 = 1\n\n/-- Zero base property: 0^n = 0 for n > 0 -/\ndef zero_base_prop (n : Nat) : Prop := n > 0 \u2192 power 0 n = 0\n\n/-- Zero base zero exponent property: 0^0 = 1 -/\ndef zero_zero_prop : Prop := power 0 0 = 1\n\n/-- One base property: 1^n = 1 for any n -/\ndef one_base_prop (n : Nat) : Prop := power 1 n = 1\n\n/-- Power of successive exponents: a^(n+1) = a^n * a -/\ndef power_succ_prop (base n : Nat) : Prop := \n  power base (n + 1) = power base n * base\n\n/-- Post-condition: conjunction of all desired properties -/\ndef Post_prop (base exponent : Nat) : Prop :=\n  zero_exp_prop base \u2227  -- n^0 = 1\n  (exponent > 0 \u2192 zero_base_prop exponent) \u2227  -- 0^n = 0 for n > 0\n  zero_zero_prop \u2227  -- 0^0 = 1\n  one_base_prop exponent \u2227  -- 1^n = 1\n  power_succ_prop base exponent  -- a^(n+1) = a^n * a\n\n/-- Basic theorems -/\ntheorem zero_exp_thm (n : Nat) : zero_exp_prop n := sorry\ntheorem zero_base_thm (n : Nat) : zero_base_prop n := sorry\ntheorem zero_zero_thm : zero_zero_prop := sorry\ntheorem one_base_thm (n : Nat) : one_base_prop n := sorry\ntheorem power_succ_thm (base n : Nat) : power_succ_prop base n := sorry\n\n/-- Correctness theorem: Pre implies Post -/\ntheorem correctness_thm (base exponent : Nat) (hPre : Pre base exponent) : \n  Post_prop base exponent := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation of power function using mutable state\n-/\ndef powerImp (base exponent : Nat) : Nat :=\n  Id.run do\n    if exponent = 0 then\n      return 1\n    let mut result : Nat := 1\n    for _ in [:exponent] do\n      result := result * base\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation: 2^3 = 8 -/\nexample : powerImp 2 3 = 8 := by native_decide\n#eval powerImp 2 3 -- expected: 8\n\n/-- Test imperative implementation: 0^0 = 1 -/\nexample : powerImp 0 0 = 1 := by native_decide\n#eval powerImp 0 0 -- expected: 1\n\n/-- Test imperative implementation: 3^2 = 9 -/\nexample : powerImp 3 2 = 9 := by native_decide\n#eval powerImp 3 2 -- expected: 9\n\n/-- Test imperative implementation: 0^3 = 0 -/\nexample : powerImp 0 3 = 0 := by native_decide\n#eval powerImp 0 3 -- expected: 0\n\n/-- Equivalence theorem between functional and imperative implementations -/\ntheorem power_equivalence_thm (base exponent : Nat) :\n  power base exponent = powerImp base exponent := sorry\n\nend Power",
+      "test_score": 1.0
     },
     {
-      "iteration": 6,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 18,
-      "calls_this_iter": 4,
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.8
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
     },
     {
-      "iteration": 7,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 8,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 24,
-      "calls_this_iter": 3,
+      "iteration": 2,
+      "score": 0.8,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 5,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.7333333333333333
+      "new_candidate_score": 0.8,
+      "best_lean_program": "-- No code yet"
     },
     {
-      "iteration": 9,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 27,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 10,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 29,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 11,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 31,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 12,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 33,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 13,
-      "best_score_so_far": 0.8,
-      "num_metric_calls_so_far": 35,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 14,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 37,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 15,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 39,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 16,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 41,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 17,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 44,
-      "calls_this_iter": 3,
+      "iteration": 3,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 8,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
-    },
-    {
-      "iteration": 18,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 48,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
-    },
-    {
-      "iteration": 19,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 51,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 20,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 53,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 21,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 55,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
-    },
-    {
-      "iteration": 22,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 57,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": 1.0,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.8,
+    1.0
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

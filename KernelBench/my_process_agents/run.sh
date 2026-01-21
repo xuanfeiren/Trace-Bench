@@ -15,3 +15,4 @@ done
 modal run my_process_agents/kernel_PS_modal.py --task-idx 13 --num-steps 50 --num-candidates 1 --num-threads 10 --num-proposals 1 --log-frequency 1 --test-frequency 1 --algorithm-name PS --use-wandb --project-name kernelbench --run-name matrix_13-PS-gemini-2.0-flash
 
 modal run my_process_agents/kernel_PS_modal.py --task-idx 13 --num-steps 10 --num-candidates 1 --num-threads 10 --num-proposals 1 --log-frequency 1 --test-frequency 1 --algorithm-name PS  --use-wandb --project-name kernelbench --run-name matrix_13-PS-claude
+

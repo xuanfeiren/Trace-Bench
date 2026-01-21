@@ -3,205 +3,332 @@
   "task_id": 34,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.7333333333333333,
-  "num_metric_calls": 52,
-  "num_iterations_total": 23,
+  "final_score": 0.9733333333333334,
+  "num_metric_calls": 50,
+  "num_iterations_total": 28,
   "num_candidates_discovered": 6,
   "success_at_metric_call": null,
-  "duration_seconds": 1171.6231245994568,
+  "best_lean_code": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+  "duration_seconds": 864.49480676651,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 3,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
+      "score": 0.0,
       "best_score_so_far": 0.0,
       "num_metric_calls_so_far": 5,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.72,
+      "best_score_so_far": 0.8666666666666667,
+      "num_metric_calls_so_far": 8,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.72,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.0,
-      "num_metric_calls_so_far": 9,
+      "score": 0.76,
+      "best_score_so_far": 0.8666666666666667,
+      "num_metric_calls_so_far": 10,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 12,
+      "score": 0.6666666666666666,
+      "best_score_so_far": 0.8666666666666667,
+      "num_metric_calls_so_far": 13,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "new_candidate_score": 0.6666666666666666,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.7066666666666667,
+      "score": 0.76,
+      "best_score_so_far": 0.8666666666666667,
       "num_metric_calls_so_far": 15,
-      "calls_this_iter": 3,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.7066666666666667,
+      "score": 0.76,
+      "best_score_so_far": 0.8666666666666667,
       "num_metric_calls_so_far": 17,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 19,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.8666666666666667,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on integers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Precondition that inputs must be integers (always true in Lean due to type system) -/\ndef Pre (a b : Int) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExample:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int :=\n  4 * (Int.natAbs (a - b)) + 3\n\n/-! \n# Tests\n-/\n\n/-- Basic test: 7 - 2 = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem min_value_thm (a b : Int) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Int) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Int) (result : Int) : Prop :=\n  (result \u2265 3) \u2227  -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227  -- Symmetric\n  (a = b \u2192 result = 3)  -- Equal inputs give 3\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version that computes the same result using mutable state\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Int) : Int :=\n  Id.run do\n    let diff := if a \u2265 b then a - b else b - a\n    let mut result := diff\n    -- Multiply by 4\n    result := result + result  -- *2\n    result := result + result  -- *4\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Int) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Int) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.84
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 21,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.8933333333333333,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for integers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on integers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Precondition that inputs must be integers (always true in Lean due to type system) -/\ndef Pre (a b : Int) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExample:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int :=\n  4 * (Int.natAbs (a - b)) + 3\n\n/-! \n# Tests\n-/\n\n/-- Basic test: 7 - 2 = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-!\n# Properties\n-/\n\n/-- Property: Result is always at least 3 -/\ntheorem min_value_thm (a b : Int) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Int) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Int) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Int) (result : Int) : Prop :=\n  (result \u2265 3) \u2227  -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227  -- Symmetric\n  (a = b \u2192 result = 3)  -- Equal inputs give 3\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version that computes the same result using mutable state\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Int) : Int :=\n  Id.run do\n    let diff := if a \u2265 b then a - b else b - a\n    let mut result := diff\n    -- Multiply by 4\n    result := result + result  -- *2\n    result := result + result  -- *4\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Int) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Int) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.84
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 23,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 26,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 25,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 28,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 27,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 29,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 32,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 31,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 34,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 33,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 36,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 35,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 38,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 38,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7066666666666667
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 40,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 41,
-      "calls_this_iter": 3,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 42,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 43,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 44,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.7066666666666667,
-      "num_metric_calls_so_far": 45,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 46,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.7333333333333333,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 48,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.7333333333333333,
-      "num_metric_calls_so_far": 52,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.7333333333333333
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 50,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "/-!\n# Quadruple Absolute Difference Plus Three\n\nReturns 4*|a - b| + 3 for natural numbers a and b.\n\nEdge cases:\n- Works for equal numbers (returns 3)\n- Only works on natural numbers (enforced by type system)\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/-- Helper function to compute absolute difference between two natural numbers -/\ndef absDiff (a b : Nat) : Nat := if a \u2265 b then a - b else b - a\n\n/-- Precondition - inputs must be natural numbers (enforced by type system) -/\ndef Pre (a b : Nat) : Prop := True\n\n/--\nReturns four times the absolute difference between `a` and `b`, then adds three.\n\nExamples:\n  quadrupleAbsDiffPlusThree 7 2 = 23\n  quadrupleAbsDiffPlusThree 5 5 = 3 \n  quadrupleAbsDiffPlusThree 0 9 = 39\n-/\ndef quadrupleAbsDiffPlusThree (a b : Nat) : Nat :=\n  4 * (absDiff a b) + 3\n\n/-! \n# Unit Tests\n-/\n\n/-- Basic test case: |7 - 2| = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 7 2  -- expected: 23\n\n/-- Edge case test: equal numbers should return 3 -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThree 5 5  -- expected: 3\n\n/-- Additional test from Python doctest -/\nexample : quadrupleAbsDiffPlusThree 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThree 0 9  -- expected: 39\n\n/-- Test with reversed arguments to verify symmetry -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThree 2 7  -- expected: 23\n\n/-!\n# Core Properties\n-/\n\n/-- Property: Result is always at least 3 (minimum value) -/\ntheorem min_value_thm (a b : Nat) : \n  quadrupleAbsDiffPlusThree a b \u2265 3 := by sorry\n\n/-- Property: Function is symmetric in its arguments -/\ntheorem symmetry_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a := by sorry\n\n/-- Property: Equal inputs always give 3 -/\ntheorem equal_inputs_thm (a : Nat) :\n  quadrupleAbsDiffPlusThree a a = 3 := by sorry\n\n/-- Property: Result minus 3 is divisible by 4 -/\ndef mod_four_prop (a b : Nat) : Prop :=\n  \u2203 k : Nat, quadrupleAbsDiffPlusThree a b - 3 = 4 * k\n\ntheorem mod_four_thm (a b : Nat) : mod_four_prop a b := by sorry\n\n/-- Property: Result grows linearly with absolute difference -/\ntheorem linear_growth_thm (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = 4 * (absDiff a b) + 3 := by sorry\n\n/-- Property: Absolute difference of zero implies result is 3 -/\ntheorem zero_diff_thm (a b : Nat) :\n  absDiff a b = 0 \u2192 quadrupleAbsDiffPlusThree a b = 3 := by sorry\n\n/-!\n# Post-conditions\n-/\n\n/-- Post-condition: Result satisfies all key properties -/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  (result \u2265 3) \u2227                               -- Result is at least 3\n  (result = quadrupleAbsDiffPlusThree b a) \u2227   -- Symmetric\n  (a = b \u2192 result = 3) \u2227                       -- Equal inputs give 3\n  (\u2203 k : Nat, result - 3 = 4 * k) \u2227           -- Result-3 is divisible by 4\n  (result = 4 * (absDiff a b) + 3)            -- Linear growth property\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative version using mutable state and explicit loop\n-/\ndef quadrupleAbsDiffPlusThreeImp (a b : Nat) : Nat :=\n  Id.run do\n    -- Compute absolute difference\n    let diff := absDiff a b\n    -- Multiply by 4 using loop\n    let mut result := 0\n    for _ in [:4] do\n      result := result + diff\n    -- Add 3\n    result := result + 3\n    return result\n\n/-!\n# Imperative Tests\n-/\n\n/-- Basic test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 7 2 = 23 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 7 2  -- expected: 23\n\n/-- Edge test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 5 5 = 3 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 5 5  -- expected: 3\n\n/-- Additional test for imperative version -/\nexample : quadrupleAbsDiffPlusThreeImp 0 9 = 39 := by native_decide\n#eval quadrupleAbsDiffPlusThreeImp 0 9  -- expected: 39\n\n/-!\n# Equivalence\n-/\n\n/-- Theorem: Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (a b : Nat) :\n  quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThreeImp a b := by sorry\n\n/-- Correctness theorem: Pre-conditions imply post-conditions -/\ntheorem correctness_thm (a b : Nat) (h : Pre a b) :\n  Post a b (quadrupleAbsDiffPlusThree a b) := by sorry\n\nend QuadrupleAbsDiffPlusThree",
+      "test_score": 0.9733333333333334
     },
     {
-      "iteration": 23,
-      "best_score_so_far": 0.7333333333333333,
-      "num_metric_calls_so_far": 56,
-      "calls_this_iter": 4,
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.64
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.72,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 7,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.72,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.6666666666666666,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 12,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.6666666666666666,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 19,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 5,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 22,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.8666666666666667,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 6,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 25,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9733333333333334,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.72,
+    0.6666666666666666,
+    0.8666666666666667,
+    0.8666666666666667,
+    0.9733333333333334
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

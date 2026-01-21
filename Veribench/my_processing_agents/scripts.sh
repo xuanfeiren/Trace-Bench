@@ -165,7 +165,8 @@ uv run python my_processing_agents/solution_PS.py \
                 --log_frequency 1 \
                 --test_frequency 1 \
                 --num_candidates 5 \
-                --algorithm PS_epsNet_Summarizer 
+                --algorithm PS \
+                --with_unit_tests
 
 for task_idx in {0..139}; do
         uv run python my_processing_agents/solution_PS.py \
@@ -206,15 +207,15 @@ done
 
 
 uv run python my_processing_agents/solution_PS.py \
-                --task_idx 0 \
+                --task_idx 2 \
                 --num_steps 11 \
                 --num_threads 30 \
                 --log_frequency 1 \
                 --test_frequency 1 \
-                --num_candidates 5 \
-                --use_wandb \
-                --algorithm PS \
-                --project_name "veribench-per-task-PS2" \
+                --num_candidates 5 
+                # --use_wandb \
+                # --algorithm PS \
+                # --project_name "veribench-per-task-PS2" \
 
 uv run python my_processing_agents/solution_PS.py \
                 --task_idx 131 \
@@ -282,5 +283,25 @@ done
 #                 --algorithm PS \
 #                 --with_unit_tests
 uv run python my_processing_agents/solution_dspy.py \
-                --task_idx 1 \
+                --task_idx 10 \
                 --save_results
+
+# gepa 
+# debug
+for task_idx in {0..139}; do
+    uv run python my_processing_agents/solution_GEPA.py --task_idx $task_idx --save_results --log_dir results/running_log/gepa_1 --max_metric_calls 50 --save_name gepa_1
+done
+
+
+
+for task_idx in {0..139}; do
+    uv run python my_processing_agents/solution_GEPA.py --task_idx $task_idx --save_results --log_dir gepa_running_log/results/gepa_debug --max_metric_calls 50 --save_name gepa_1
+done
+
+for task_idx in {0..139}; do
+    uv run python my_processing_agents/solution_GEPA.py --task_idx $task_idx --save_results --log_dir gepa_running_log/results/gepa_debug --max_metric_calls 150 --save_name gepa_2
+done
+
+for task_idx in {0..139}; do
+    uv run python my_processing_agents/solution_GEPA.py --task_idx $task_idx --save_results --log_dir gepa_running_log/results/gepa_debug --max_metric_calls 150 --save_name gepa_3
+done

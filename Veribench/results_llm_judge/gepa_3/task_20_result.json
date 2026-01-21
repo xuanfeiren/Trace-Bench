@@ -3,205 +3,332 @@
   "task_id": 20,
   "success": false,
   "early_stopped": false,
-  "final_score": 0.8666666666666667,
-  "num_metric_calls": 50,
-  "num_iterations_total": 23,
-  "num_candidates_discovered": 4,
+  "final_score": 0.9466666666666667,
+  "num_metric_calls": 51,
+  "num_iterations_total": 28,
+  "num_candidates_discovered": 5,
   "success_at_metric_call": null,
-  "duration_seconds": 1348.7869007587433,
+  "best_lean_code": "/-!\n# Sum of Digits\n\nReturns the sum of digits in a non-negative integer.\n\nEdge cases:\n- Sum of digits of 0 is 0\n- Single digit numbers return themselves\n- Input must be non-negative\n\nProperties:\n- Result is non-negative \n- Result preserves single digits\n- Result is bounded\n- Decomposition property holds\n-/\n\nnamespace SumDigits\n\n/--\nGiven a non-negative integer, returns the sum of its digits.\n\nExamples:\n- sumDigits 123 = 6 (1 + 2 + 3)\n- sumDigits 0 = 0\n- sumDigits 5 = 5 (single digit)\n-/\ndef sumDigits (n : Nat) : Nat :=\n  if n = 0 then 0\n  else\n    let rec sumDigitsAux (n acc : Nat) : Nat :=\n      if n = 0 then acc\n      else sumDigitsAux (n / 10) (acc + n % 10)\n    sumDigitsAux n 0\n\n/-!\n# Unit Tests\n-/\n\n/-- Basic test: 123 \u2192 1+2+3 = 6 -/\nexample : sumDigits 123 = 6 := by native_decide\n#eval sumDigits 123 -- expected: 6\n\n/-- Edge case test: sum of digits of 0 is 0 -/\nexample : sumDigits 0 = 0 := by native_decide\n#eval sumDigits 0 -- expected: 0\n\n/-- Single digit test: 5 \u2192 5 -/\nexample : sumDigits 5 = 5 := by native_decide\n#eval sumDigits 5 -- expected: 5\n\n/-- Multi-digit test: 999 \u2192 9+9+9 = 27 -/\nexample : sumDigits 999 = 27 := by native_decide\n#eval sumDigits 999 -- expected: 27\n\n/-!\n# Properties and Theorems\n-/\n\n/-- Pre-condition: input must be a natural number (always true for Nat) -/\ndef Pre (n : Nat) : Prop := True\n\n/-- Property: Result is non-negative -/\ndef nonNegative_prop (n : Nat) : Prop := \n  sumDigits n \u2265 0\n\n/-- Theorem: Result is always non-negative -/\ntheorem nonNegative_thm (n : Nat) : \n  nonNegative_prop n := by sorry\n\n/-- Property: Single digits remain unchanged -/\ndef singleDigit_prop (n : Nat) : Prop :=\n  n < 10 \u2192 sumDigits n = n\n\n/-- Theorem: Single digits are preserved -/\ntheorem singleDigit_thm (n : Nat) :\n  singleDigit_prop n := by sorry\n\n/-- Property: Result is bounded by input * 9 -/\ndef bounded_prop (n : Nat) : Prop :=\n  sumDigits n \u2264 n * 9\n\n/-- Theorem: Result is bounded -/\ntheorem bounded_thm (n : Nat) :\n  bounded_prop n := by sorry\n\n/-- Property: Zero case handled correctly -/\ndef zero_prop (n : Nat) : Prop :=\n  n = 0 \u2192 sumDigits n = 0\n\n/-- Theorem: Zero property holds -/\ntheorem zero_thm (n : Nat) :\n  zero_prop n := by sorry\n\n/-- Property: Decomposition into digits -/\ndef decomposition_prop (n : Nat) : Prop :=\n  \u2203 (digits : List Nat), \n    (\u2200 d \u2208 digits, d < 10) \u2227 \n    sumDigits n = digits.foldl (\u00b7 + \u00b7) 0\n\n/-- Theorem: Decomposition property holds -/\ntheorem decomposition_thm (n : Nat) :\n  decomposition_prop n := by sorry\n\n/-- Post-condition: conjunction of all core properties -/\ndef Post (n : Nat) : Prop :=\n  nonNegative_prop n \u2227\n  singleDigit_prop n \u2227\n  bounded_prop n \u2227\n  zero_prop n \u2227\n  decomposition_prop n\n\n/-!\n# Imperative Implementation\n-/\n\n/--\nImperative implementation using mutable state and while loop\n-/\ndef sumDigitsImp (n : Nat) : Nat :=\n  Id.run do\n    if n = 0 then return 0\n    let mut num := n\n    let mut sum := 0\n    while num > 0 do\n      sum := sum + num % 10\n      num := num / 10\n    return sum\n\n/-!\n# Imperative Tests\n-/\n\n/-- Test imperative implementation: 123 \u2192 6 -/\nexample : sumDigitsImp 123 = 6 := by native_decide\n#eval sumDigitsImp 123 -- expected: 6\n\n/-- Test imperative implementation: 0 \u2192 0 -/\nexample : sumDigitsImp 0 = 0 := by native_decide\n#eval sumDigitsImp 0 -- expected: 0\n\n/-!\n# Equivalence and Correctness Theorems\n-/\n\n/-- Functional and imperative implementations are equivalent -/\ntheorem implementation_equivalence (n : Nat) :\n  sumDigits n = sumDigitsImp n := by sorry\n\n/-- Main correctness theorem: pre-condition implies post-condition -/\ntheorem correctness_thm (n : Nat) (hPre : Pre n) : \n  Post n := by sorry\n\nend SumDigits",
+  "duration_seconds": 912.2340569496155,
   "initial_seed_score": 0.0,
   "iteration_history": [
     {
       "iteration": 1,
-      "best_score_so_far": 0.76,
+      "score": 0.6,
+      "best_score_so_far": 0.8,
       "num_metric_calls_so_far": 4,
       "calls_this_iter": 3,
       "accepted_new_candidate": true,
-      "new_candidate_score": 0.0
+      "new_candidate_score": 0.6,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 2,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 7,
-      "calls_this_iter": 3,
+      "score": 0.6666666666666666,
+      "best_score_so_far": 0.8,
+      "num_metric_calls_so_far": 6,
+      "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 3,
-      "best_score_so_far": 0.76,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
       "num_metric_calls_so_far": 9,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9333333333333333,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 4,
-      "best_score_so_far": 0.76,
-      "num_metric_calls_so_far": 12,
-      "calls_this_iter": 3,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.76
+      "score": 0.92,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 5,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 16,
-      "calls_this_iter": 4,
-      "accepted_new_candidate": true,
-      "new_candidate_score": 0.84
+      "score": 0.92,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 13,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 6,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 19,
+      "score": 0.92,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 16,
       "calls_this_iter": 3,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.92,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 7,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 21,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 18,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 8,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 23,
+      "score": 0.8,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 20,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 9,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 25,
+      "score": 0.96,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 22,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 10,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 27,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 24,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 11,
-      "best_score_so_far": 0.84,
-      "num_metric_calls_so_far": 29,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 26,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 12,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 31,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 28,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 13,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 33,
+      "score": 0.8666666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 30,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 14,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 35,
-      "calls_this_iter": 2,
-      "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "score": 0.9466666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 33,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9466666666666667,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 15,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 37,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 35,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 16,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 39,
+      "score": 0.96,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 37,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 17,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 41,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 39,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 18,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 43,
+      "score": 0.96,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 41,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 19,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 45,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 43,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 20,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 47,
+      "score": 0.84,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 45,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 21,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 49,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 47,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 22,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 51,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 49,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
     },
     {
       "iteration": 23,
-      "best_score_so_far": 0.8666666666666667,
-      "num_metric_calls_so_far": 53,
+      "score": 0.9733333333333334,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 51,
       "calls_this_iter": 2,
       "accepted_new_candidate": false,
-      "new_candidate_score": null
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program.",
+      "test_score": 0.0
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 0.6,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 3,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.6,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 3,
+      "score": 0.9333333333333333,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 8,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9333333333333333,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 4,
+      "score": 0.92,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 15,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.92,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 5,
+      "score": 0.9466666666666667,
+      "best_score_so_far": 0.9733333333333334,
+      "num_metric_calls_so_far": 32,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.9466666666666667,
+      "best_lean_program": "-- No code yet"
     }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    0.6,
+    0.9333333333333333,
+    0.92,
+    0.9466666666666667
   ],
   "settings": {
     "model": "anthropic/claude-3.5-sonnet",
     "max_iterations": null,
     "max_metric_calls_budget": 50,
     "reflection_minibatch_size": 1,
-    "num_threads": 5,
-    "perfect_score_stopping_enabled": true
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
   }
 }

@@ -1,0 +1,1177 @@
+Lean compilation FAILED with 44 error(s). Please make the Lean code correct and as simple as possible.
+
+Errors:
+
+Error discovered at line 40:
+Message: <anonymous>:40:12: error: failed to synthesize
+  GetElem String Nat ?m.7420 ?m.7421
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    39 |     if p ≥ s.length then p
+>>  40 |     else if s[p].isWhitespace then loop (p + 1)
+    41 |     else p
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 53:
+Message: <anonymous>:53:10: error: failed to synthesize
+  GetElem String Nat ?m.7989 ?m.7990
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+>>  53 |     match s[pos] with
+    54 |     | '"' => return (result, pos + 1)
+    55 |     | '\\' => 
+    56 |       if pos + 1 ≥ s.length then
+    57 |         throw (mkError "Invalid escape" pos)
+    58 |       pos := pos + 1
+    59 |       match s[pos] with
+    60 |       | '"' => result := result.push '"'
+    61 |       | '\\' => result := result.push '\\'
+    62 |       | 'n' => result := result.push '\n'
+    63 |       | 't' => result := result.push '\t'
+    64 |       | _ => throw (mkError "Invalid escape sequence" pos)
+    65 |       pos := pos + 1
+    66 |     | c =>
+    67 |       result := result.push c
+    68 |       pos := pos + 1
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 59:
+Message: <anonymous>:59:12: error: failed to synthesize
+  GetElem String Nat ?m.9359 ?m.9360
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    56 |       if pos + 1 ≥ s.length then
+    57 |         throw (mkError "Invalid escape" pos)
+    58 |       pos := pos + 1
+>>  59 |       match s[pos] with
+    60 |       | '"' => result := result.push '"'
+    61 |       | '\\' => result := result.push '\\'
+    62 |       | 'n' => result := result.push '\n'
+    63 |       | 't' => result := result.push '\t'
+    64 |       | _ => throw (mkError "Invalid escape sequence" pos)
+    65 |       pos := pos + 1
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 53:
+Message: <anonymous>:53:10: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+s : String
+start : Nat
+y✝ : PUnit
+pos✝ : Nat := start
+result✝ : String := ""
+x✝ : Unit
+r✝¹ : MProd (Option (String × Nat)) (MProd Nat String)
+r✝ : MProd Nat String := r✝¹.snd
+pos : Nat := r✝.fst
+result : String := r✝.snd
+⊢ ?m.7990 s pos
+
+Code context (indentation block):
+>>  53 |     match s[pos] with
+    54 |     | '"' => return (result, pos + 1)
+    55 |     | '\\' => 
+    56 |       if pos + 1 ≥ s.length then
+    57 |         throw (mkError "Invalid escape" pos)
+    58 |       pos := pos + 1
+    59 |       match s[pos] with
+    60 |       | '"' => result := result.push '"'
+    61 |       | '\\' => result := result.push '\\'
+    62 |       | 'n' => result := result.push '\n'
+    63 |       | 't' => result := result.push '\t'
+    64 |       | _ => throw (mkError "Invalid escape sequence" pos)
+    65 |       pos := pos + 1
+    66 |     | c =>
+    67 |       result := result.push c
+    68 |       pos := pos + 1
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 59:
+Message: <anonymous>:59:12: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+s : String
+start : Nat
+y✝¹ : PUnit
+pos✝² : Nat := start
+result✝¹ : String := ""
+x✝ : Unit
+r✝¹ : MProd (Option (String × Nat)) (MProd Nat String)
+r✝ : MProd Nat String := r✝¹.snd
+pos✝¹ : Nat := r✝.fst
+result✝ : String := r✝.snd
+pos✝ : Nat
+result : String
+y✝ : PUnit
+pos : Nat := pos✝ + 1
+⊢ ?m.9360 s pos
+
+Code context (indentation block):
+    56 |       if pos + 1 ≥ s.length then
+    57 |         throw (mkError "Invalid escape" pos)
+    58 |       pos := pos + 1
+>>  59 |       match s[pos] with
+    60 |       | '"' => result := result.push '"'
+    61 |       | '\\' => result := result.push '\\'
+    62 |       | 'n' => result := result.push '\n'
+    63 |       | 't' => result := result.push '\t'
+    64 |       | _ => throw (mkError "Invalid escape sequence" pos)
+    65 |       pos := pos + 1
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 77:
+Message: <anonymous>:77:45: error: failed to synthesize
+  GetElem String Nat ?m.11358 ?m.11359
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+>>  77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+    81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 77:
+Message: <anonymous>:77:62: error: failed to synthesize
+  GetElem String Nat ?m.11445 ?m.11446
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+>>  77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+    81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 78:
+Message: <anonymous>:78:26: error: failed to synthesize
+  GetElem String Nat ?m.11603 ?m.11604
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+>>  78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 77:
+Message: <anonymous>:77:27: error: failed to synthesize
+  GetElem String Nat ?m.12347 ?m.12348
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+>>  77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+    81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 81:
+Message: <anonymous>:81:8: error: invalid field 'toFloat?', the environment does not contain 'String.toFloat?'
+  numStr
+has type
+  String
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+    77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+>>  81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 81:
+Message: <anonymous>:81:8: error: invalid field 'toFloat?', the environment does not contain 'String.toFloat?'
+  numStr
+has type
+  String
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+    77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+>>  81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 77:
+Message: <anonymous>:77:45: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+s : String
+start : Nat
+pos✝ : Nat := start
+numStr✝ : String := ""
+x✝ : Unit
+r✝ : MProd String Nat
+numStr : String := r✝.fst
+pos : Nat := r✝.snd
+⊢ ?m.11359 s pos
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+>>  77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+    81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 77:
+Message: <anonymous>:77:62: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+s : String
+start : Nat
+pos✝ : Nat := start
+numStr✝ : String := ""
+x✝ : Unit
+r✝ : MProd String Nat
+numStr : String := r✝.fst
+pos : Nat := r✝.snd
+⊢ ?m.11446 s pos
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+>>  77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+    81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 78:
+Message: <anonymous>:78:26: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+s : String
+start : Nat
+pos✝ : Nat := start
+numStr✝ : String := ""
+x✝ : Unit
+r✝ : MProd String Nat
+numStr : String := r✝.fst
+pos : Nat := r✝.snd
+⊢ ?m.11604 s pos
+
+Code context (indentation block):
+>>  78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 77:
+Message: <anonymous>:77:27: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+s : String
+start : Nat
+pos✝ : Nat := start
+numStr✝ : String := ""
+x✝ : Unit
+r✝ : MProd String Nat
+numStr : String := r✝.fst
+pos : Nat := r✝.snd
+⊢ ?m.12348 s pos
+
+Code context (indentation block):
+    74 |   let mut pos := start
+    75 |   let mut numStr := ""
+    76 |   
+>>  77 |   while pos < s.length && (s[pos].isDigit || s[pos] == '.' || s[pos] == '-') do
+    78 |     numStr := numStr.push s[pos]
+    79 |     pos := pos + 1
+    80 |     
+    81 |   match numStr.toFloat? with
+    82 |   | some n => pure (n, pos)
+    83 |   | none => throw (mkError "Invalid number" start)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 92:
+Message: <anonymous>:92:8: error: failed to synthesize
+  GetElem String Nat ?m.13660 ?m.13661
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    87 |   let pos := skipWhitespace input 0
+    88 |   
+    89 |   if pos ≥ input.length then
+    90 |     throw (mkError "Empty input" pos)
+    91 |     
+>>  92 |   match input[pos] with
+    93 |   | '{' => -- Parse object
+    94 |     let mut fields : Array (String × Value) := #[]
+    95 |     let mut curPos := skipWhitespace input (pos + 1)
+    96 |     
+    97 |     while curPos < input.length do
+    98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+   104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+   108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+   120 |     throw (mkError "Unterminated object" pos)
+   121 |     
+   122 |   | '[' => -- Parse array
+   123 |     let mut elements : Array Value := #[]
+   124 |     let mut curPos := skipWhitespace input (pos + 1)
+   125 |     
+   126 |     while curPos < input.length do
+   127 |       if input[curPos] == ']' then
+   128 |         return Value.array elements
+   129 |         
+   130 |       let (value, endPos) ← parse input cfg
+   131 |       elements := elements.push value
+   132 |       curPos := skipWhitespace input endPos
+   133 |       
+   134 |       if curPos ≥ input.length then
+   135 |         throw (mkError "Unterminated array" curPos)
+   136 |         
+   137 |       if input[curPos] == ',' then
+   138 |         curPos := skipWhitespace input (curPos + 1)
+   139 |       else if input[curPos] ≠ ']' then
+   140 |         throw (mkError "Expected ',' or ']'" curPos)
+   141 |         
+   142 |     throw (mkError "Unterminated array" pos)
+   143 |     
+   144 |   | '"' => -- Parse string
+   145 |     let (s, endPos) ← parseString input (pos + 1)
+   146 |     pure (Value.string s, endPos)
+   147 |     
+   148 |   | c =>
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+   152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+   154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+   156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 98:
+Message: <anonymous>:98:9: error: failed to synthesize
+  GetElem String Nat ?m.14209 ?m.14210
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+>>  98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+   104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+   108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 104:
+Message: <anonymous>:104:34: error: failed to synthesize
+  GetElem String Nat ?m.14618 ?m.14619
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+    98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+>> 104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+   108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 108:
+Message: <anonymous>:108:10: error: type mismatch
+  (value, endPos)
+has type
+  ?m.15017 × ?m.15020 : Type (max ?u.15023 ?u.15022)
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+    98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+   104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+>> 108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 127:
+Message: <anonymous>:127:9: error: failed to synthesize
+  GetElem String Nat ?m.15939 ?m.15940
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+>> 127 |       if input[curPos] == ']' then
+   128 |         return Value.array elements
+   129 |         
+   130 |       let (value, endPos) ← parse input cfg
+   131 |       elements := elements.push value
+   132 |       curPos := skipWhitespace input endPos
+   133 |       
+   134 |       if curPos ≥ input.length then
+   135 |         throw (mkError "Unterminated array" curPos)
+   136 |         
+   137 |       if input[curPos] == ',' then
+   138 |         curPos := skipWhitespace input (curPos + 1)
+   139 |       else if input[curPos] ≠ ']' then
+   140 |         throw (mkError "Expected ',' or ']'" curPos)
+   141 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 130:
+Message: <anonymous>:130:10: error: type mismatch
+  (value, endPos)
+has type
+  ?m.16303 × ?m.16306 : Type (max ?u.16309 ?u.16308)
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+   127 |       if input[curPos] == ']' then
+   128 |         return Value.array elements
+   129 |         
+>> 130 |       let (value, endPos) ← parse input cfg
+   131 |       elements := elements.push value
+   132 |       curPos := skipWhitespace input endPos
+   133 |       
+   134 |       if curPos ≥ input.length then
+   135 |         throw (mkError "Unterminated array" curPos)
+   136 |         
+   137 |       if input[curPos] == ',' then
+   138 |         curPos := skipWhitespace input (curPos + 1)
+   139 |       else if input[curPos] ≠ ']' then
+   140 |         throw (mkError "Expected ',' or ']'" curPos)
+   141 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 146:
+Message: <anonymous>:146:9: error: application type mismatch
+  pure (Value.string s, endPos)
+argument
+  (Value.string s, endPos)
+has type
+  Value × Nat : Type
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+   145 |     let (s, endPos) ← parseString input (pos + 1)
+>> 146 |     pure (Value.string s, endPos)
+   147 |     
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 151:
+Message: <anonymous>:151:11: error: application type mismatch
+  pure (Value.number n, endPos)
+argument
+  (Value.number n, endPos)
+has type
+  Value × Nat : Type
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+   150 |       let (n, endPos) ← parseNumber input pos
+>> 151 |       pure (Value.number n, endPos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 152:
+Message: <anonymous>:152:26: error: application type mismatch
+  input.extract pos
+argument
+  pos
+has type
+  Nat : Type
+but is expected to have type
+  String.Pos : Type
+
+Code context (indentation block):
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+>> 152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+   154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+   156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 153:
+Message: <anonymous>:153:11: error: application type mismatch
+  pure (Value.null, pos + 4)
+argument
+  (Value.null, pos + 4)
+has type
+  Value × Nat : Type
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+>> 153 |       pure (Value.null, pos + 4)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 154:
+Message: <anonymous>:154:26: error: application type mismatch
+  input.extract pos
+argument
+  pos
+has type
+  Nat : Type
+but is expected to have type
+  String.Pos : Type
+
+Code context (indentation block):
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+   152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+>> 154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+   156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 155:
+Message: <anonymous>:155:11: error: application type mismatch
+  pure (Value.bool true, pos + 4)
+argument
+  (Value.bool true, pos + 4)
+has type
+  Value × Nat : Type
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+>> 155 |       pure (Value.bool true, pos + 4)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 156:
+Message: <anonymous>:156:26: error: application type mismatch
+  input.extract pos
+argument
+  pos
+has type
+  Nat : Type
+but is expected to have type
+  String.Pos : Type
+
+Code context (indentation block):
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+   152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+   154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+>> 156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 157:
+Message: <anonymous>:157:11: error: application type mismatch
+  pure (Value.bool false, pos + 5)
+argument
+  (Value.bool false, pos + 5)
+has type
+  Value × Nat : Type
+but is expected to have type
+  Value : Type
+
+Code context (indentation block):
+>> 157 |       pure (Value.bool false, pos + 5)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 152:
+Message: <anonymous>:152:31: error: failed to synthesize
+  HAdd Nat Nat String.Pos
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+>> 152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+   154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+   156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 154:
+Message: <anonymous>:154:31: error: failed to synthesize
+  HAdd Nat Nat String.Pos
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+   152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+>> 154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+   156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 156:
+Message: <anonymous>:156:31: error: failed to synthesize
+  HAdd Nat Nat String.Pos
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Code context (indentation block):
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+   152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+   154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+>> 156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 92:
+Message: <anonymous>:92:8: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+input : String
+cfg : optParam Config { strict := true }
+pos : Nat := skipWhitespace input 0
+y✝ : PUnit
+⊢ ?m.13661 input pos
+
+Code context (indentation block):
+    87 |   let pos := skipWhitespace input 0
+    88 |   
+    89 |   if pos ≥ input.length then
+    90 |     throw (mkError "Empty input" pos)
+    91 |     
+>>  92 |   match input[pos] with
+    93 |   | '{' => -- Parse object
+    94 |     let mut fields : Array (String × Value) := #[]
+    95 |     let mut curPos := skipWhitespace input (pos + 1)
+    96 |     
+    97 |     while curPos < input.length do
+    98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+   104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+   108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+   120 |     throw (mkError "Unterminated object" pos)
+   121 |     
+   122 |   | '[' => -- Parse array
+   123 |     let mut elements : Array Value := #[]
+   124 |     let mut curPos := skipWhitespace input (pos + 1)
+   125 |     
+   126 |     while curPos < input.length do
+   127 |       if input[curPos] == ']' then
+   128 |         return Value.array elements
+   129 |         
+   130 |       let (value, endPos) ← parse input cfg
+   131 |       elements := elements.push value
+   132 |       curPos := skipWhitespace input endPos
+   133 |       
+   134 |       if curPos ≥ input.length then
+   135 |         throw (mkError "Unterminated array" curPos)
+   136 |         
+   137 |       if input[curPos] == ',' then
+   138 |         curPos := skipWhitespace input (curPos + 1)
+   139 |       else if input[curPos] ≠ ']' then
+   140 |         throw (mkError "Expected ',' or ']'" curPos)
+   141 |         
+   142 |     throw (mkError "Unterminated array" pos)
+   143 |     
+   144 |   | '"' => -- Parse string
+   145 |     let (s, endPos) ← parseString input (pos + 1)
+   146 |     pure (Value.string s, endPos)
+   147 |     
+   148 |   | c =>
+   149 |     if c.isDigit || c == '-' then -- Parse number
+   150 |       let (n, endPos) ← parseNumber input pos
+   151 |       pure (Value.number n, endPos)
+   152 |     else if input.extract pos (pos + 4) == "null" then
+   153 |       pure (Value.null, pos + 4)
+   154 |     else if input.extract pos (pos + 4) == "true" then
+   155 |       pure (Value.bool true, pos + 4)
+   156 |     else if input.extract pos (pos + 5) == "false" then
+   157 |       pure (Value.bool false, pos + 5)
+   158 |     else
+   159 |       throw (mkError "Invalid JSON value" pos)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 98:
+Message: <anonymous>:98:9: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+input : String
+cfg : optParam Config { strict := true }
+pos : Nat := skipWhitespace input 0
+y✝ : PUnit
+fields✝ : Array (String × Value) := #[]
+curPos✝ : Nat := skipWhitespace input (pos + 1)
+x✝ : Unit
+r✝¹ : MProd (Option Value) (MProd Nat (Array (String × Value)))
+r✝ : MProd Nat (Array (String × Value)) := r✝¹.snd
+curPos : Nat := r✝.fst
+fields : Array (String × Value) := r✝.snd
+⊢ ?m.14210 input curPos
+
+Code context (indentation block):
+>>  98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+   104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+   108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 104:
+Message: <anonymous>:104:34: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+input : String
+cfg : optParam Config { strict := true }
+pos : Nat := skipWhitespace input 0
+y✝¹ : PUnit
+fields✝¹ : Array (String × Value) := #[]
+curPos✝² : Nat := skipWhitespace input (pos + 1)
+x✝ : Unit
+r✝¹ : MProd (Option Value) (MProd Nat (Array (String × Value)))
+r✝ : MProd Nat (Array (String × Value)) := r✝¹.snd
+curPos✝¹ : Nat := r✝.fst
+fields✝ : Array (String × Value) := r✝.snd
+curPos✝ : Nat
+fields : Array (String × Value)
+y✝ : PUnit
+key : String
+nextPos : Nat
+curPos : Nat := skipWhitespace input nextPos
+⊢ ?m.14619 input curPos
+
+Code context (indentation block):
+    98 |       if input[curPos] == '}' then
+    99 |         return Value.object fields
+   100 |       
+   101 |       let (key, nextPos) ← parseString input curPos
+   102 |       curPos := skipWhitespace input nextPos
+   103 |       
+>> 104 |       if curPos ≥ input.length || input[curPos] ≠ ':' then
+   105 |         throw (mkError "Expected ':' after object key" curPos)
+   106 |         
+   107 |       curPos := skipWhitespace input (curPos + 1)
+   108 |       let (value, endPos) ← parse input cfg
+   109 |       fields := fields.push (key, value)
+   110 |       curPos := skipWhitespace input endPos
+   111 |       
+   112 |       if curPos ≥ input.length then
+   113 |         throw (mkError "Unterminated object" curPos)
+   114 |       
+   115 |       if input[curPos] == ',' then
+   116 |         curPos := skipWhitespace input (curPos + 1)
+   117 |       else if input[curPos] ≠ '}' then
+   118 |         throw (mkError "Expected ',' or '}'" curPos)
+   119 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 127:
+Message: <anonymous>:127:9: error: failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+input : String
+cfg : optParam Config { strict := true }
+pos : Nat := skipWhitespace input 0
+y✝ : PUnit
+elements✝ : Array Value := #[]
+curPos✝ : Nat := skipWhitespace input (pos + 1)
+x✝ : Unit
+r✝¹ : MProd (Option Value) (MProd Nat (Array Value))
+r✝ : MProd Nat (Array Value) := r✝¹.snd
+curPos : Nat := r✝.fst
+elements : Array Value := r✝.snd
+⊢ ?m.15940 input curPos
+
+Code context (indentation block):
+>> 127 |       if input[curPos] == ']' then
+   128 |         return Value.array elements
+   129 |         
+   130 |       let (value, endPos) ← parse input cfg
+   131 |       elements := elements.push value
+   132 |       curPos := skipWhitespace input endPos
+   133 |       
+   134 |       if curPos ≥ input.length then
+   135 |         throw (mkError "Unterminated array" curPos)
+   136 |         
+   137 |       if input[curPos] == ',' then
+   138 |         curPos := skipWhitespace input (curPos + 1)
+   139 |       else if input[curPos] ≠ ']' then
+   140 |         throw (mkError "Expected ',' or ']'" curPos)
+   141 |         
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 165:
+Message: <anonymous>:165:0: error: aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+
+Code context (indentation block):
+   164 | 
+>> 165 | #eval parse sample
+   166 | -- Expected: Except.ok (Value.object #[("test", Value.number 123.0)])
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 169:
+Message: <anonymous>:169:0: error: aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+
+Code context (indentation block):
+   168 | def simpleString := "\"hello\""
+>> 169 | #eval parse simpleString
+   170 | -- Expected: Except.ok (Value.string "hello")
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 173:
+Message: <anonymous>:173:0: error: aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+
+Code context (indentation block):
+   172 | def simpleNumber := "42"
+>> 173 | #eval parse simpleNumber
+   174 | -- Expected: Except.ok (Value.number 42.0)
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 177:
+Message: <anonymous>:177:0: error: aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+
+Code context (indentation block):
+   176 | def simpleArray := "[1,2,3]"
+>> 177 | #eval parse simpleArray
+   178 | -- Expected: Except.ok (Value.array #[Value.number 1.0, Value.number 2.0, Value.number 3.0])
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 184:
+Message: <anonymous>:184:62: error: tactic 'rfl' failed, the left-hand side
+  parse "" cfg
+is not definitionally equal to the right-hand side
+  Except.error (mkError "Empty input" 0)
+cfg : Config
+⊢ parse "" cfg = Except.error (mkError "Empty input" 0)
+
+Code context (indentation block):
+>> 184 |   parse "" cfg = Except.error (mkError "Empty input" 0) := by rfl
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 188:
+Message: <anonymous>:188:21: error: type mismatch
+  Except.ok (Value.null, 4)
+has type
+  Except ?m.21460 (Value × Nat) : Type (max ?u.21459 0)
+but is expected to have type
+  Except Error Value : Type
+
+Code context (indentation block):
+>> 188 |   parse "null" cfg = Except.ok (Value.null, 4) := by rfl
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 192:
+Message: <anonymous>:192:21: error: type mismatch
+  Except.ok (Value.bool true, 4)
+has type
+  Except ?m.21945 (Value × Nat) : Type (max ?u.21944 0)
+but is expected to have type
+  Except Error Value : Type
+
+Code context (indentation block):
+>> 192 |   parse "true" cfg = Except.ok (Value.bool true, 4) := by rfl
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
+
+
+Error discovered at line 196:
+Message: <anonymous>:196:22: error: type mismatch
+  Except.ok (Value.bool false, 5)
+has type
+  Except ?m.22430 (Value × Nat) : Type (max ?u.22429 0)
+but is expected to have type
+  Except Error Value : Type
+
+Code context (indentation block):
+>> 196 |   parse "false" cfg = Except.ok (Value.bool false, 5) := by rfl
+
+Note: The error was discovered during compilation at the marked line, but the actual error might be in a different line within this block.
