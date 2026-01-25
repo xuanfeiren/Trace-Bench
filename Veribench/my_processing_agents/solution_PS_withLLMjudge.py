@@ -219,10 +219,12 @@ If a theorem keeps giving error, you can use := sorry to skip it.
         'log_frequency': log_frequency,
         'test_frequency': test_frequency,
         'with_llm_judge': args.with_llm_judge,
+        'epsilon': args.epsilon,
+        'epsilon_for_summarizer': args.epsilon_for_summarizer
     }
     
     # Set run name if not provided
-    run_name = args.run_name if args.run_name else f"task_{task_idx}"
+    run_name = args.run_name if args.run_name else f"eps_{args.epsilon}_task_{task_idx}"
     
     # Initialize logger based on wandb flag
     if args.use_wandb:
