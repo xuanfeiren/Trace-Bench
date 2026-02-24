@@ -5,8 +5,12 @@ Test different methods of calling LLM APIs:
 3. Direct Anthropic SDK call
 4. OpenAI SDK call to LiteLLM proxy
 """
+try:
+    import secrets_local
+except ImportError:
+    print("secrets_local.py not found. Please create it.")
+    
 
-import secrets_local
 from opto.utils.llm import LLM
 from opto.optimizers.utils import print_color 
 import os
