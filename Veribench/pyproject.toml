@@ -68,7 +68,7 @@ no-build-isolation-package = ["flash-attn"]
 
 [tool.uv.sources]
 pantograph = { path = "../external/PyPantograph_Kai" }
-trace-opt = { path = "Trace", editable = true }
-dspy = { path = "dspy-repo", editable = true }
-gepa = { path = "gepa-repo", editable = true }
-openevolve = { path = "openevolve", editable = true }
+trace-opt = { path = "../../Trace", editable = true }
+dspy = { path = "../../dspy-repo", editable = true }
+gepa = { path = "../../gepa-repo", editable = true }
+openevolve = { path = "../../openevolve", editable = true }
