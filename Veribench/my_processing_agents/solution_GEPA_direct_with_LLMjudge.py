@@ -433,7 +433,7 @@ def main():
     parser = argparse.ArgumentParser(description='Optimize Lean solution using GEPA direct code evolution')
     parser.add_argument('--task_idx', type=int, default=2,
                        help='Task index from Veribench dataset')
-    parser.add_argument('--model', type=str, default='claude-3.5-sonnet',
+    parser.add_argument('--model', type=str, default='claude-3.7-sonnet',
                        help='LLM model name (e.g., claude-3.5-sonnet, gpt-4o)')
 
     # Budget control - use either max_iterations OR max_metric_calls

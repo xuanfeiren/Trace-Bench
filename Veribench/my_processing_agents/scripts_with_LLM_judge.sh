@@ -6,6 +6,20 @@ cd Trace-Bench/Veribench
 
 uv run python my_processing_agents/solution_PS_withLLMjudge.py \
         --task_idx 10 \
+        --num_steps 2 \
+        --num_threads 30 \
+        --log_frequency 1 \
+        --test_frequency 1 \
+        --num_candidates 5 \
+        --algorithm PS_epsNet_Summarizer \
+        --epsilon 0.02 \
+        --epsilon_for_summarizer 0.02 \
+        --with_llm_judge \
+        --use_wandb \
+        --project_name "Veribench-POLCA" 
+
+uv run python my_processing_agents/solution_PS_withLLMjudge.py \
+        --task_idx 10 \
         --num_steps 20 \
         --num_threads 30 \
         --log_frequency 1 \

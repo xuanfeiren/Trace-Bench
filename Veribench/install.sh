@@ -65,6 +65,18 @@ else
   git clone --recurse-submodules "$REPO_URL" "$PYPANTO_DIR"
 fi
 
+# Ensure self-opt-data-gen (veribench_bundle) is available
+SELF_OPT_DIR="$SCRIPT_DIR/self-opt-data-gen"
+SELF_OPT_URL="https://github.com/xuanfeiren/self-opt-data-gen.git"
+
+if [ -d "$SELF_OPT_DIR/.git" ]; then
+  echo "self-opt-data-gen already present, pulling latest..."
+  git -C "$SELF_OPT_DIR" pull --ff-only 2>/dev/null || echo "  ⚠ pull skipped (local changes or detached HEAD)"
+else
+  echo "Cloning self-opt-data-gen into $SELF_OPT_DIR"
+  git clone "$SELF_OPT_URL" "$SELF_OPT_DIR"
+fi
+
 # Setup Lean/elan/lake BEFORE building pantograph so 'lake' is available
 curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
 # Ensure elan/lake are available in this shell
