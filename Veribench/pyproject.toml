@@ -46,6 +46,8 @@ dependencies = [
   "openevolve",
   "anthropic>=0.75.0",
   "openai>=2.8.1",
+  "boto3>=1.42.44",
+  "together>=2.0.0",
 ]
 
 [tool.setuptools]
