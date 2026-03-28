@@ -166,7 +166,7 @@ If a theorem keeps giving error, you can use := sorry to skip it.
 """
 
     # Step 5: Initialize guide and logger
-    if args.with_LLM_judge:
+    if args.with_llm_judge:
         guide = VeribenchGuidewithLLMJudge()
     elif args.with_unit_tests:
         guide = VeribenchGuidewithUnitTests()
