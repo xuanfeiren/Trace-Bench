@@ -221,7 +221,8 @@ def create_openevolve_config(model_name: str, max_iterations: int, num_workers: 
             api_base = 'https://generativelanguage.googleapis.com/v1beta/openai/'
             api_key = os.environ.get('OPENAI_API_KEY')
         else:
-            # Custom provider (e.g. Qwen, local LiteLLM proxy)
+            # Custom provider (e.g. Qwen, local vllm) — keep full model name with slash
+            model_name = f"{provider}/{model_name}"
             api_base = os.environ.get('OPENAI_API_BASE', 'https://api.openai.com/v1')
             api_key = os.environ.get('OPENAI_API_KEY', 'dummy')
 
