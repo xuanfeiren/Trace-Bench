@@ -1,0 +1,138 @@
+{
+  "task_idx": 48,
+  "task_id": 48,
+  "success": true,
+  "early_stopped": true,
+  "final_score": 1.0,
+  "num_metric_calls": 20,
+  "num_iterations_total": 11,
+  "num_candidates_discovered": 2,
+  "success_at_metric_call": 19,
+  "best_lean_code": "/-!\n# VeriBench \u2013 Filter Even Numbers\n\nFile order:\n1. Implementation\n2. Unit tests (positive, edge, positive/negative test suite)\n3. Pre\u2011condition prop\n4. Correctness theorems\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Filter Even Numbers\n\nDefines a function `filterEven` that returns a new list containing only the even numbers\nfrom the input list of integers.\n-/\n\nnamespace FilterEvenNumbers\n\n/-!\n# Implementation\n-/\n\n/--\n**Implementation of `filterEven`.**\n\n`filterEven xs` returns a list containing only the even integers from `xs`.\n\n## Examples\n#eval filterEven [1, 2, 3, 4, 5, 6] -- expected: [2, 4, 6]\n#eval filterEven [] -- expected: []\n-/\n\ndef filterEven (xs : List Int) : List Int :=\n  xs.filter (fun x => x % 2 = 0)\n\n/-!\n# Tests: Basic Unit Tests\n-/\n\n/-- expected: [2, 4, 6] -/\nexample : filterEven [1, 2, 3, 4, 5, 6] = [2, 4, 6] := by native_decide\n#eval filterEven [1, 2, 3, 4, 5, 6] -- expected: [2, 4, 6]\n\n/-!\n# Tests: Edge Cases\n-/\n\n/-- expected: [] -/\nexample : filterEven ([] : List Int) = ([] : List Int) := by native_decide\n#eval filterEven ([] : List Int) -- expected: []\n\n/-- expected: [] -/\nexample : filterEven [1, 3, 5] = ([] : List Int) := by native_decide\n#eval filterEven [1, 3, 5] -- expected: []\n\n/-- expected: [2, 4, 6] -/\nexample : filterEven [2, 4, 6] = [2, 4, 6] := by native_decide\n#eval filterEven [2, 4, 6] -- expected: [2, 4, 6]\n\n/-!\n# Tests: Negative Cases\n-/\n\n/-- negative: filterEven [1, 3, 5] \u2260 [1, 3, 5] -/\nexample : \u00ac (filterEven [1, 3, 5] = [1, 3, 5]) := by native_decide\n#eval (decide (filterEven [1, 3, 5] = [1, 3, 5])) -- expected: false\n\n/-- negative: filterEven [1, 2, 3] \u2260 [1, 2, 3] -/\nexample : \u00ac (filterEven [1, 2, 3] = [1, 2, 3]) := by native_decide\n#eval (decide (filterEven [1, 2, 3] = [1, 2, 3])) -- expected: false\n\n/-!\n# Pre\u2011Condition\n-/\n\n/--\n**Pre\u2011condition.** The input is a list of integers (always true on `List Int`).\n\nIn Python, this checks `isinstance(xs, list) and all(isinstance(x, int) for x in xs)`.\nIn Lean, `List Int` enforces this at the type level.\n-/\ndef Pre (xs : List Int) : Prop := True\n\n/--\n**Post\u2011condition.** All elements in the output list are even numbers.\n-/\ndef Post (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 ys, x % 2 = 0) \u2227\n  (\u2200 x \u2208 xs, x % 2 = 0 \u2192 x \u2208 ys) \u2227\n  (\u2200 x \u2208 ys, x \u2208 xs)\n\n/-!\n# Property Theorems\n-/\n\n/-- **Filter preserves even numbers** -/\ndef filter_preserves_even_prop (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 ys, x % 2 = 0)\n\n/-- **Filter preserves even numbers theorem** -/\n@[simp] theorem filter_preserves_even_thm (xs : List Int) :\n  filter_preserves_even_prop xs (filterEven xs) := sorry\n\n/-- **Filter includes all even numbers from input** -/\ndef filter_includes_all_even_prop (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 xs, x % 2 = 0 \u2192 x \u2208 ys)\n\n/-- **Filter includes all even numbers theorem** -/\n@[simp] theorem filter_includes_all_even_thm (xs : List Int) :\n  filter_includes_all_even_prop xs (filterEven xs) := sorry\n\n/-- **Filter only includes numbers from input** -/\ndef filter_only_input_prop (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 ys, x \u2208 xs)\n\n/-- **Filter only includes numbers from input theorem** -/\n@[simp] theorem filter_only_input_thm (xs : List Int) :\n  filter_only_input_prop xs (filterEven xs) := sorry\n\n/-!\n# Correctness Theorem\n-/\n\n/--\n**Correctness theorem**: the pre\u2011condition implies the post\u2011condition.\nGiven a list of integers, the filtered list contains exactly the even numbers.\n-/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (filterEven xs) := sorry\n\n/-!\n# Additional Property Tests\n-/\n\n/-- Empty list property: filtering empty list returns empty list -/\nexample : filterEven ([] : List Int) = ([] : List Int) := by native_decide\n#eval filterEven ([] : List Int) -- expected: []\n\n/-- All even property: filtering all-even list returns same list -/\nexample : filterEven [2, 4, 6, 8] = [2, 4, 6, 8] := by native_decide\n#eval filterEven [2, 4, 6, 8] -- expected: [2, 4, 6, 8]\n\n/-- All odd property: filtering all-odd list returns empty list -/\nexample : filterEven [1, 3, 5, 7] = ([] : List Int) := by native_decide\n#eval filterEven [1, 3, 5, 7] -- expected: []\n\n/-- Negative numbers property: filtering list with negative even numbers -/\nexample : filterEven [-2, -1, 0, 1, 2] = [-2, 0, 2] := by native_decide\n#eval filterEven [-2, -1, 0, 1, 2] -- expected: [-2, 0, 2]\n\nend FilterEvenNumbers",
+  "duration_seconds": 167.70050764083862,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 2,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 5,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 4,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 5,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 6,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 13,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 7,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 8,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 9,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 20,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0,
+      "best_lean_program": "/-!\n# VeriBench \u2013 Filter Even Numbers\n\nFile order:\n1. Implementation\n2. Unit tests (positive, edge, positive/negative test suite)\n3. Pre\u2011condition prop\n4. Correctness theorems\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Filter Even Numbers\n\nDefines a function `filterEven` that returns a new list containing only the even numbers\nfrom the input list of integers.\n-/\n\nnamespace FilterEvenNumbers\n\n/-!\n# Implementation\n-/\n\n/--\n**Implementation of `filterEven`.**\n\n`filterEven xs` returns a list containing only the even integers from `xs`.\n\n## Examples\n#eval filterEven [1, 2, 3, 4, 5, 6] -- expected: [2, 4, 6]\n#eval filterEven [] -- expected: []\n-/\n\ndef filterEven (xs : List Int) : List Int :=\n  xs.filter (fun x => x % 2 = 0)\n\n/-!\n# Tests: Basic Unit Tests\n-/\n\n/-- expected: [2, 4, 6] -/\nexample : filterEven [1, 2, 3, 4, 5, 6] = [2, 4, 6] := by native_decide\n#eval filterEven [1, 2, 3, 4, 5, 6] -- expected: [2, 4, 6]\n\n/-!\n# Tests: Edge Cases\n-/\n\n/-- expected: [] -/\nexample : filterEven ([] : List Int) = ([] : List Int) := by native_decide\n#eval filterEven ([] : List Int) -- expected: []\n\n/-- expected: [] -/\nexample : filterEven [1, 3, 5] = ([] : List Int) := by native_decide\n#eval filterEven [1, 3, 5] -- expected: []\n\n/-- expected: [2, 4, 6] -/\nexample : filterEven [2, 4, 6] = [2, 4, 6] := by native_decide\n#eval filterEven [2, 4, 6] -- expected: [2, 4, 6]\n\n/-!\n# Tests: Negative Cases\n-/\n\n/-- negative: filterEven [1, 3, 5] \u2260 [1, 3, 5] -/\nexample : \u00ac (filterEven [1, 3, 5] = [1, 3, 5]) := by native_decide\n#eval (decide (filterEven [1, 3, 5] = [1, 3, 5])) -- expected: false\n\n/-- negative: filterEven [1, 2, 3] \u2260 [1, 2, 3] -/\nexample : \u00ac (filterEven [1, 2, 3] = [1, 2, 3]) := by native_decide\n#eval (decide (filterEven [1, 2, 3] = [1, 2, 3])) -- expected: false\n\n/-!\n# Pre\u2011Condition\n-/\n\n/--\n**Pre\u2011condition.** The input is a list of integers (always true on `List Int`).\n\nIn Python, this checks `isinstance(xs, list) and all(isinstance(x, int) for x in xs)`.\nIn Lean, `List Int` enforces this at the type level.\n-/\ndef Pre (xs : List Int) : Prop := True\n\n/--\n**Post\u2011condition.** All elements in the output list are even numbers.\n-/\ndef Post (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 ys, x % 2 = 0) \u2227\n  (\u2200 x \u2208 xs, x % 2 = 0 \u2192 x \u2208 ys) \u2227\n  (\u2200 x \u2208 ys, x \u2208 xs)\n\n/-!\n# Property Theorems\n-/\n\n/-- **Filter preserves even numbers** -/\ndef filter_preserves_even_prop (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 ys, x % 2 = 0)\n\n/-- **Filter preserves even numbers theorem** -/\n@[simp] theorem filter_preserves_even_thm (xs : List Int) :\n  filter_preserves_even_prop xs (filterEven xs) := sorry\n\n/-- **Filter includes all even numbers from input** -/\ndef filter_includes_all_even_prop (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 xs, x % 2 = 0 \u2192 x \u2208 ys)\n\n/-- **Filter includes all even numbers theorem** -/\n@[simp] theorem filter_includes_all_even_thm (xs : List Int) :\n  filter_includes_all_even_prop xs (filterEven xs) := sorry\n\n/-- **Filter only includes numbers from input** -/\ndef filter_only_input_prop (xs ys : List Int) : Prop :=\n  (\u2200 x \u2208 ys, x \u2208 xs)\n\n/-- **Filter only includes numbers from input theorem** -/\n@[simp] theorem filter_only_input_thm (xs : List Int) :\n  filter_only_input_prop xs (filterEven xs) := sorry\n\n/-!\n# Correctness Theorem\n-/\n\n/--\n**Correctness theorem**: the pre\u2011condition implies the post\u2011condition.\nGiven a list of integers, the filtered list contains exactly the even numbers.\n-/\ntheorem correctness_thm (xs : List Int) (hPre : Pre xs) :\n  Post xs (filterEven xs) := sorry\n\n/-!\n# Additional Property Tests\n-/\n\n/-- Empty list property: filtering empty list returns empty list -/\nexample : filterEven ([] : List Int) = ([] : List Int) := by native_decide\n#eval filterEven ([] : List Int) -- expected: []\n\n/-- All even property: filtering all-even list returns same list -/\nexample : filterEven [2, 4, 6, 8] = [2, 4, 6, 8] := by native_decide\n#eval filterEven [2, 4, 6, 8] -- expected: [2, 4, 6, 8]\n\n/-- All odd property: filtering all-odd list returns empty list -/\nexample : filterEven [1, 3, 5, 7] = ([] : List Int) := by native_decide\n#eval filterEven [1, 3, 5, 7] -- expected: []\n\n/-- Negative numbers property: filtering list with negative even numbers -/\nexample : filterEven [-2, -1, 0, 1, 2] = [-2, 0, 2] := by native_decide\n#eval filterEven [-2, -1, 0, 1, 2] -- expected: [-2, 0, 2]\n\nend FilterEvenNumbers"
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 19,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0,
+      "best_lean_program": "-- No code yet"
+    }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    1.0
+  ],
+  "settings": {
+    "model": "openai/Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": null,
+    "max_metric_calls_budget": 50,
+    "reflection_minibatch_size": 1,
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
+  }
+}

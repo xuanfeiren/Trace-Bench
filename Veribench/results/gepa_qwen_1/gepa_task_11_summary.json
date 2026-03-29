@@ -1,11 +1,11 @@
 {
-  "task_idx": 9,
-  "task_id": 9,
+  "task_idx": 11,
+  "task_id": 11,
   "success": false,
   "final_score": 0.0,
-  "num_metric_calls": 50,
+  "num_metric_calls": 51,
   "success_at_metric_call": null,
-  "duration_seconds": 0.0009593963623046875,
+  "duration_seconds": 333.54228949546814,
   "model": "openai/Qwen/Qwen3.5-122B-A10B",
   "early_stopped": false,
   "method": "gepa_direct"

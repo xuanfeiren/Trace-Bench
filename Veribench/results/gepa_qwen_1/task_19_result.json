@@ -1,0 +1,218 @@
+{
+  "task_idx": 19,
+  "task_id": 19,
+  "success": true,
+  "early_stopped": true,
+  "final_score": 1.0,
+  "num_metric_calls": 36,
+  "num_iterations_total": 19,
+  "num_candidates_discovered": 2,
+  "success_at_metric_call": 35,
+  "best_lean_code": "/-!\n# VeriBench \u2013 Addition of Natural Numbers\n\nFile order:\n1. Implementation\n2. Unit tests (positive, edge, negative test suite)\n3. Pre\u2011condition prop\n4. Property theorems\n5. Post\u2011condition prop\n6. Correctness theorem\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Natural Number Addition\n\nDefines `prog` for adding two natural numbers with precondition checking.\n-/\n\nnamespace ProgAdd\n\n/--\n**Pre\u2011condition for `prog`.**\n\nBoth operands must be non\u2011negative integers.\nIn Lean, `Nat` already represents non\u2011negative integers, so this is always true.\n-/\ndef Pre (a b : Nat) : Prop := 0 \u2264 a \u2227 0 \u2264 b\n\n/--\n**Implementation of `prog`.**\n\n`prog a b` returns the natural\u2011number sum of `a` and `b`.\nIn Lean, since `Nat` is already non\u2011negative, the precondition is always satisfied.\n\n## Examples\n#eval prog 1 2 -- expected: 3\n#eval prog 0 0 -- expected: 0\n-/\ndef prog (a b : Nat) : Nat := a + b\n\n/-!\n# Tests: Basic Unit Tests\n-/\n\n/-- expected: 3 -/\nexample : prog 1 2 = 3 := by native_decide\n#eval prog 1 2 -- expected: 3\n\n/-!\n# Tests: Edge Cases\n-/\n\n/-- expected: 0 -/\nexample : prog 0 0 = 0 := by native_decide\n#eval prog 0 0 -- expected: 0\n\n/-- expected: 5 -/\nexample : prog 0 5 = 5 := by native_decide\n#eval prog 0 5 -- expected: 5\n\n/-- expected: 7 -/\nexample : prog 7 0 = 7 := by native_decide\n#eval prog 7 0 -- expected: 7\n\n/-!\n# Tests: Positive Test Cases\n-/\n\n/-- positive: 2 + 3 = 5 -/\nexample : prog 2 3 = 5 := by native_decide\n#eval prog 2 3 -- expected: 5\n\n/-- positive: 10 + 20 = 30 -/\nexample : prog 10 20 = 30 := by native_decide\n#eval prog 10 20 -- expected: 30\n\n/-!\n# Tests: Negative Test Cases (pre\u2011condition violations)\n-/\n\n/-- negative: 2 + 3 \u2260 6 -/\nexample : \u00ac (prog 2 3 = 6) := by native_decide\n#eval (decide (prog 2 3 = 6)) -- expected: false\n\n/-- negative: 4 + 1 \u2260 2 -/\nexample : \u00ac (prog 4 1 = 2) := by native_decide\n#eval (decide (prog 4 1 = 2)) -- expected: false\n\n/-!\n# Tests: Property Tests\n-/\n\n/-- Commutativity test: 3 + 4 = 4 + 3 -/\nexample : prog 3 4 = prog 4 3 := by native_decide\n#eval prog 3 4 -- expected: 7\n\n/-- Commutativity test: 10 + 25 = 25 + 10 -/\nexample : prog 10 25 = prog 25 10 := by native_decide\n#eval prog 10 25 -- expected: 35\n\n/-- Associativity test: (2 + 3) + 4 = 2 + (3 + 4) -/\nexample : prog (prog 2 3) 4 = prog 2 (prog 3 4) := by native_decide\n#eval prog (prog 2 3) 4 -- expected: 9\n\n/-!\n# Property Definitions\n-/\n\n/-- **Right\u2011identity property**: adding zero on the right leaves the number unchanged. -/\ndef right_identity_prop (n : Nat) : Prop := prog n 0 = n\n\n/-- **Left\u2011identity property**: adding zero on the left leaves the number unchanged. -/\ndef left_identity_prop (n : Nat) : Prop := prog 0 n = n\n\n/-- **Commutativity property**: the order of the addends does not affect the sum. -/\ndef commutativity_prop (a b : Nat) : Prop := prog a b = prog b a\n\n/-- **Associativity property**: regrouping additions does not change the result. -/\ndef associativity_prop (a b c : Nat) : Prop := prog (prog a b) c = prog a (prog b c)\n\n/-!\n# Property Theorems\n-/\n\n/-- **Right\u2011identity theorem**: adding zero on the right leaves the number unchanged. -/\n@[simp] theorem right_identity_thm (n : Nat) : right_identity_prop n := by sorry\n\n/-- **Left\u2011identity theorem**: adding zero on the left leaves the number unchanged. -/\n@[simp] theorem left_identity_thm (n : Nat) : left_identity_prop n := by sorry\n\n/-- **Commutativity theorem**: the order of the addends does not affect the sum. -/\n@[simp] theorem commutativity_thm (a b : Nat) : commutativity_prop a b := by sorry\n\n/-- **Associativity theorem**: regrouping additions does not change the result. -/\n@[simp] theorem associativity_thm (a b c : Nat) : associativity_prop a b c := by sorry\n\n/-!\n# Post\u2011Condition\n-/\n\n/-- **Post\u2011condition**: conjunction of all desired properties for `prog`. -/\ndef Post_prop (a b : Nat) : Prop :=\n  right_identity_prop a \u2227\n  left_identity_prop b \u2227\n  commutativity_prop a b \u2227\n  (\u2200 c, associativity_prop a b c)\n\n/-!\n# Correctness Theorem\n-/\n\n/-- **Correctness theorem**: the pre\u2011condition implies the post\u2011condition. -/\ntheorem correctness_thm (a b : Nat) (hPre : Pre a b) : Post_prop a b := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\n`progImp a b` computes the same sum using a mutable accumulator and a loop.\n-/\ndef progImp (a b : Nat) : Nat :=\n  Id.run do\n    let mut acc : Nat := a\n    for _ in [:b] do\n      acc := acc.succ\n    return acc\n\n/-!\n# Imperative Tests\n-/\n\n/-- expected: 3 -/\nexample : progImp 1 2 = 3 := by native_decide\n#eval progImp 1 2 -- expected: 3\n\n/-- expected: 0 -/\nexample : progImp 0 0 = 0 := by native_decide\n#eval progImp 0 0 -- expected: 0\n\n/-- positive: 2 + 3 = 5 -/\nexample : progImp 2 3 = 5 := by native_decide\n#eval progImp 2 3 -- expected: 5\n\n/-- negative: 2 + 3 \u2260 6 -/\nexample : \u00ac (progImp 2 3 = 6) := by native_decide\n#eval (decide (progImp 2 3 = 6)) -- expected: false\n\n/-!\n# Equivalence Theorem\n-/\n\n/-- **Equivalence theorem**: functional and imperative addition coincide. -/\ntheorem prog_equivalence_thm (a b : Nat) : prog a b = progImp a b := sorry\n\nend ProgAdd",
+  "duration_seconds": 299.58490467071533,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 2,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 5,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 4,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 5,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 6,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 13,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 7,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 8,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 9,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 10,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 11,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 12,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 13,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 27,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 14,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 29,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 15,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 31,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 16,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 33,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 17,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 36,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0,
+      "best_lean_program": "/-!\n# VeriBench \u2013 Addition of Natural Numbers\n\nFile order:\n1. Implementation\n2. Unit tests (positive, edge, negative test suite)\n3. Pre\u2011condition prop\n4. Property theorems\n5. Post\u2011condition prop\n6. Correctness theorem\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Natural Number Addition\n\nDefines `prog` for adding two natural numbers with precondition checking.\n-/\n\nnamespace ProgAdd\n\n/--\n**Pre\u2011condition for `prog`.**\n\nBoth operands must be non\u2011negative integers.\nIn Lean, `Nat` already represents non\u2011negative integers, so this is always true.\n-/\ndef Pre (a b : Nat) : Prop := 0 \u2264 a \u2227 0 \u2264 b\n\n/--\n**Implementation of `prog`.**\n\n`prog a b` returns the natural\u2011number sum of `a` and `b`.\nIn Lean, since `Nat` is already non\u2011negative, the precondition is always satisfied.\n\n## Examples\n#eval prog 1 2 -- expected: 3\n#eval prog 0 0 -- expected: 0\n-/\ndef prog (a b : Nat) : Nat := a + b\n\n/-!\n# Tests: Basic Unit Tests\n-/\n\n/-- expected: 3 -/\nexample : prog 1 2 = 3 := by native_decide\n#eval prog 1 2 -- expected: 3\n\n/-!\n# Tests: Edge Cases\n-/\n\n/-- expected: 0 -/\nexample : prog 0 0 = 0 := by native_decide\n#eval prog 0 0 -- expected: 0\n\n/-- expected: 5 -/\nexample : prog 0 5 = 5 := by native_decide\n#eval prog 0 5 -- expected: 5\n\n/-- expected: 7 -/\nexample : prog 7 0 = 7 := by native_decide\n#eval prog 7 0 -- expected: 7\n\n/-!\n# Tests: Positive Test Cases\n-/\n\n/-- positive: 2 + 3 = 5 -/\nexample : prog 2 3 = 5 := by native_decide\n#eval prog 2 3 -- expected: 5\n\n/-- positive: 10 + 20 = 30 -/\nexample : prog 10 20 = 30 := by native_decide\n#eval prog 10 20 -- expected: 30\n\n/-!\n# Tests: Negative Test Cases (pre\u2011condition violations)\n-/\n\n/-- negative: 2 + 3 \u2260 6 -/\nexample : \u00ac (prog 2 3 = 6) := by native_decide\n#eval (decide (prog 2 3 = 6)) -- expected: false\n\n/-- negative: 4 + 1 \u2260 2 -/\nexample : \u00ac (prog 4 1 = 2) := by native_decide\n#eval (decide (prog 4 1 = 2)) -- expected: false\n\n/-!\n# Tests: Property Tests\n-/\n\n/-- Commutativity test: 3 + 4 = 4 + 3 -/\nexample : prog 3 4 = prog 4 3 := by native_decide\n#eval prog 3 4 -- expected: 7\n\n/-- Commutativity test: 10 + 25 = 25 + 10 -/\nexample : prog 10 25 = prog 25 10 := by native_decide\n#eval prog 10 25 -- expected: 35\n\n/-- Associativity test: (2 + 3) + 4 = 2 + (3 + 4) -/\nexample : prog (prog 2 3) 4 = prog 2 (prog 3 4) := by native_decide\n#eval prog (prog 2 3) 4 -- expected: 9\n\n/-!\n# Property Definitions\n-/\n\n/-- **Right\u2011identity property**: adding zero on the right leaves the number unchanged. -/\ndef right_identity_prop (n : Nat) : Prop := prog n 0 = n\n\n/-- **Left\u2011identity property**: adding zero on the left leaves the number unchanged. -/\ndef left_identity_prop (n : Nat) : Prop := prog 0 n = n\n\n/-- **Commutativity property**: the order of the addends does not affect the sum. -/\ndef commutativity_prop (a b : Nat) : Prop := prog a b = prog b a\n\n/-- **Associativity property**: regrouping additions does not change the result. -/\ndef associativity_prop (a b c : Nat) : Prop := prog (prog a b) c = prog a (prog b c)\n\n/-!\n# Property Theorems\n-/\n\n/-- **Right\u2011identity theorem**: adding zero on the right leaves the number unchanged. -/\n@[simp] theorem right_identity_thm (n : Nat) : right_identity_prop n := by sorry\n\n/-- **Left\u2011identity theorem**: adding zero on the left leaves the number unchanged. -/\n@[simp] theorem left_identity_thm (n : Nat) : left_identity_prop n := by sorry\n\n/-- **Commutativity theorem**: the order of the addends does not affect the sum. -/\n@[simp] theorem commutativity_thm (a b : Nat) : commutativity_prop a b := by sorry\n\n/-- **Associativity theorem**: regrouping additions does not change the result. -/\n@[simp] theorem associativity_thm (a b c : Nat) : associativity_prop a b c := by sorry\n\n/-!\n# Post\u2011Condition\n-/\n\n/-- **Post\u2011condition**: conjunction of all desired properties for `prog`. -/\ndef Post_prop (a b : Nat) : Prop :=\n  right_identity_prop a \u2227\n  left_identity_prop b \u2227\n  commutativity_prop a b \u2227\n  (\u2200 c, associativity_prop a b c)\n\n/-!\n# Correctness Theorem\n-/\n\n/-- **Correctness theorem**: the pre\u2011condition implies the post\u2011condition. -/\ntheorem correctness_thm (a b : Nat) (hPre : Pre a b) : Post_prop a b := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\n`progImp a b` computes the same sum using a mutable accumulator and a loop.\n-/\ndef progImp (a b : Nat) : Nat :=\n  Id.run do\n    let mut acc : Nat := a\n    for _ in [:b] do\n      acc := acc.succ\n    return acc\n\n/-!\n# Imperative Tests\n-/\n\n/-- expected: 3 -/\nexample : progImp 1 2 = 3 := by native_decide\n#eval progImp 1 2 -- expected: 3\n\n/-- expected: 0 -/\nexample : progImp 0 0 = 0 := by native_decide\n#eval progImp 0 0 -- expected: 0\n\n/-- positive: 2 + 3 = 5 -/\nexample : progImp 2 3 = 5 := by native_decide\n#eval progImp 2 3 -- expected: 5\n\n/-- negative: 2 + 3 \u2260 6 -/\nexample : \u00ac (progImp 2 3 = 6) := by native_decide\n#eval (decide (progImp 2 3 = 6)) -- expected: false\n\n/-!\n# Equivalence Theorem\n-/\n\n/-- **Equivalence theorem**: functional and imperative addition coincide. -/\ntheorem prog_equivalence_thm (a b : Nat) : prog a b = progImp a b := sorry\n\nend ProgAdd"
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 35,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0,
+      "best_lean_program": "-- No code yet"
+    }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    1.0
+  ],
+  "settings": {
+    "model": "openai/Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": null,
+    "max_metric_calls_budget": 50,
+    "reflection_minibatch_size": 1,
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
+  }
+}

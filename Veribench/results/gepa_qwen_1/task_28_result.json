@@ -1,0 +1,248 @@
+{
+  "task_idx": 28,
+  "task_id": 28,
+  "success": true,
+  "early_stopped": true,
+  "final_score": 1.0,
+  "num_metric_calls": 42,
+  "num_iterations_total": 22,
+  "num_candidates_discovered": 2,
+  "success_at_metric_call": 41,
+  "best_lean_code": "/-!\n# VeriBench \u2013 Maximum of Two Natural Numbers\n\nFile order:\n1. Docstring and implementation\n2. Unit tests (positive, edge, negative test suite)\n3. Pre\u2011condition prop\n4. Property theorems\n5. Post\u2011condition prop\n6. Correctness theorem\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Maximum Function\n\nDefines a wrapper `maxNat` for `Nat.max`, and states basic properties.\n-/\n\nnamespace MaxOfTwoNaturalNumbers\n\n/--\n**Implementation of `maxNat`.**\n\n`maxNat a b` returns the maximum of two natural numbers `a` and `b`.\n\n## Examples\n#eval maxNat 7 3 -- expected: 7\n#eval maxNat 0 0 -- expected: 0\n-/\n\ndef maxNat : Nat \u2192 Nat \u2192 Nat := Nat.max\n\n/--\n**Pre\u2011condition.** Both operands are non\u2011negative (always true on `Nat`).\nFor Int inputs, this would check a >= 0 and b >= 0.\n-/\ndef Pre (a b : Nat) : Prop := True\n\n/--\n**Post\u2011condition.** The result equals the maximum of the two inputs.\n-/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  result = a \u2228 result = b \u2227 (result \u2265 a) \u2227 (result \u2265 b)\n\n/-!\n# Unit Tests: Basic Cases\n-/\n\n/-- expected: 7 -/\nexample : maxNat 7 3 = 7 := by native_decide\n#eval maxNat 7 3 -- expected: 7\n\n/-- expected: 3 -/\nexample : maxNat 3 7 = 7 := by native_decide\n#eval maxNat 3 7 -- expected: 7\n\n/-!\n# Unit Tests: Edge Cases\n-/\n\n/-- expected: 0 -/\nexample : maxNat 0 0 = 0 := by native_decide\n#eval maxNat 0 0 -- expected: 0\n\n/-- expected: 5 -/\nexample : maxNat 5 0 = 5 := by native_decide\n#eval maxNat 5 0 -- expected: 5\n\n/-- expected: 5 -/\nexample : maxNat 0 5 = 5 := by native_decide\n#eval maxNat 0 5 -- expected: 5\n\n/-!\n# Unit Tests: Additional Cases\n-/\n\n/-- expected: 100 -/\nexample : maxNat 100 50 = 100 := by native_decide\n#eval maxNat 100 50 -- expected: 100\n\n/-- expected: 42 -/\nexample : maxNat 42 42 = 42 := by native_decide\n#eval maxNat 42 42 -- expected: 42\n\n/-!\n# Negative Tests: Result is not less than either input\n-/\n\n/-- negative: max(7, 3) \u2260 6 -/\nexample : \u00ac (maxNat 7 3 = 6) := by native_decide\n#eval (decide (maxNat 7 3 = 6)) -- expected: false\n\n/-- negative: max(3, 7) \u2260 4 -/\nexample : \u00ac (maxNat 3 7 = 4) := by native_decide\n#eval (decide (maxNat 3 7 = 4)) -- expected: false\n\n/-!\n# Property: Result is at least as large as first argument\n-/\n\n/-- max(a, b) \u2265 a -/\ndef max_ge_left (a b : Nat) : Prop := maxNat a b \u2265 a\n\n/-- max(a, b) \u2265 a theorem -/\ntheorem max_ge_left_thm (a b : Nat) : max_ge_left a b := sorry\n\n/-!\n# Property: Result is at least as large as second argument\n-/\n\n/-- max(a, b) \u2265 b -/\ndef max_ge_right (a b : Nat) : Prop := maxNat a b \u2265 b\n\n/-- max(a, b) \u2265 b theorem -/\ntheorem max_ge_right_thm (a b : Nat) : max_ge_right a b := sorry\n\n/-!\n# Property: Result equals one of the arguments\n-/\n\n/-- max(a, b) = a \u2228 max(a, b) = b -/\ndef max_is_one_of (a b : Nat) : Prop := maxNat a b = a \u2228 maxNat a b = b\n\n/-- max(a, b) = a \u2228 max(a, b) = b theorem -/\ntheorem max_is_one_of_thm (a b : Nat) : max_is_one_of a b := sorry\n\n/-!\n# Property: Commutativity\n-/\n\n/-- max(a, b) = max(b, a) -/\ndef max_commutative (a b : Nat) : Prop := maxNat a b = maxNat b a\n\n/-- max(a, b) = max(b, a) theorem -/\ntheorem max_commutative_thm (a b : Nat) : max_commutative a b := sorry\n\n/-!\n# Post\u2011condition (conjunction of all desired properties)\n-/\n\n/-- **Post\u2011condition**: result satisfies all max properties -/\ndef Post_prop (a b : Nat) (result : Nat) : Prop :=\n  Post a b result \u2227 max_ge_left a b \u2227 max_ge_right a b \u2227 max_is_one_of a b\n\n/-!\n# Correctness Theorem\n-/\n\n/-- **Correctness theorem**: the pre\u2011condition implies the post\u2011condition. -/\ntheorem correctness_thm (a b : Nat) (hPre : Pre a b) :\n  Post_prop a b (maxNat a b) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\n`maxNatImp a b` computes the same maximum using conditional logic.\n-/\ndef maxNatImp (a b : Nat) : Nat :=\n  if a \u2264 b then b else a\n\n/-!\n# Imperative Tests\n-/\n\n/-- expected: 7 -/\nexample : maxNatImp 7 3 = 7 := by native_decide\n#eval maxNatImp 7 3 -- expected: 7\n\n/-- expected: 0 -/\nexample : maxNatImp 0 0 = 0 := by native_decide\n#eval maxNatImp 0 0 -- expected: 0\n\n/-- expected: 5 -/\nexample : maxNatImp 5 0 = 5 := by native_decide\n#eval maxNatImp 5 0 -- expected: 5\n\n/-!\n# Equivalence Theorem\n-/\n\n/-- **Equivalence theorem**: functional and imperative max coincide. -/\ntheorem maxNat_equivalence_thm (a b : Nat) :\n  maxNat a b = maxNatImp a b := sorry\n\nend MaxOfTwoNaturalNumbers",
+  "duration_seconds": 357.83921003341675,
+  "initial_seed_score": 0.0,
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 3,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 2,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 5,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 3,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 7,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 4,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 9,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 5,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 11,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 6,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 13,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 7,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 15,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 8,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 17,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 9,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 19,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 10,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 21,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 11,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 23,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 12,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 25,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 13,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 27,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 14,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 29,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 15,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 31,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 16,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 33,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 17,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 35,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 18,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 37,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 19,
+      "score": 0.0,
+      "best_score_so_far": 0.0,
+      "num_metric_calls_so_far": 39,
+      "calls_this_iter": 2,
+      "accepted_new_candidate": false,
+      "new_candidate_score": null,
+      "best_lean_program": "-- This is initial placeholder. Generate complete Lean 4 code based on the Python program."
+    },
+    {
+      "iteration": 20,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 42,
+      "calls_this_iter": 3,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0,
+      "best_lean_program": "/-!\n# VeriBench \u2013 Maximum of Two Natural Numbers\n\nFile order:\n1. Docstring and implementation\n2. Unit tests (positive, edge, negative test suite)\n3. Pre\u2011condition prop\n4. Property theorems\n5. Post\u2011condition prop\n6. Correctness theorem\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Maximum Function\n\nDefines a wrapper `maxNat` for `Nat.max`, and states basic properties.\n-/\n\nnamespace MaxOfTwoNaturalNumbers\n\n/--\n**Implementation of `maxNat`.**\n\n`maxNat a b` returns the maximum of two natural numbers `a` and `b`.\n\n## Examples\n#eval maxNat 7 3 -- expected: 7\n#eval maxNat 0 0 -- expected: 0\n-/\n\ndef maxNat : Nat \u2192 Nat \u2192 Nat := Nat.max\n\n/--\n**Pre\u2011condition.** Both operands are non\u2011negative (always true on `Nat`).\nFor Int inputs, this would check a >= 0 and b >= 0.\n-/\ndef Pre (a b : Nat) : Prop := True\n\n/--\n**Post\u2011condition.** The result equals the maximum of the two inputs.\n-/\ndef Post (a b : Nat) (result : Nat) : Prop :=\n  result = a \u2228 result = b \u2227 (result \u2265 a) \u2227 (result \u2265 b)\n\n/-!\n# Unit Tests: Basic Cases\n-/\n\n/-- expected: 7 -/\nexample : maxNat 7 3 = 7 := by native_decide\n#eval maxNat 7 3 -- expected: 7\n\n/-- expected: 3 -/\nexample : maxNat 3 7 = 7 := by native_decide\n#eval maxNat 3 7 -- expected: 7\n\n/-!\n# Unit Tests: Edge Cases\n-/\n\n/-- expected: 0 -/\nexample : maxNat 0 0 = 0 := by native_decide\n#eval maxNat 0 0 -- expected: 0\n\n/-- expected: 5 -/\nexample : maxNat 5 0 = 5 := by native_decide\n#eval maxNat 5 0 -- expected: 5\n\n/-- expected: 5 -/\nexample : maxNat 0 5 = 5 := by native_decide\n#eval maxNat 0 5 -- expected: 5\n\n/-!\n# Unit Tests: Additional Cases\n-/\n\n/-- expected: 100 -/\nexample : maxNat 100 50 = 100 := by native_decide\n#eval maxNat 100 50 -- expected: 100\n\n/-- expected: 42 -/\nexample : maxNat 42 42 = 42 := by native_decide\n#eval maxNat 42 42 -- expected: 42\n\n/-!\n# Negative Tests: Result is not less than either input\n-/\n\n/-- negative: max(7, 3) \u2260 6 -/\nexample : \u00ac (maxNat 7 3 = 6) := by native_decide\n#eval (decide (maxNat 7 3 = 6)) -- expected: false\n\n/-- negative: max(3, 7) \u2260 4 -/\nexample : \u00ac (maxNat 3 7 = 4) := by native_decide\n#eval (decide (maxNat 3 7 = 4)) -- expected: false\n\n/-!\n# Property: Result is at least as large as first argument\n-/\n\n/-- max(a, b) \u2265 a -/\ndef max_ge_left (a b : Nat) : Prop := maxNat a b \u2265 a\n\n/-- max(a, b) \u2265 a theorem -/\ntheorem max_ge_left_thm (a b : Nat) : max_ge_left a b := sorry\n\n/-!\n# Property: Result is at least as large as second argument\n-/\n\n/-- max(a, b) \u2265 b -/\ndef max_ge_right (a b : Nat) : Prop := maxNat a b \u2265 b\n\n/-- max(a, b) \u2265 b theorem -/\ntheorem max_ge_right_thm (a b : Nat) : max_ge_right a b := sorry\n\n/-!\n# Property: Result equals one of the arguments\n-/\n\n/-- max(a, b) = a \u2228 max(a, b) = b -/\ndef max_is_one_of (a b : Nat) : Prop := maxNat a b = a \u2228 maxNat a b = b\n\n/-- max(a, b) = a \u2228 max(a, b) = b theorem -/\ntheorem max_is_one_of_thm (a b : Nat) : max_is_one_of a b := sorry\n\n/-!\n# Property: Commutativity\n-/\n\n/-- max(a, b) = max(b, a) -/\ndef max_commutative (a b : Nat) : Prop := maxNat a b = maxNat b a\n\n/-- max(a, b) = max(b, a) theorem -/\ntheorem max_commutative_thm (a b : Nat) : max_commutative a b := sorry\n\n/-!\n# Post\u2011condition (conjunction of all desired properties)\n-/\n\n/-- **Post\u2011condition**: result satisfies all max properties -/\ndef Post_prop (a b : Nat) (result : Nat) : Prop :=\n  Post a b result \u2227 max_ge_left a b \u2227 max_ge_right a b \u2227 max_is_one_of a b\n\n/-!\n# Correctness Theorem\n-/\n\n/-- **Correctness theorem**: the pre\u2011condition implies the post\u2011condition. -/\ntheorem correctness_thm (a b : Nat) (hPre : Pre a b) :\n  Post_prop a b (maxNat a b) := sorry\n\n/-!\n# Imperative Implementation\n-/\n\n/--\n`maxNatImp a b` computes the same maximum using conditional logic.\n-/\ndef maxNatImp (a b : Nat) : Nat :=\n  if a \u2264 b then b else a\n\n/-!\n# Imperative Tests\n-/\n\n/-- expected: 7 -/\nexample : maxNatImp 7 3 = 7 := by native_decide\n#eval maxNatImp 7 3 -- expected: 7\n\n/-- expected: 0 -/\nexample : maxNatImp 0 0 = 0 := by native_decide\n#eval maxNatImp 0 0 -- expected: 0\n\n/-- expected: 5 -/\nexample : maxNatImp 5 0 = 5 := by native_decide\n#eval maxNatImp 5 0 -- expected: 5\n\n/-!\n# Equivalence Theorem\n-/\n\n/-- **Equivalence theorem**: functional and imperative max coincide. -/\ntheorem maxNat_equivalence_thm (a b : Nat) :\n  maxNat a b = maxNatImp a b := sorry\n\nend MaxOfTwoNaturalNumbers"
+    },
+    {
+      "iteration": 1,
+      "score": 0.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 0,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 0.0,
+      "best_lean_program": "-- No code yet"
+    },
+    {
+      "iteration": 2,
+      "score": 1.0,
+      "best_score_so_far": 1.0,
+      "num_metric_calls_so_far": 41,
+      "is_new_best": false,
+      "accepted_new_candidate": true,
+      "new_candidate_score": 1.0,
+      "best_lean_program": "-- No code yet"
+    }
+  ],
+  "val_aggregate_scores": [
+    0.0,
+    1.0
+  ],
+  "settings": {
+    "model": "openai/Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": null,
+    "max_metric_calls_budget": 50,
+    "reflection_minibatch_size": 1,
+    "perfect_score_stopping_enabled": true,
+    "mode": "direct_code_evolution"
+  }
+}

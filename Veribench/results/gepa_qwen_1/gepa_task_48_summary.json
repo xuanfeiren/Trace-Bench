@@ -1,0 +1,12 @@
+{
+  "task_idx": 48,
+  "task_id": 48,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 20,
+  "success_at_metric_call": 19,
+  "duration_seconds": 167.70050764083862,
+  "model": "openai/Qwen/Qwen3.5-122B-A10B",
+  "early_stopped": true,
+  "method": "gepa_direct"
+}
