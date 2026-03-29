@@ -439,8 +439,17 @@ def main():
                        help='Name of the result directory (default: gepa_direct)')
     parser.add_argument('--no-resume', action='store_true', default=False,
                        help='Disable resume (start fresh even if gepa_state.bin exists)')
+    parser.add_argument('--api_base', type=str, default=None,
+                       help='API base URL (overrides OPENAI_API_BASE env var)')
+    parser.add_argument('--api_key', type=str, default=None,
+                       help='API key (overrides OPENAI_API_KEY env var)')
 
     args = parser.parse_args()
+
+    if args.api_base:
+        os.environ['OPENAI_API_BASE'] = args.api_base
+    if args.api_key:
+        os.environ['OPENAI_API_KEY'] = args.api_key
 
     # Calculate stopping condition
     stoppers = [PerfectScoreStopper(perfect_score=1.0)]
