@@ -337,6 +337,8 @@ def main():
     # Logging parameters
     parser.add_argument('--save_results', action='store_true', default=False,
                        help='Save full results (default: only summary)')
+    parser.add_argument('--save_name', type=str, default='OpenEvolve_2',
+                       help='Output directory name under results/')
     
     args = parser.parse_args()
     
@@ -413,8 +415,8 @@ def main():
                 success_at = num_metric_calls  # Fallback
         
         # Always save summary to OpenEvolve folder
-        os.makedirs('results/OpenEvolve_2', exist_ok=True)
-        summary_path = f"results/OpenEvolve_2/openevolve_task_{args.task_idx}_summary.json"
+        os.makedirs(f'results/{args.save_name}', exist_ok=True)
+        summary_path = f"results/{args.save_name}/openevolve_task_{args.task_idx}_summary.json"
         
         summary_data = {
             'task_idx': args.task_idx,
@@ -435,7 +437,7 @@ def main():
         
         # Save full result if requested
         if args.save_results:
-            full_result_path = f"results/OpenEvolve_2/openevolve_task_{args.task_idx}_result.json"
+            full_result_path = f"results/{args.save_name}/openevolve_task_{args.task_idx}_result.json"
             
             result_data = {
                 'task_idx': args.task_idx,
