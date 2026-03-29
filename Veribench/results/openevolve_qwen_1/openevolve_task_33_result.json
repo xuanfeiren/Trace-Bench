@@ -1,0 +1,19 @@
+{
+  "task_idx": 33,
+  "task_id": 33,
+  "success": false,
+  "final_score": 0.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "# Python program being translated (for context):\n# Task: Translate the following Python code to Lean 4\n#\n# \"\"\"Return n if it's a perfect square, else return n + 5.\n# \n# Edge cases:\n# - 0 and 1 return themselves.\n# - Negative or non-integer inputs are invalid and raise ValueError.\n# \"\"\"\n# \n# import math\n# \n# def pre(n: int) -> bool:\n#     return isinstance(n, int) and n >= 0\n# \n# def perfect_square_or_add_five(n: int) -> int:\n#     \"\"\"\n#     Return the number itself if it is a perfect square;\n#     otherwise, return the number plus 5.\n# \n#     >>> perfect_square_or_add_five(16)\n#     16\n#     >>> perfect_square_or_add_five(18)\n#     23\n#     ...\n\n# EVOLVE-BLOCK-START\n-- Lean 4 translation of the Python program\n# EVOLVE-BLOCK-END\n",
+  "duration_seconds": 710.3558044433594,
+  "metrics": {
+    "combined_score": 0.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "task_idx": 25,
+  "task_id": 25,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 8,
+  "best_lean_code": "/-!\n# Longest Common Subsequence (LCS)\n\nThis module implements the Longest Common Subsequence algorithm for strings.\n\n## Overview\nThe LCS problem finds the longest subsequence common to two sequences. A subsequence\nis a sequence that appears in the same relative order but not necessarily contiguous.\n\n## Edge Cases\n- Empty inputs yield empty LCS\n- Non-string inputs are invalid (in Python this would raise ValueError)\n\n## Implementation\nUses dynamic programming with a 2D table approach.\n-/\n\nnamespace LCS",
+  "duration_seconds": 748.2905671596527,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

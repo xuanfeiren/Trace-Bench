@@ -1,0 +1,19 @@
+{
+  "task_idx": 21,
+  "task_id": 21,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 5,
+  "best_lean_code": "def isPalindrome (n : Nat) : Bool :=\n  if n < 10 then\n    true\n  else\n    let s := toString n\n    let chars := s.toList\n    chars.reverse == chars",
+  "duration_seconds": 622.3841152191162,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

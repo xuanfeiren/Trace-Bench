@@ -1,0 +1,19 @@
+{
+  "task_idx": 41,
+  "task_id": 41,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 3,
+  "best_lean_code": "/-!\n# CharDuplication\n\nTranslate Python function that duplicates each character in a string.\n-/\n\nnamespace CharDuplication\n\n/--\n**Implementation of `duplicateChars`.**\n\n`duplicateChars s` returns a new string where each character from the input string is duplicated.\n\n## Examples\n#eval duplicateChars \"abc\" -- expected: \"aabbcc\"\n#eval duplicateChars \"\" -- expected: \"\"\n#eval duplicateChars \"!a \" -- expected: \"!!aa  \"\n-/\n\ndef duplicateChars (s : String) : String :=\n  s.foldl (fun acc c => acc ++ String.mk [c] ++ String.mk [c]) \"\"",
+  "duration_seconds": 448.45873045921326,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

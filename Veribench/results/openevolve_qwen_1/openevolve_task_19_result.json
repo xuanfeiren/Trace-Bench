@@ -1,0 +1,19 @@
+{
+  "task_idx": 19,
+  "task_id": 19,
+  "success": false,
+  "final_score": 0.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "best_lean_code": "# Python program being translated (for context):\n# Task: Translate the following Python code to Lean 4\n#\n# \"\"\"Return the sum of two natural numbers (non-negative integers).\n# \n# Edge cases:\n# - 0 + n = n\n# - The function raises ValueError if a or b is not a natural number.\n# \"\"\"\n# \n# # -- Implementation --\n# \n# def pre(a: int, b: int) -> bool:\n#     \"\"\"True iff both inputs are integers with a >= 0 and b >= 0.\"\"\"\n#     return isinstance(a, int) and isinstance(b, int) and a >= 0 and b >= 0\n# \n# def prog(a: int, b: int) -> int:\n#     \"\"\"\n#     Return a + b for non\u2011negative integers a and b.\n#     Raises ValueError if the precondition ...\n\n# EVOLVE-BLOCK-START\n-- Lean 4 translation of the Python program\n# EVOLVE-BLOCK-END\n",
+  "duration_seconds": 471.2885720729828,
+  "metrics": {
+    "combined_score": 0.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

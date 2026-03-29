@@ -1,0 +1,19 @@
+{
+  "task_idx": 24,
+  "task_id": 24,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 1,
+  "best_lean_code": "/-!\n# Longest Palindromic Substring\n\nThis module implements a function to find the longest palindromic substring in a given string.\n\n## Examples\n#eval longestPalindromicSubstring \"babad\"  -- expected: \"bab\" or \"aba\"\n#eval longestPalindromicSubstring \"cbbd\"   -- expected: \"bb\"\n#eval longestPalindromicSubstring \"\"       -- expected: \"\"\n#eval longestPalindromicSubstring \"a\"      -- expected: \"a\"\n-/\n\nnamespace LongestPalindromicSubstring",
+  "duration_seconds": 638.0353724956512,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

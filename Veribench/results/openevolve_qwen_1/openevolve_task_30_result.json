@@ -1,0 +1,19 @@
+{
+  "task_idx": 30,
+  "task_id": 30,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 10,
+  "best_lean_code": "def getDigits (n : Nat) : List Nat :=\n  if n = 0 then [0]\n  else\n    let rec aux (num : Nat) (acc : List Nat) : List Nat :=\n      if num = 0 then acc\n      else aux (num / 10) ((num % 10) :: acc)\n    aux n []",
+  "duration_seconds": 545.4312357902527,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

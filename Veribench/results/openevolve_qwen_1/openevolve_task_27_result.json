@@ -1,0 +1,19 @@
+{
+  "task_idx": 27,
+  "task_id": 27,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 14,
+  "best_lean_code": "/-!\n# Longest Common Prefix\n\nTranslation of Python program to find the longest common prefix among an array of strings.\n\n## Edge Cases\n- Empty list returns empty string\n- Single string returns itself\n- No common prefix returns empty string\n\n## Examples\n#eval longestCommonPrefix [\"flower\", \"flow\", \"flight\"]  -- expected: \"fl\"\n#eval longestCommonPrefix [\"dog\", \"racecar\", \"car\"]     -- expected: \"\"\n#eval longestCommonPrefix []                            -- expected: \"\"\n#eval longestCommonPrefix [\"single\"]                    -- expected: \"single\"\n-/\n\nnamespace LongestCommonPrefix\n\n/--\n**Pre-condition**: All elements in the list are strings.\nIn Lean, `List String` already ensures all elements are strings.\n-/\ndef pre (strs : List String) : Prop := True",
+  "duration_seconds": 584.0042104721069,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

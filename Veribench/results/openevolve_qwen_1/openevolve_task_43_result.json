@@ -1,0 +1,19 @@
+{
+  "task_idx": 43,
+  "task_id": 43,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 11,
+  "best_lean_code": "/-!\n# Replace Spaces with Underscores\n\nThis module provides functionality to replace all spaces in a string with underscores.\n\n## Edge Cases\n- Empty string returns empty string\n- String with no spaces remains unchanged\n- Multiple consecutive spaces are each replaced with underscores\n-/\n\nnamespace ReplaceSpaces\n\n/--\n**Pre-condition checker.**\n\nVerifies that the input is a valid String (in Lean, all values of type String are valid).\n-/\ndef pre (s : String) : Bool := True",
+  "duration_seconds": 407.38729667663574,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

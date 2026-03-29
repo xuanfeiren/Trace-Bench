@@ -1,0 +1,19 @@
+{
+  "task_idx": 13,
+  "task_id": 13,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 1,
+  "best_lean_code": "/-!\n# String Uppercase Conversion\n\nConverts all lowercase letters in a string to uppercase.\n\nEdge cases:\n- Empty string returns empty string.\n- Non-alphabetic characters remain unchanged.\n- Input must be a String (enforced by type system).\n-/\n\nnamespace StringUppercase\n\n/--\n**Pre-condition.** The input is a String (always true in Lean's type system).\n-/\ndef Pre (s : String) : Prop := True",
+  "duration_seconds": 471.84626841545105,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

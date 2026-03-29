@@ -1,0 +1,19 @@
+{
+  "task_idx": 36,
+  "task_id": 36,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 3,
+  "best_lean_code": "def remove_abcde (s : String) : String :=\n  String.mk (s.toList.filter (fun c => \u00ac(c = 'a' \u2228 c = 'b' \u2228 c = 'c' \u2228 c = 'd' \u2228 c = 'e')))",
+  "duration_seconds": 549.2429308891296,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "task_idx": 16,
+  "task_id": 16,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 4,
+  "best_lean_code": "/-!\n# Factorial Function\n\nTranslation of Python factorial program to Lean 4.\n\n## Edge Cases\n- factorial(0) = 1 by definition\n- factorial(1) = 1\n- Input must be a non-negative integer (natural number)\n-/\n\nnamespace Factorial\n\n/--\n**Precondition for factorial.**\nThe input must be a natural number (non-negative integer).\nIn Lean, this is always true for Nat, so this is a documentation property.\n-/\ndef Pre (n : Nat) : Prop := n \u2265 0",
+  "duration_seconds": 537.4784407615662,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

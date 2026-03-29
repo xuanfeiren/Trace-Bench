@@ -1,0 +1,19 @@
+{
+  "task_idx": 26,
+  "task_id": 26,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 35,
+  "best_lean_code": "/-!\n# Longest Substring Without Repeating Characters\n\nThis module implements a function to find the length of the longest substring \nwithout repeating characters.\n\n## Examples\n- \"abcabcbb\" \u2192 3 (substring \"abc\")\n- \"bbbbb\" \u2192 1 (substring \"b\")\n- \"pwwkew\" \u2192 3 (substring \"wke\")\n- \"\" \u2192 0 (empty string)\n-/\n\nnamespace LongestSubstring\n\n/-- **Pre-condition**: Input is a valid string (always true for String type). -/\ndef pre (s : String) : Prop := True\n\n/--\n**Main function**: Find the length of the longest substring without repeating characters.\n\nUses a sliding window approach with explicit termination measures.\n-/\ndef lengthOfLongestSubstring (s : String) : Nat :=\n  let chars := s.toList\n  let n := chars.length\n  \n  if n = 0 then\n    0\n  else\n    -- Helper to find end of substring from start position without duplicates\n    let rec findEnd (endPos : Nat) (seen : List Char) : Nat :=\n      if endPos >= n then\n        endPos\n      else\n        let c := chars.get! endPos\n        if c \u2208 seen then\n          endPos\n        else\n          findEnd (endPos + 1) (c :: seen)\n    termination_by n - endPos\n    \n    -- Main loop through all starting positions\n    let rec aux (start : Nat) (maxLen : Nat) : Nat :=\n      if start >= n then\n        maxLen\n      else\n        let endPos := findEnd start []\n        let currentLen := endPos - start\n        aux (start + 1) (max maxLen currentLen)\n    termination_by n - start\n    aux 0 0",
+  "duration_seconds": 581.3232562541962,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

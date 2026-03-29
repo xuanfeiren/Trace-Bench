@@ -1,0 +1,19 @@
+{
+  "task_idx": 23,
+  "task_id": 23,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 3,
+  "best_lean_code": "/-!\n# Fast Fibonacci via Matrix Exponentiation\n\nThis module implements fast Fibonacci computation using 2x2 matrix exponentiation.\n\n## Overview\n\nThe Fibonacci sequence is defined as:\n- F(0) = 0\n- F(1) = 1\n- F(n) = F(n-1) + F(n-2) for n \u2265 2\n\nWe use the matrix identity:\n[1 1]^n = [F(n+1) F(n)  ]\n[1 1]     [F(n)   F(n-1)]\n\n## Edge Cases\n- F(0) = 0\n- F(1) = 1\n- Negative n is invalid\n-/\n\nnamespace FastFibonacci\n\n/-- **Pre-condition**: n is a non-negative natural number -/\n\n\ndef Pre (n : Nat) : Prop := True  -- In Lean, Nat is always non-negative\n\n/-- **Matrix type**: 2x2 matrix represented as 4 integers (a11, a12, a21, a22) -/\ndef Matrix2x2 := Nat \u00d7 Nat \u00d7 Nat \u00d7 Nat\n\n/-- **Matrix multiplication**: Multiply two 2x2 matrices -/\ndef matrixMultiply (a b : Matrix2x2) : Matrix2x2 :=\n  let (a11, a12, a21, a22) := a\n  let (b11, b12, b21, b22) := b\n  (a11 * b11 + a12 * b21, a11 * b12 + a12 * b22, a21 * b11 + a22 * b21, a21 * b12 + a22 * b22)",
+  "duration_seconds": 823.5409073829651,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

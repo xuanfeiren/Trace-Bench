@@ -1,0 +1,19 @@
+{
+  "task_idx": 29,
+  "task_id": 29,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 21,
+  "best_lean_code": "def longestValidParentheses (s : String) : Nat :=\n  let chars := s.toList\n  let n := chars.length\n  \n  if n = 0 then 0\n  else\n    let rec findMax (i : Nat) (stack : List Nat) (maxLen : Nat) : Nat :=\n      if i >= n then maxLen\n      else\n        let c := chars.get! i\n        if c = '(' then\n          findMax (i + 1) (i :: stack) maxLen\n        else\n          match stack with\n          | [] => \n            findMax (i + 1) [i] maxLen\n          | _ :: rest =>\n            let newStack := rest\n            let base := match newStack with\n              | [] => i\n              | h :: _ => h\n            let currentLen := i + 1 - base\n            findMax (i + 1) newStack (max maxLen currentLen)\n    termination_by n - i\n    findMax 0 [0] 0",
+  "duration_seconds": 763.6888437271118,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

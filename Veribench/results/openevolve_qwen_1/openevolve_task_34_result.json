@@ -1,0 +1,19 @@
+{
+  "task_idx": 34,
+  "task_id": 34,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 1,
+  "best_lean_code": "/-!\n# Quadruple Absolute Difference Plus Three\n\nFile order:\n1. Implementation\n2. Unit tests (positive, edge cases)\n3. Pre-condition property\n4. Correctness theorems\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Quadruple Absolute Difference Plus Three\n\nDefines a function that returns 4*|a - b| + 3 for integers a and b.\n\n## Examples\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n#eval quadrupleAbsDiffPlusThree 5 5 -- expected: 3\n-/\n\nnamespace QuadrupleAbsDiffPlusThree\n\n/--\n**Implementation of `quadrupleAbsDiffPlusThree`.**\n\n`quadrupleAbsDiffPlusThree a b` returns four times the absolute difference \nbetween `a` and `b`, then adds three.\n\n## Examples\n#eval quadrupleAbsDiffPlusThree 7 2 -- expected: 23\n#eval quadrupleAbsDiffPlusThree 5 5 -- expected: 3\n-/\n\ndef quadrupleAbsDiffPlusThree (a b : Int) : Int :=\n  4 * Int.natAbs (a - b) + 3\n\n/-!\n# Tests\n-/\n\n/-- Test case: 7 - 2 = 5, 4*5 + 3 = 23 -/\nexample : quadrupleAbsDiffPlusThree 7 2 = 23 := by\n  native_decide\n\n/-- Test case: 5 - 5 = 0, 4*0 + 3 = 3 (edge case: equal numbers) -/\nexample : quadrupleAbsDiffPlusThree 5 5 = 3 := by\n  native_decide\n\n/-- Test case: 2 - 7 = -5, |\u22125| = 5, 4*5 + 3 = 23 (commutativity) -/\nexample : quadrupleAbsDiffPlusThree 2 7 = 23 := by\n  native_decide\n\n/-- Test case: 0 - 0 = 0, 4*0 + 3 = 3 (edge case: both zero) -/\nexample : quadrupleAbsDiffPlusThree 0 0 = 3 := by\n  native_decide\n\n/-- Test case: negative numbers -/\nexample : quadrupleAbsDiffPlusThree (-3) 1 = 19 := by\n  native_decide\n\n/-- Test case: negative numbers reversed -/\nexample : quadrupleAbsDiffPlusThree 1 (-3) = 19 := by\n  native_decide\n\n/-!\n# Pre-Condition\n-/\n\n/-- **Pre-condition.** Both operands are integers (always true on `Int`). -/\ndef Pre (a b : Int) : Prop := True\n\n/-!\n# Property Theorems\n-/\n\n/-- **Edge case property:** when a = b, the result is 3. -/\ndef equal_numbers_prop (a : Int) : Prop := quadrupleAbsDiffPlusThree a a = 3\n\n/-- **Edge case theorem:** when a = b, the result is 3. -/\ntheorem equal_numbers_thm (a : Int) : equal_numbers_prop a := sorry\n\n/-- **Commutativity property:** the order of operands does not affect the result. -/\ndef commutativity_prop (a b : Int) : Prop := quadrupleAbsDiffPlusThree a b = quadrupleAbsDiffPlusThree b a\n\n/-- **Commutativity theorem:** the order of operands does not affect the result. -/\ntheorem commutativity_thm (a b : Int) : commutativity_prop a b := sorry\n\n/-!\n# Post-Condition (conjunction of all desired properties)\n-/\n\n/-- **Post-condition:** conjunction of all desired properties. -/\ndef Post_prop (a b : Int) : Prop :=\n  equal_numbers_prop a \u2227 commutativity_prop a b\n\n/-!\n# Correctness Theorem\n-/\n\n/-- **Correctness theorem:** the pre-condition implies the post-condition. -/\ntheorem correctness_thm (a b : Int) (hPre : Pre a b) : Post_prop a b := sorry\n\nend QuadrupleAbsDiffPlusThree",
+  "duration_seconds": 524.2205996513367,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "task_idx": 45,
+  "task_id": 45,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 10,
+  "best_lean_code": "/-!\n# Remainder Function\n\nThis file translates a Python program that computes the remainder when dividing\na non-negative integer by a positive integer.\n\nEdge cases:\n- remainder(a, a) = 0 for any positive a\n- remainder(a, b) = a when a < b\n- Raises ValueError if a is negative or b is not positive\n-/\n\nnamespace Remainder\n\n/--\n**Pre-condition**: `a` is non-negative and `b` is positive.\n\nThis corresponds to the Python `pre` function.\nFor natural numbers, `a \u2265 0` is always true, so we only check `b > 0`.\n-/\ndef pre (a b : Nat) : Prop := b > 0",
+  "duration_seconds": 481.2910599708557,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

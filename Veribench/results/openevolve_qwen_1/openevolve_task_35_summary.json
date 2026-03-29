@@ -1,0 +1,11 @@
+{
+  "task_idx": 35,
+  "task_id": 35,
+  "success": false,
+  "final_score": 0.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": null,
+  "duration_seconds": 463.02836561203003,
+  "model": "Qwen/Qwen3.5-122B-A10B",
+  "method": "openevolve"
+}

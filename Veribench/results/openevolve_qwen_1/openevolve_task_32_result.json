@@ -1,0 +1,19 @@
+{
+  "task_idx": 32,
+  "task_id": 32,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 2,
+  "best_lean_code": "/-!\n# Min of Non-Negative Integer List\n\nFile order:\n1. Implementation\n2. Unit tests (positive, edge, negative test suite)\n3. Pre-condition property\n4. Correctness theorems\n\nAll real proofs are left as `sorry` for the learner/model/agent.\n\n# Implementation\n\n## Custom Minimum Function\n\nDefines `my_min_list` to return the smallest element in a non-empty list of non-negative integers.\n-/\n\nnamespace MyMinList\n\n/--\n**Implementation of `my_min_list`.**\n\n`my_min_list xs` returns the minimum element of a non-empty list of natural numbers.\n\n## Examples\n#eval my_min_list [1, 2, 3] -- expected: 1\n#eval my_min_list [5] -- expected: 5\n-/\n\ndef my_min_list (xs : List Nat) : Option Nat :=\n  match xs with\n  | [] => none\n  | x :: xs' => some (xs'.foldl min x)\n\n/--\n**Pre-condition for `my_min_list`.**\n\nReturns true iff the list is non-empty and all elements are natural numbers (always true for Nat).\n-/\ndef Pre (xs : List Nat) : Prop := xs \u2260 []\n\n/--\n**Post-condition for `my_min_list`.**\n\nReturns true iff the result is the minimum element of the list.\n-/\ndef Post (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-!\n# Tests\n-/\n\n/-- expected: 1 -/\nexample : my_min_list [1, 2, 3] = some 1 := by native_decide\n#eval my_min_list [1, 2, 3] -- expected: some 1\n\n/-- expected: 5 -/\nexample : my_min_list [5] = some 5 := by native_decide\n#eval my_min_list [5] -- expected: some 5\n\n/-- expected: 0 -/\nexample : my_min_list [0, 1, 2] = some 0 := by native_decide\n#eval my_min_list [0, 1, 2] -- expected: some 0\n\n/-- expected: 2 -/\nexample : my_min_list [3, 2, 1] = some 1 := by native_decide\n#eval my_min_list [3, 2, 1] -- expected: some 1\n\n/-- expected: none for empty list -/\nexample : my_min_list [] = none := by native_decide\n#eval my_min_list [] -- expected: none\n\n/-!\n# Property Theorems\n-/\n\n/-- **Minimum property**: the result is less than or equal to all elements. -/\ndef min_property (xs : List Nat) (result : Nat) : Prop :=\n  result \u2208 xs \u2227 \u2200 x \u2208 xs, result \u2264 x\n\n/-- **Minimum theorem**: my_min_list returns the minimum element. -/\ntheorem min_list_correct (xs : List Nat) (h : xs \u2260 []) :\n  my_min_list xs = some (xs.foldl min (xs.head!)) := sorry\n\n/-- **Empty list property**: my_min_list returns none for empty list. -/\ntheorem min_list_empty (xs : List Nat) :\n  xs = [] \u2192 my_min_list xs = none := sorry\n\nend MyMinList",
+  "duration_seconds": 622.7600569725037,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "task_idx": 37,
+  "task_id": 37,
+  "success": true,
+  "final_score": 1.0,
+  "num_metric_calls": 50,
+  "success_at_metric_call": 5,
+  "best_lean_code": "/-!\n# Reverse Words in String\n\nThis module implements a function that reverses each word in a string\nwhile preserving the word order.\n\n## Edge Cases:\n- Empty string returns empty string\n- Non-string input is invalid (handled by type system in Lean)\n\n## Examples:\n- reverse_words \"hello world\" = \"olleh dlrow\"\n- reverse_words \"lean is great\" = \"nael si taerg\"\n- reverse_words \"\" = \"\"\n-/\n\nimport Mathlib.Data.String.Basic\n\nnamespace ReverseWords\n\n/-- **Pre-condition**: The input is a valid string (always true in Lean's String type) -/\ndef pre (s : String) : Prop := True\n\n/--\n**Implementation of reverse_words**.\n\nReverses each word in the string while preserving word order.\nWords are separated by whitespace.\n-/\ndef reverse_words (s : String) : String :=\n  let words := s.split (fun c => c = ' ')\n  let reversed := words.map (fun w => String.mk (w.toList.reverse))\n  String.intercalate \" \" reversed\n\n/--\n**Helper function to reverse a single word**.\n-/\ndef reverseWord (w : String) : String :=\n  String.mk (w.toList.reverse)\n\nend ReverseWords",
+  "duration_seconds": 510.757696390152,
+  "metrics": {
+    "combined_score": 1.0
+  },
+  "settings": {
+    "model": "Qwen/Qwen3.5-122B-A10B",
+    "max_iterations": 50,
+    "evolution_strategy": "full_rewrite",
+    "population_size": 50
+  }
+}
