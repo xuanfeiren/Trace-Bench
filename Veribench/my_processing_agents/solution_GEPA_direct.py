@@ -76,6 +76,15 @@ REFLECTION_PROMPT_TEMPLATE = f"""Generate complete, compilable Lean 4 code that 
 
 {SYSTEM_PROMPT_WITH_EXAMPLES}
 
+Python program to translate:
+<task_description>
+
+Current Lean code:
+<curr_instructions>
+
+Compilation feedback and test results:
+<inputs_outputs_feedback>
+
 Requirements:
 - Generate COMPLETE Lean 4 code (not partial or commented code)
 - Use correct Lean 4 syntax and type annotations
