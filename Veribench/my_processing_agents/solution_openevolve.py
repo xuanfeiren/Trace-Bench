@@ -341,6 +341,10 @@ def main():
     # Logging parameters
     parser.add_argument('--save_results', action='store_true', default=False,
                        help='Save full results (default: only summary)')
+    parser.add_argument('--api_base', type=str, default=None,
+                       help='API base URL (overrides OPENAI_API_BASE env var)')
+    parser.add_argument('--api_key', type=str, default=None,
+                       help='API key (overrides OPENAI_API_KEY env var)')
     parser.add_argument('--save_name', type=str, default='OpenEvolve_2',
                        help='Output directory name under results/')
     
@@ -371,6 +375,10 @@ def main():
         
         # Create config
         print("Creating OpenEvolve configuration...")
+        if args.api_base:
+            os.environ['OPENAI_API_BASE'] = args.api_base
+        if args.api_key:
+            os.environ['OPENAI_API_KEY'] = args.api_key
         config = create_openevolve_config(args.model, args.max_iterations, args.num_workers)
         
         # Set output directory
