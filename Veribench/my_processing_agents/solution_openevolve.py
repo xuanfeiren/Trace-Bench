@@ -220,7 +220,11 @@ def create_openevolve_config(model_name: str, max_iterations: int, num_workers: 
         elif provider == 'gemini':
             api_base = 'https://generativelanguage.googleapis.com/v1beta/openai/'
             api_key = os.environ.get('OPENAI_API_KEY')
-    
+        else:
+            # Custom provider (e.g. Qwen, local LiteLLM proxy)
+            api_base = os.environ.get('OPENAI_API_BASE', 'https://api.openai.com/v1')
+            api_key = os.environ.get('OPENAI_API_KEY', 'dummy')
+
     # Create LLMConfig with primary_model set - this will auto-populate models list
     config.llm = LLMConfig(
         primary_model=model_name,
